@@ -41,5 +41,5 @@ func HandleRoot(response http.ResponseWriter, request *http.Request) {
 	}
 	html = html + "</ul>"
 
-	fmt.Fprintf(response, html)
+	fmt.Fprintf(response, "%s", html)
 }
