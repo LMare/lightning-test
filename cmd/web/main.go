@@ -1,24 +1,26 @@
-
 package main
 
+import (
+	"fmt"
+	"net/http"
 
-import "fmt"
-import "github.com/Lmare/lightning-test/internal/model/personne"
+	"github.com/Lmare/lightning-test/internal/handler"
+)
 
+const server = "http://localhost"
+const port = ":8080"
 
 func main() {
-	fmt.Println("Hello World")
+	startServer()
+}
 
-	//p1 := personne.Personne{Nom : "Dupont", Prenom : "Louis", Age : 29,}
-	p2 := personne.New("Gedusor", "Tom", 21)
-	//p2.Prenom = "Voldemor"
-	p3 := personne.
-			NewEmptyPersonne().
-			SetNom("Soyer").
-			SetPrenom("Tom").
-			SetAge(8);
-	//fmt.Println(p1)
-	fmt.Println(p2)
-	fmt.Println(p3)
-	fmt.Println(*p3)
+func startServer() {
+	handler.Init()
+
+	for _, route := range handler.Routes {
+		http.HandleFunc(route.Path, route.Callback)
+	}
+
+	fmt.Printf("Server started : %s%s\n", server, port)
+	http.ListenAndServe(port, nil)
 }

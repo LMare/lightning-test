@@ -1,30 +1,30 @@
 package personne
 
-type personne struct {
-	nom string
-	prenom string
-	age int
+type Personne struct {
+	Nom    string `json:"nom"`
+	Prenom string `json:"prenom"`
+	Age    int    `json:"age"`
 }
 
-func New(nom string, prenom string, age int) personne {
-	return personne{nom : nom, prenom : prenom, age : age,}
+func New(nom string, prenom string, age int) Personne {
+	return Personne{Nom: nom, Prenom: prenom, Age: age}
 }
 
-func NewEmptyPersonne() *personne {
-	return &personne{}
+func NewEmptyPersonne() *Personne {
+	return &Personne{}
 }
 
-func (p *personne) SetNom(n string) *personne {
-	p.nom = n
+func (p *Personne) SetNom(n string) *Personne {
+	p.Nom = n
 	return p
 }
 
-func (p *personne) SetPrenom(n string) *personne {
-	p.prenom = n
+func (p *Personne) SetPrenom(n string) *Personne {
+	p.Prenom = n
 	return p
 }
 
-func (p *personne) SetAge(a int) *personne {
-	p.age = a
+func (p *Personne) SetAge(a int) *Personne {
+	p.Age = a
 	return p
 }
