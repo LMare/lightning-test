@@ -4,8 +4,9 @@ export PATH="$PATH:$HOME/go/bin/"
 export PATH="$PATH:$HOME/Perso/Outils/gprotoc-32.0-win64/bin"
 
 
-#Exécuter localement (conf local)
-go run ./cmd/web
+#Exécuter localement
+go run ./cmd/backend 
+go run ./cmd/frontend
 
 
 
