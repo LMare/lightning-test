@@ -7,18 +7,19 @@ import (
 	"net/url"
 	"path/filepath"
 	"strings"
-)
 
-const server = "http://localhost"
-const port = ":3000"
+	config "github.com/Lmare/lightning-test"
+)
 
 func main() {
 	startServer()
 }
 
+// Start the static File server and the proxy
 func startServer() {
+	cfg := config.Load()
 	// Cible du backend
-	target, err := url.Parse("http://localhost:8080")
+	target, err := url.Parse(cfg.BackendUrl + ":" + cfg.BackendPort)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -36,9 +37,9 @@ func startServer() {
 	fs := http.FileServer(http.Dir(staticDir))
 	http.Handle("/", fs)
 
-	log.Println("Serveur proxy lancé sur http://localhost:3000")
-	log.Println("→ /api/* redirigé vers http://localhost:8080")
+	log.Printf("Serveur proxy lancé sur %s:%s\n", cfg.FrontendUrl, cfg.FrontendPort)
+	log.Printf("→ /api/* redirigé vers  %s:%s\n", cfg.BackendUrl, cfg.BackendPort)
 	log.Println("→ / sert les fichiers depuis ./static")
-	http.ListenAndServe(":3000", nil)
+	http.ListenAndServe(":"+cfg.FrontendPort, nil)
 
 }

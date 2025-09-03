@@ -5,22 +5,21 @@ import (
 	"log"
 	"net/http"
 
+	config "github.com/Lmare/lightning-test"
 	"github.com/Lmare/lightning-test/internal/handler"
 )
-
-const server = "http://localhost"
-const port = ":8080"
 
 func main() {
 	startServer()
 }
 
 func startServer() {
+	cfg := config.Load()
 	handler.Init()
 	for _, route := range handler.Routes {
 		http.HandleFunc(route.Path, route.Callback)
 	}
 
-	fmt.Printf("Server Backend started : %s%s\n", server, port)
-	log.Fatal(http.ListenAndServe(port, nil))
+	fmt.Printf("Server Backend started : %s:%s\n", cfg.BackendUrl, cfg.BackendPort)
+	log.Fatal(http.ListenAndServe(":"+cfg.BackendPort, nil))
 }

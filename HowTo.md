@@ -17,3 +17,7 @@ go run ./cmd/frontend
     go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 3. télécharger des fichier *.proto ex : https://github.com/lightningnetwork/lnd/tree/master/lnrpc
 4. générer les clients go : protoc --go_out=. --go-grpc_out=. lightning.proto 
+
+
+#Inclure une lib externe : 
+go get github.com/joho/godotenv
