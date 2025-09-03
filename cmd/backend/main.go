@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/Lmare/lightning-test/internal/handler"
@@ -16,11 +17,10 @@ func main() {
 
 func startServer() {
 	handler.Init()
-
 	for _, route := range handler.Routes {
 		http.HandleFunc(route.Path, route.Callback)
 	}
 
-	fmt.Printf("Server started : %s%s\n", server, port)
-	http.ListenAndServe(port, nil)
+	fmt.Printf("Server Backend started : %s%s\n", server, port)
+	log.Fatal(http.ListenAndServe(port, nil))
 }
