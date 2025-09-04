@@ -1,4 +1,4 @@
-version: '3.8'
+version: '3.3'
 
 services:
   btcd:
@@ -14,14 +14,21 @@ services:
       - btcd_data:/root/.btcd
 
   lnd1:
-    image: lightninglabs/lnd:latest
+    image: lightninglabs/lnd:v0.19.3-beta.rc2
     depends_on:
       - btcd
-    command: >
-      lnd --simnet --rpchost=btcd:18334 --bitcoin.active
-          --bitcoin.node=btcd --bitcoin.rpcuser=user --bitcoin.rpcpass=pass
-          --listen=0.0.0.0:9735 --debuglevel=info
-          --watchtower.active --watchtower.externalip=lndtower:9911
+    command: 
+      - lnd
+      - --btcd.rpchost=btcd:18334
+      - --bitcoin.active
+      - --bitcoin.simnet
+      - --bitcoin.node=btcd
+      - --btcd.rpcuser=user
+      - --btcd.rpcpass=pass
+      - --listen=0.0.0.0:9735
+      - --debuglevel=info
+      - --watchtower.active
+      - --watchtower.externalip=lndtower:9911
     ports:
       - "10009:10009"
       - "9735:9735"
@@ -29,14 +36,21 @@ services:
       - lnd1_data:/root/.lnd
 
   lnd2:
-    image: lightninglabs/lnd:latest
+    image: lightninglabs/lnd:v0.19.3-beta.rc2
     depends_on:
       - btcd
-    command: >
-      lnd --simnet --rpchost=btcd:18334 --bitcoin.active
-          --bitcoin.node=btcd --bitcoin.rpcuser=user --bitcoin.rpcpass=pass
-          --listen=0.0.0.0:9736 --debuglevel=info
-          --watchtower.active --watchtower.externalip=lndtower:9911
+    command:
+      - lnd 
+      - --btcd.rpchost=btcd:18334
+      - --bitcoin.active
+      - --bitcoin.simnet
+      - --bitcoin.node=btcd
+      - --btcd.rpcuser=user
+      - --btcd.rpcpass=pass
+      - --listen=0.0.0.0:9736
+      - --debuglevel=info
+      - --watchtower.active
+      - --watchtower.externalip=lndtower:9911
     ports:
       - "10010:10009"
       - "9736:9735"
@@ -44,10 +58,13 @@ services:
       - lnd2_data:/root/.lnd
 
   lndtower:
-    image: lightninglabs/lnd:latest
-    command: >
-      lnd --simnet --watchtower.active --listen=0.0.0.0:9911
-           --debuglevel=info
+    image: lightninglabs/lnd:v0.19.3-beta.rc2
+    command:
+      - lnd
+      - --bitcoin.simnet
+      - --watchtower.active
+      - --listen=0.0.0.0:9911
+      - --debuglevel=info
     ports:
       - "9911:9911"
     volumes:

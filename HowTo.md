@@ -21,3 +21,8 @@ go run ./cmd/frontend
 
 #Inclure une lib externe : 
 go get github.com/joho/godotenv
+
+
+#Get docker image  from btcsuite/btcd (no official image in dockerHub) :
+git clone --depth 1 https://github.com/btcsuite/btcd.git
+sudo docker build -t btcsuite/btcd:latest .
