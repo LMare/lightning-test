@@ -6,9 +6,15 @@
   <script src="https://unpkg.com/htmx.org@1.9.10"></script>
 </head>
 <body>
-  <h1>HTMX Hello World</h1>
+	<h1>Lightning-test Project</h1>
 
-  <button hx-get="hello.html" hx-target="#result">Clique-moi</button>
-  <div id="result"></div>
+	<div class="menu">
+		<ul hx-target="#result">
+			<li hx-get="hello.html">Hello World</li>
+			<li hx-get="person.html">Persons</li>
+		</ul>
+	</div>
+
+	<div id="result"></div>
 </body>
 </html>
