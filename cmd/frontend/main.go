@@ -33,13 +33,13 @@ func startServer() {
 	})
 
 	// Serveur de fichiers statiques
-	staticDir := filepath.Join(".", "static")
+	staticDir := filepath.Join(".", "frontend/static")
 	fs := http.FileServer(http.Dir(staticDir))
 	http.Handle("/", fs)
 
 	log.Printf("Serveur proxy lancé sur %s:%s\n", cfg.FrontendUrl, cfg.FrontendPort)
 	log.Printf("→ /api/* redirigé vers  %s:%s\n", cfg.BackendUrl, cfg.BackendPort)
-	log.Println("→ / sert les fichiers depuis ./static")
+	log.Println("→ / sert les fichiers depuis .frontend/static")
 	http.ListenAndServe(":"+cfg.FrontendPort, nil)
 
 }

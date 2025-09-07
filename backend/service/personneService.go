@@ -1,6 +1,6 @@
 package service
 
-import "github.com/Lmare/lightning-test/internal/model/personne"
+import "github.com/Lmare/lightning-test/backend/model/personne"
 
 func ListUsers() []personne.Personne {
 	p1 := personne.Personne{Nom: "Dupont", Prenom: "Louis", Age: 29}

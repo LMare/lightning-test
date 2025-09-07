@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	config "github.com/Lmare/lightning-test"
-	"github.com/Lmare/lightning-test/internal/handler"
+	"github.com/Lmare/lightning-test/backend/handler"
 )
 
 func main() {

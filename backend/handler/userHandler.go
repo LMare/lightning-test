@@ -3,8 +3,8 @@ package handler
 import (
 	"net/http"
 
-	"github.com/Lmare/lightning-test/internal/service"
-	"github.com/Lmare/lightning-test/internal/templates/personView"
+	"github.com/Lmare/lightning-test/backend/service"
+	"github.com/Lmare/lightning-test/backend/templates/personView"
 )
 
 func HandleListPersonne(response http.ResponseWriter, request *http.Request) {
@@ -12,7 +12,7 @@ func HandleListPersonne(response http.ResponseWriter, request *http.Request) {
 	users := service.ListUsers()
 	if IsHTMX(request) {
 		vo := personView.ViewObject(users)
-		SetHtmlResponse(response, "internal/templates/personView/user.html", vo)
+		SetHtmlResponse(response, "backend/templates/personView/user.html", vo)
 	} else {
 		SetJsonResponse(response, users)
 	}
