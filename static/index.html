@@ -1,20 +1,50 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>HTMX Hello World</title>
-  <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+	<meta charset="UTF-8">
+	<title>Test on Lightning</title>
+	<link rel="icon" type="image/png" href="/asset/img/logo1.png" />
+	<!-- HTMX -->
+	<script src="https://unpkg.com/htmx.org@1.9.10"></script>
+	<!-- TailWindCss avec implémentation DaisyUI-->
+	<script src="https://cdn.tailwindcss.com"></script>
+	<link href="https://cdn.jsdelivr.net/npm/daisyui@4.5.0/dist/full.min.css" rel="stylesheet" />
+	<!-- scripts local -->
+	<script src="asset/js/generic.js"></script>
 </head>
-<body>
-	<h1>Lightning-test Project</h1>
-
-	<div class="menu">
-		<ul hx-target="#result">
-			<li hx-get="hello.html">Hello World</li>
-			<li hx-get="person.html">Persons</li>
-		</ul>
+<body class="bg-base-200 min-h-screen flex flex-col items-center p-6">
+	<h1 class="text-3xl font-bold mb-6">Lightning-test Project</h1>
+<!--
+	<div class="menu bg-base-100 shadow-md rounded-box p-4 w-80">
+		<ul class="menu menu-vertical rounded-box" hx-target="#result"> -->
+	<div class="navbar bg-base-100 rounded-box" >
+		<div class="navbar-center hidden lg:flex">
+			<ul id="menu" class="menu menu-horizontal px-1" hx-target="#result">
+				<li>
+					<a class="flex items-center gap-2"
+						hx-get="hello.html"
+						hx-on="
+							htmx:beforeRequest: document.querySelectorAll('#menu a')
+								.forEach(el => el.classList.remove('active'));
+							htmx:afterRequest: this.classList.add('active')">
+							👋 Hello World
+					</a>
+				</li>
+				<li>
+					<a class="flex items-center gap-2"
+						hx-get="person.html"
+						hx-target="#result"
+						hx-on="
+							htmx:beforeRequest: document.querySelectorAll('#menu a')
+								.forEach(el => el.classList.remove('active'));
+							htmx:afterRequest: this.classList.add('active')">
+							🧑‍🤝‍🧑 Persons
+					</a>
+				</li>
+			</ul>
+		</div>
 	</div>
 
-	<div id="result"></div>
+	<div id="result" class="mt-6 w-80 bg-base-100 p-4 rounded-box shadow-md"></div>
 </body>
 </html>

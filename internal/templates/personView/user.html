@@ -1,18 +1,8 @@
-<table>
-	<thead>
-		<td></td>
-		<th scope="col" id="nom">Nom</th>
-		<th scope="col" id="prenom">Prenom</th>
-		<th scope="col" id="age">Age</th>
-	</thead>
-	<tbody>
-		{{range .}}
-		<tr class="">
-			<th scope="row" id="number-{{.Index}}">{{.Index}}</th>
-			<td headers="number-{{.Index}} nom">{{.Person.Nom}}</td>
-			<td headers="number-{{.Index}} prenom">{{.Person.Prenom}}</td>
-			<td headers="number-{{.Index}} age">{{.Person.Age}}</td>
-		</tr>
-		{{end}}
-	</tbody>
-</table>
+{{range .}}
+	<tr class="">
+		<th scope="row" >{{.Index}}</th>
+		<td>{{.Person.Nom}}</td>
+		<td>{{.Person.Prenom}}</td>
+		<td>{{.Person.Age}}</td>
+	</tr>
+{{end}}
