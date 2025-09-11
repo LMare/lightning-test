@@ -3,12 +3,21 @@ version: '3.3'
 services:
   btcd:
     image: btcsuite/btcd:latest
-    command: >
-      btcd --simnet --rpcuser=user --rpcpass=pass
-           --rpclisten=0.0.0.0:18334 --listen=0.0.0.0:18555
-           --debuglevel=debug --txindex
+    container_name: btcd
+    hostname: btcd
+    command:
+      - btcd
+      - --simnet
+      - --rpcuser=user
+      - --rpcpass=pass
+      - --rpclisten=0.0.0.0:18556       # port rpc
+      - --listen=0.0.0.0:18555          # reseau P2P
+      - --debuglevel=debug
+      - --txindex
+      - --miningaddr=SSwfPFMdZMGvQ5VyBQsHPdy69sPxevhxe5 # address récompense de minage pour la génération de bloc auto en simnet
+
     ports:
-      - "18334:18334"
+      - "18556:18556"
       - "18555:18555"
     volumes:
       - btcd_data:/root/.btcd
@@ -17,31 +26,34 @@ services:
     image: lightninglabs/lnd:v0.19.3-beta.rc2
     depends_on:
       - btcd
-    command: 
+    command:
       - lnd
-      - --btcd.rpchost=btcd:18334
+      - --btcd.rpchost=btcd:18556          # localhost à la place de btcd pour le certificat
       - --bitcoin.active
       - --bitcoin.simnet
       - --bitcoin.node=btcd
       - --btcd.rpcuser=user
       - --btcd.rpcpass=pass
       - --listen=0.0.0.0:9735
-      - --debuglevel=info
+      - --debuglevel=trace
       - --watchtower.active
       - --watchtower.externalip=lndtower:9911
+      - --rpclisten=0.0.0.0:10009                   # exposition du port à l'extérieur
+
     ports:
       - "10009:10009"
       - "9735:9735"
     volumes:
       - lnd1_data:/root/.lnd
+      - btcd_data:/root/.btcd       # pour avoir le certificat de btcd
 
   lnd2:
     image: lightninglabs/lnd:v0.19.3-beta.rc2
     depends_on:
       - btcd
     command:
-      - lnd 
-      - --btcd.rpchost=btcd:18334
+      - lnd
+      - --btcd.rpchost=btcd:18556
       - --bitcoin.active
       - --bitcoin.simnet
       - --bitcoin.node=btcd
@@ -51,11 +63,14 @@ services:
       - --debuglevel=info
       - --watchtower.active
       - --watchtower.externalip=lndtower:9911
+      - --rpclisten=0.0.0.0:10009
+
     ports:
       - "10010:10009"
       - "9736:9735"
     volumes:
       - lnd2_data:/root/.lnd
+      - btcd_data:/root/.btcd
 
   lndtower:
     image: lightninglabs/lnd:v0.19.3-beta.rc2
@@ -65,6 +80,9 @@ services:
       - --watchtower.active
       - --listen=0.0.0.0:9911
       - --debuglevel=info
+      - --bitcoin.node=btcd
+      - --btcd.rpcuser=user
+      - --btcd.rpcpass=pass
     ports:
       - "9911:9911"
     volumes:

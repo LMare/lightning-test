@@ -34,8 +34,9 @@ docker-compose up -d
 #connexion in the container
 docker exec -it lightning-test_lnd1_1 bash
 
-#init the wallet ln to generate macaroons
+#init the wallet ln to generate macaroons then unlock it
 lncli --network=simnet create
+lncli --network=simnet unlock
 
 ##Copy macaroons + certificate from the lnd container :
 # Certificat TLS
@@ -44,3 +45,6 @@ docker cp lightning-test_lnd1_1:/root/.lnd/tls.cert .
 docker cp lightning-test_lnd1_1:/root/.lnd/data/chain/bitcoin/simnet/admin.macaroon .
 docker cp lightning-test_lnd1_1:/root/.lnd/data/chain/bitcoin/simnet/invoice.macaroon .
 docker cp lightning-test_lnd1_1:/root/.lnd/data/chain/bitcoin/simnet/readonly.macaroon .
+
+#Activate taproot by gererating some blocks in simnet
+btcctl --simnet generate 1500

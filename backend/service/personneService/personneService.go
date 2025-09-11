@@ -1,4 +1,4 @@
-package service
+package personneService
 
 import "github.com/Lmare/lightning-test/backend/model/personne"
 
