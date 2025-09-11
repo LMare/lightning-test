@@ -42,11 +42,23 @@
 							🧑‍🤝‍🧑 Persons
 					</a>
 				</li>
+				<li>
+					<a class="flex items-center gap-2 {{if eq .ActivePage "node"}}active{{end}}"
+						hx-get="/node"
+						hx-target="#result"
+						hx-push-url="true"
+						hx-on="
+							htmx:beforeRequest: document.querySelectorAll('#menu a')
+								.forEach(el => el.classList.remove('active'));
+							htmx:afterRequest: this.classList.add('active')">
+							⚡️ Lightning Node
+					</a>
+				</li>
 			</ul>
 		</div>
 	</div>
 
-	<div id="result" class="mt-6 w-80 bg-base-100 p-4 rounded-box shadow-md">
+	<div id="result" class="mt-6 w-100 bg-base-100 p-4 rounded-box shadow-md">
 		{{ .Content }}
 	</div>
 

@@ -17,7 +17,7 @@ func Init() {
 	if !initialised {
 		Routes = append(Routes, Route{Path: "/", Callback: HandleRoot})
 		Routes = append(Routes, Route{Path: "/user", Callback: HandleListPersonne})
-		Routes = append(Routes, Route{Path: "/lightning/test", Callback: HandleLigthningTest})
+		Routes = append(Routes, Route{Path: "/lightning/nodeInfo", Callback: HandleNodeInfo})
 
 
 		initialised = true

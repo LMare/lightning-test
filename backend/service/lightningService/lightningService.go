@@ -16,49 +16,53 @@ import (
 
 )
 
-func Test() {
+type LndClientAuthData struct {
+	tlsCertPath 	string
+	macaroonPath 	string
+	lndAddress 		string
+}
+
+func NewLndClientAuthData(c, m, a string) LndClientAuthData {
+	return LndClientAuthData{c, m, a}
+}
+
+
+func getLightningClient(dataClient LndClientAuthData) (lnrpc.LightningClient, *grpc.ClientConn, error) {
     // Chemins vers les fichiers
-	basePath := "/home/louis/Documents/Dev/lightning-test/nodes-storage/lightning-test_lnd1_1"
-    tlsCertPath := basePath + "/cert/tls.cert"
-    macaroonPath := basePath + "/macaroons/admin.macaroon"
-    lndAddress := "localhost:10009"
+
 
     // Charger le certificat TLS
-    cert, err := ioutil.ReadFile(tlsCertPath)
+    cert, err := ioutil.ReadFile(dataClient.tlsCertPath)
     if err != nil {
         log.Fatalf("Erreur lecture TLS cert: %v", err)
+		return nil, nil, err
     }
     certPool := x509.NewCertPool()
     certPool.AppendCertsFromPEM(cert)
     creds := credentials.NewClientTLSFromCert(certPool, "")
 
     // Charger le macaroon
-    macaroonBytes, err := ioutil.ReadFile(macaroonPath)
+    macaroonBytes, err := ioutil.ReadFile(dataClient.macaroonPath)
     if err != nil {
         log.Fatalf("Erreur lecture macaroon: %v", err)
+		return nil, nil, err
     }
     macaroonHex := fmt.Sprintf("%x", macaroonBytes)
 
     // Créer un dial gRPC sécurisé
     conn, err := grpc.Dial(
-        lndAddress,
+        dataClient.lndAddress,
         grpc.WithTransportCredentials(creds),
         grpc.WithPerRPCCredentials(macaroonCreds{macaroonHex}),
     )
     if err != nil {
         log.Fatalf("Erreur connexion gRPC: %v", err)
-    }
-    defer conn.Close()
-
-    client := lnrpc.NewLightningClient(conn)
-
-    // Exemple d'appel : GetInfo
-    resp, err := client.GetInfo(context.Background(), &lnrpc.GetInfoRequest{})
-    if err != nil {
-        log.Fatalf("Erreur GetInfo: %v", err)
+		return nil, nil, err
     }
 
-    fmt.Printf("Node alias: %s\n", resp.Alias)
+    return lnrpc.NewLightningClient(conn), conn, nil
+
+
 }
 
 // macaroonCreds permet d'ajouter le macaroon dans les métadonnées gRPC
