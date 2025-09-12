@@ -1,9 +1,9 @@
-<div class="node-info" style="border-left: 4px solid {{.Color}}; padding: 1em;">
-  <h3>Alias : {{.Alias}}</h3>
-  <p>Réseau : {{.Network}}</p>
-  <p>Hauteur de bloc : {{.BlockHeight}}</p>
-  <p>Canaux — Actifs : {{.NumActiveChannels}}, Inactifs : {{.NumInactiveChannels}}, En attente : {{.NumPendingChannels}}</p>
-  <p>Pairs connectés : {{.NumPeers}}</p>
-  <p>Synchro chaîne : {{if .SyncedToChain}}✅{{else}}❌{{end}}</p>
-  <p>Synchro graphe : {{if .SyncedToGraph}}✅{{else}}❌{{end}}</p>
+<div class="node-info" style="border-left: 4px solid {{.Color}}; padding: 1em;" data-alias="{{.Alias}}" data-color="{{.Color}}">
+ 	<h3>Alias : {{.Alias}}</h3>
+ 	<p>Réseau : {{.Network}}</p>
+ 	<p>Hauteur de bloc : {{.BlockHeight}}</p>
+ 	<p>Canaux — Actifs : {{.NumActiveChannels}}, Inactifs : {{.NumInactiveChannels}}, En attente : {{.NumPendingChannels}}</p>
+ 	<p>Pairs connectés : {{.NumPeers}}</p>
+ 	<p>Synchro chaîne : {{if .SyncedToChain}}✅{{else}}❌{{end}}</p>
+ 	<p>Synchro graphe : {{if .SyncedToGraph}}✅{{else}}❌{{end}}</p>
 </div>

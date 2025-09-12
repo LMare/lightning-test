@@ -17,10 +17,13 @@ func HandleNodeInfo(response http.ResponseWriter, request *http.Request) {
 		fmt.Println("Une erreur est survenue : ", err)
 	}
 
-
 	if IsHTMX(request) {
 		SetHtmlResponse(response, "backend/templates/lightning/nodeInfo.html", data)
 	} else {
 		SetJsonResponse(response, data)
 	}
+}
+
+func HandleUpdateNodeInfo(response http.ResponseWriter, request *http.Request) {
+
 }
