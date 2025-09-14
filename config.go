@@ -4,6 +4,8 @@ import (
 	"log"
 	"os"
 	"sync"
+	"runtime"
+	"path/filepath"
 
 	"github.com/joho/godotenv"
 )
@@ -13,6 +15,7 @@ type Config struct {
 	BackendUrl   string
 	FrontendPort string
 	FrontendUrl  string
+	ProjectPath	string
 }
 
 var (
@@ -32,6 +35,7 @@ func Load() *Config {
 			BackendUrl:   getEnv("BACKEND_URL", "http://localhost"),
 			FrontendPort: getEnv("FRONTEND_PORT", "8081"),
 			FrontendUrl:  getEnv("FRONTEND_URL", "http://localhost"),
+			ProjectPath: rootDir(),
 		}
 	})
 
@@ -43,4 +47,13 @@ func getEnv(key, defaultVal string) string {
 		return value
 	}
 	return defaultVal
+}
+
+// Return the projectDir
+func rootDir() string {
+    _, file, _, ok := runtime.Caller(0)
+    if !ok {
+        panic("Impossible de récupérer le chemin")
+    }
+    return filepath.Dir(file) + "/"
 }

@@ -2,19 +2,20 @@ package handler
 
 import (
 	"net/http"
-	"fmt"
-
+	config "github.com/Lmare/lightning-test"
 	service "github.com/Lmare/lightning-test/backend/service/lightningService"
-	//"github.com/Lmare/lightning-test/backend/templates/personView"
 )
 
 func HandleNodeInfo(response http.ResponseWriter, request *http.Request) {
 
-	basePath := "/home/louis/Documents/Dev/lightning-test/nodes-storage/lightning-test_lnd1_1"
+	// connection info of lnd1
+	basePath := config.Load().ProjectPath + "/nodes-storage/lightning-test_lnd1_1"
+	authData := service.NewLndClientAuthData(basePath + "/cert/tls.cert", basePath + "/macaroons/admin.macaroon", "localhost:10009");
 
-	data, err := service.GetUsefullInfo(service.NewLndClientAuthData(basePath + "/cert/tls.cert", basePath + "/macaroons/admin.macaroon", "localhost:10009"))
+	// get the info of the node
+	data, err := service.GetUsefullInfo(authData)
 	if(err != nil) {
-		fmt.Println("Une erreur est survenue : ", err)
+		LogException(err)
 	}
 
 	if IsHTMX(request) {

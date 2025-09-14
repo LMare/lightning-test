@@ -1,10 +1,10 @@
 package lightningService
 
 import (
-    "log"
 	"context"
 
 	lnrpc "github.com/Lmare/lightning-test/backend/gRPC/github.com/lightningnetwork/lnd/lnrpc"
+	exception "github.com/Lmare/lightning-test/backend/exception"
 )
 
 type InfoLndNode struct {
@@ -25,14 +25,14 @@ type InfoLndNode struct {
 func GetUsefullInfo(dataClient LndClientAuthData) (*InfoLndNode, error) {
 	client, conn, err := getLightningClient(dataClient)
 	if err != nil {
-        log.Fatalf("Previous error : cannot init Lightning Client")
+		err := exception.NewError("cannot init Lightning Client", err, exception.NewExampleError)
 		return nil, err
     }
     defer conn.Close()
 
     resp, err := client.GetInfo(context.Background(), &lnrpc.GetInfoRequest{})
     if err != nil {
-        log.Fatalf("Erreur GetInfo: %v", err)
+		err := exception.NewError("Lightning Node respond an error", err, exception.NewExampleError)
 		return nil, err
     }
 

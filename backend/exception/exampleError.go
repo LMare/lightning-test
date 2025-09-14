@@ -3,7 +3,7 @@ package exception
 // type only for the example and the syntaxe to do errors custom by enriching AppErrorBase
 
 type ExampleError struct {
-    base *BaseError
+    base BaseError
 }
 
 func (e *ExampleError) Error() string {
@@ -11,7 +11,7 @@ func (e *ExampleError) Error() string {
 }
 
 func (e *ExampleError) Unwrap() error {
-	return e.base.Cause();
+	return e.base.Unwrap();
 }
 
 func (e *ExampleError) File() string {
@@ -29,8 +29,8 @@ func (e *ExampleError) Message() string {
 // Constructor
 // Instanciate like :
 //   err := NewError("validation échouée", nil, NewExampleError)
-func NewExampleError(m string, f string, l int, c error) *ExampleError {
+func NewExampleError(m string, f string, l int, c error, args ...interface{}) *ExampleError {
 	return &ExampleError {
-		base: NewBaseErrorImpl(m, f, l, c)
+		base: NewBaseErrorImpl(m, f, l, c),
 	}
 }

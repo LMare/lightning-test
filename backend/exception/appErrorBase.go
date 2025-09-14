@@ -1,60 +1,71 @@
 package exception
 
-import "fmt"
-
+import (
+	"fmt"
+	"runtime"
+	"strings"
+)
 // brique de base pour faire des erreurs facile à identifier
 type BaseError interface {
     error
     Unwrap() error
-	// à voir si c'est pas trop lourd
     File() string
     Line() int
     Message() string
 }
 
 type BaseErrorImpl struct {
-    Message string
-    File    string
-    Line    int
-    Cause   error
+    message string
+    file    string
+    line    int
+    cause   error
 }
 
 // => implementation de l'interface error
 func (e *BaseErrorImpl) Error() string {
-	if e.Cause != nil {
-        return fmt.Sprintf("%s (%s:%d) → %v ", e.Message, e.File, e.Line, e.Cause.Error())
+	if e.cause != nil {
+        return fmt.Sprintf("(%s:%d) %s → %v", e.file, e.line, e.message, e.cause.Error())
     }
-    return fmt.Sprintf("%s (%s:%d)", e.Message, e.File, e.Line)
+    return fmt.Sprintf("(%s:%d) %s", e.file, e.line, e.message)
 }
 
 func (e *BaseErrorImpl) Unwrap() error {
-	return e.Cause;
+	return e.cause;
 }
 
 func (e *BaseErrorImpl) File() string {
-	return e.File;
+	return e.file;
 }
 
 func (e *BaseErrorImpl) Line() int {
-	return e.Line;
+	return e.line;
 }
 
 func (e *BaseErrorImpl) Message() string {
-	return e.Message;
+	return e.message;
 }
 
+
+// Base path of th project to remove it in the path of the file
+var path string
+func ConfigureProjectBasePath(p string) {
+	path = p
+}
+
+
 // generic constructor to manage args at the runtime
-func NewError[T BaseError](msg string, cause error, ctor func(msg string, cause error, file string, line int, args ...interface{}) T, args ...interface{}) T {
+func NewError[T BaseError](msg string, cause error, ctor func(string, string, int, error, ...interface{}) T, args ...interface{}) T {
     _, file, line, _ := runtime.Caller(1)
-    return ctor(msg, cause, file, line, args...)
+	file = strings.TrimPrefix(file, path)
+    return ctor(msg, file, line, cause, args...)
 }
 
 // constructor used by custom exeption
-func NewBaseErrorImpl(m string, f string, l int, c error) *BaseErrorImpl {
+func NewBaseErrorImpl(m string, f string, l int, c error) BaseError {
 	return &BaseErrorImpl{
-		Message: m,
-	    File: f,
-	    Line: l,
-	    Cause: c,
+		message: m,
+	    file: f,
+	    line: l,
+	    cause: c,
 	}
 }

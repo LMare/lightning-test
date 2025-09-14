@@ -1,19 +1,16 @@
 package lightningService
 
 import (
-    //"crypto/tls"
     "crypto/x509"
     "fmt"
     "io/ioutil"
-    "log"
 	"context"
 
 
     "google.golang.org/grpc"
     "google.golang.org/grpc/credentials"
-    //"google.golang.org/grpc/metadata"
     lnrpc "github.com/Lmare/lightning-test/backend/gRPC/github.com/lightningnetwork/lnd/lnrpc"
-
+	exception "github.com/Lmare/lightning-test/backend/exception"
 )
 
 type LndClientAuthData struct {
@@ -26,15 +23,13 @@ func NewLndClientAuthData(c, m, a string) LndClientAuthData {
 	return LndClientAuthData{c, m, a}
 }
 
-
+// get the gRPC client to interract with a node
 func getLightningClient(dataClient LndClientAuthData) (lnrpc.LightningClient, *grpc.ClientConn, error) {
-    // Chemins vers les fichiers
-
 
     // Charger le certificat TLS
     cert, err := ioutil.ReadFile(dataClient.tlsCertPath)
     if err != nil {
-        log.Fatalf("Erreur lecture TLS cert: %v", err)
+		err := exception.NewError("Erreur lecture TLS cert", err, exception.NewExampleError)
 		return nil, nil, err
     }
     certPool := x509.NewCertPool()
@@ -44,7 +39,7 @@ func getLightningClient(dataClient LndClientAuthData) (lnrpc.LightningClient, *g
     // Charger le macaroon
     macaroonBytes, err := ioutil.ReadFile(dataClient.macaroonPath)
     if err != nil {
-        log.Fatalf("Erreur lecture macaroon: %v", err)
+		err := exception.NewError("Erreur lecture macaroon", err, exception.NewExampleError)
 		return nil, nil, err
     }
     macaroonHex := fmt.Sprintf("%x", macaroonBytes)
@@ -56,13 +51,11 @@ func getLightningClient(dataClient LndClientAuthData) (lnrpc.LightningClient, *g
         grpc.WithPerRPCCredentials(macaroonCreds{macaroonHex}),
     )
     if err != nil {
-        log.Fatalf("Erreur connexion gRPC: %v", err)
+		err := exception.NewError("Erreur création canal de communication", err, exception.NewExampleError)
 		return nil, nil, err
     }
 
     return lnrpc.NewLightningClient(conn), conn, nil
-
-
 }
 
 // macaroonCreds permet d'ajouter le macaroon dans les métadonnées gRPC

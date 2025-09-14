@@ -3,7 +3,7 @@ package exception
 // type only for the example and the syntaxe to do errors custom by enriching AppErrorBase
 
 type ExampleErrorDetail struct {
-	base *BaseError
+	base BaseError
 	Detail string
 }
 
@@ -12,7 +12,7 @@ func (e *ExampleErrorDetail) Error() string {
 }
 
 func (e *ExampleErrorDetail) Unwrap() error {
-	return e.base.Cause();
+	return e.base.Unwrap();
 }
 
 func (e *ExampleErrorDetail) File() string {
@@ -30,7 +30,7 @@ func (e *ExampleErrorDetail) Message() string {
 // Constructor for the exemple
 // Instanciate like :
 //   err := NewError("validation échouée", nil, ExampleErrorDetail, "banana is not a vegetable")
-func NewExampleErrorDetail(msg string, cause error, file string, line int, args ...interface{}) *ExampleErrorDetail {
+func NewExampleErrorDetail(m string, f string, l int, c error,  args ...interface{}) *ExampleErrorDetail {
     if len(args) > 1 {
         panic("trop d'arguments")
     }
