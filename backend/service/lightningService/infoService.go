@@ -50,3 +50,19 @@ func GetUsefullInfo(dataClient LndClientAuthData) (*InfoLndNode, error) {
 		resp.GetSyncedToGraph(),
 	}, nil
 }
+
+
+func UpdateAliasAndColor(dataClient LndClientAuthData, alias string, color string) error {
+	client, conn, err := getLightningClient(dataClient)
+	if err != nil {
+		err := exception.NewError("cannot init Lightning Client", err, exception.NewExampleError)
+		return err
+    }
+    defer conn.Close()
+
+	// Todo : No Interface gRPC to do that :/
+	_ = client
+
+	return exception.NewError("Not Implemended", err, exception.NewExampleError)
+
+}

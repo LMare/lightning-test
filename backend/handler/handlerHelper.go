@@ -12,7 +12,7 @@ import (
 )
 
 // Transform the objet as a Json and put it in the reponse
-func SetJsonResponse(response http.ResponseWriter, objet any) {
+func JsonResponse(response http.ResponseWriter, objet any) {
 
 	objetJson, err := json.Marshal(objet)
 
@@ -24,11 +24,35 @@ func SetJsonResponse(response http.ResponseWriter, objet any) {
 	fmt.Fprintf(response, "%s", string(objetJson))
 }
 
-// load the template HTML to render the object
-func SetHtmlResponse(response http.ResponseWriter, file string, viewObject any) {
+// render and object in Htmx
+func HtmxResponse(response http.ResponseWriter, file string, viewObject any) {
 	response.Header().Set("Content-Type", "text/html")
 	tmpl := template.Must(template.ParseFiles(file))
 	tmpl.Execute(response, viewObject)
+}
+
+// return a response of success
+// load the template HTML to render the object
+func HtmxMessageOk(response http.ResponseWriter, message string) {
+	response.Header().Set("Content-Type", "text/html")
+
+	tmpl := template.Must(template.ParseFiles("backend/templates/action/success.html"))
+	tmpl.Execute(response, message)
+}
+
+
+// Retourne une réponse d'erreur
+// ex : status = http.StatusForbidden
+func HtmxMessageKo(response http.ResponseWriter, message string ) {
+	response.Header().Set("Content-Type", "text/html")
+
+	tmpl := template.Must(template.ParseFiles("backend/templates/action/error.html"))
+	tmpl.Execute(response, message)
+}
+
+// return code 204
+func OkNoContent(response http.ResponseWriter){
+	response.WriteHeader(http.StatusNoContent)
 }
 
 // True if the client use HTMX, in this case the response muste be in HTML
@@ -58,7 +82,7 @@ func LogException(err error) {
             nextMsg = next.Error()
         }
 
-        context := strings.TrimSpace(strings.TrimSuffix(currentMsg, nextMsg))
+        context := strings.TrimSpace(strings.TrimSuffix(strings.TrimSuffix(currentMsg, nextMsg), "→"))
 
         if i == 1 {
 			_, file, line, _ := runtime.Caller(1)

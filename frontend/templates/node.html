@@ -2,9 +2,52 @@
 	<h2 class="text-xl font-semibold mb-2">Node Lightning </h2>
 	<p class="text-base text-gray-700 mb-4">Here the information about your node ⚡️ !</p>
 	<div
+		id="node-data"
 		hx-get="/api/lightning/nodeInfo"
 		hx-trigger="load"
 		hx-target="this"
-		hx-swap="innerHTML">
+		hx-swap="innerHTML"
+		hx-on="htmx:afterSwap: updateNodeData()">
 	</div>
+
+	<section id="node-section" class="node-info" style="border-left: 4px solid #3399ff; padding: 1em;">
+		<h3 id="alias-display" class="flex items-center gap-2">
+			Alias : <span id="alias-value"></span>
+			<button onclick="enableEdit()" class="text-sm" aria-label="Modifier l'alias" title="Modifier l'alias">✏️</button>
+		</h3>
+
+		<form hx-put="/api/lightning/nodeInfo" id="edit-form" hx-swap="none" style="display: none;" class="mt-2">
+			<input type="text" name="alias" id="alias-input" class="border px-2 py-1 rounded" />
+			<input type="color" name="color" id="color-input" class="ml-2" />
+			<button type="submit" class="ml-2 text-sm" aria-label="Sauvegarder" title="Sauvegarder">💾</button>
+			<button type="button" onclick="cancelEdit()" class="ml-1 text-sm" aria-label="Annuler" title="Annuler">❌</button>
+		</form>
+	</section>
+
+	<script>
+		function updateNodeData() {
+			const alias = document.querySelector("#node-data [data-alias]")?.dataset.alias;
+			const color = document.querySelector("#node-data [data-color]")?.dataset.color;
+
+			if (alias && color) {
+				document.getElementById("alias-value").textContent = alias;
+				document.getElementById("node-section").style.borderLeftColor = color;
+				document.getElementById("alias-input").value = alias;
+				document.getElementById("color-input").value = color;
+			}
+		}
+
+		function enableEdit() {
+			document.getElementById("alias-display").style.display = "none";
+			document.getElementById("edit-form").style.display = "block";
+			document.getElementById("alias-input").value = nodeData.alias;
+			document.getElementById("color-input").value = nodeData.color;
+		}
+
+		function cancelEdit() {
+			document.getElementById("edit-form").style.display = "none";
+			document.getElementById("alias-display").style.display = "flex";
+		}
+	</script>
+
 </section>
