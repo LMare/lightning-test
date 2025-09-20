@@ -1,0 +1,13 @@
+
+/* Style de la ligne sélectionnée */
+tbody.cursor-pointer tr.selected {
+  background-color: #bee3f8 !important;
+  font-weight: 600;
+}
+
+/* Effet au survol */
+tbody.cursor-pointer tr:hover {
+  background-color: #f0f9ff !important;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}

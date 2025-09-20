@@ -3,6 +3,8 @@ package handler
 import (
 	"net/http"
 	"fmt"
+	"strconv"
+
 	lightningService "github.com/Lmare/lightning-test/backend/service/lightningService"
 	nodeService "github.com/Lmare/lightning-test/backend/service/nodeService"
 )
@@ -18,7 +20,7 @@ func HandleListOfNodes(response http.ResponseWriter, request *http.Request) {
 
 	nodes := lightningService.GetListOfNode(descriptors)
 	if IsHTMX(request) {
-		HtmxResponse(response, "backend/templates/lightning/nodes.html", nodes)
+		HtmxResponse(response, "lightning/nodes.html", nodes)
 	} else {
 		JsonResponse(response, nodes)
 	}
@@ -27,10 +29,17 @@ func HandleListOfNodes(response http.ResponseWriter, request *http.Request) {
 
 // get the info of one Node
 func HandleNodeInfo(response http.ResponseWriter, request *http.Request) {
-
-	authData, err := nodeService.GetLndClientAuthData(1)
+	// paramètre de la node
+	idStr := request.FormValue("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		fail(response, request, "Pas d'id transmis", err)
+		return
+	}
+	// récupération info de connexion à la node
+	authData, err := nodeService.GetLndClientAuthData(id)
 	if(err != nil) {
-		fail(response, request, "Info transmisent incorrectes", err)
+		fail(response, request, "Node inexistante", err)
 		return
 	}
 
@@ -41,8 +50,9 @@ func HandleNodeInfo(response http.ResponseWriter, request *http.Request) {
 		return
 	}
 
+	// Render
 	if IsHTMX(request) {
-		HtmxResponse(response, "backend/templates/lightning/nodeInfo.html", data)
+		HtmxResponse(response, "lightning/nodeInfo.html", data)
 	} else {
 		JsonResponse(response, data)
 	}

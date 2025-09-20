@@ -68,6 +68,7 @@ func pageHandler(w http.ResponseWriter, r *http.Request) {
     if r.Header.Get("HX-Request") == "true" {
         err := templates.ExecuteTemplate(w, page+".html", nil)
         if err != nil {
+			log.Printf("error : %v", err)
             http.NotFound(w, r)
         }
         return
@@ -77,6 +78,7 @@ func pageHandler(w http.ResponseWriter, r *http.Request) {
 	var buf bytes.Buffer
 	err := templates.ExecuteTemplate(&buf, page+".html", nil)
 	if err != nil {
+		log.Printf("error : %v", err)
 	    http.NotFound(w, r)
 	    return
 	}
@@ -87,6 +89,7 @@ func pageHandler(w http.ResponseWriter, r *http.Request) {
         "Content": template.HTML(buf.String()), // contenu déjà rendu,
     })
     if err != nil {
+		log.Printf("error : %v", err)
         http.NotFound(w, r)
     }
 

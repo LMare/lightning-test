@@ -5,7 +5,7 @@
  */
 function enrichRgaaTableRows(tbody, columnIds = []) {
 	const rows = tbody.querySelectorAll("tr");
-	let prefixId = "row";
+	let prefixId = tbody.id ? tbody.id : "row";
 	rows.forEach((row, rowIndex) => {
 		const th = row.querySelector("th");
 		let rowId = "";

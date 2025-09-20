@@ -1,0 +1,7 @@
+
+{{range .}}
+	<tr data-id="{{.Id}}" data-alias="{{.Alias}}" data-color="{{.Color}}">
+		<th scope="row" >{{.Id}}</th>
+		<td style="color: {{.Color}}">{{.Alias}}</td>
+	</tr>
+{{end}}

@@ -36,7 +36,7 @@ func JsonResponse(response http.ResponseWriter, objet any) {
 // render and object in Htmx
 func HtmxResponse(response http.ResponseWriter, file string, viewObject any) {
 	response.Header().Set("Content-Type", "text/html")
-	tmpl := template.Must(template.ParseFiles(file))
+	tmpl := template.Must(template.ParseFiles("backend/templates/" + file))
 	tmpl.Execute(response, viewObject)
 }
 
