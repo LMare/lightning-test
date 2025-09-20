@@ -1,14 +1,14 @@
 
-# List of Node Lightning 
+# List of Node Lightning
 nodes:
     -   id: 1
         data:
-            cert: nodes-storage/lightning-test_lnd1_1/cert/tls.cert
-            macaroon: nodes-storage/lightning-test_lnd1_1/macaroons/admin.macaroon
+            cert: nodes-storage/lnd1/cert/tls.cert
+            macaroon: nodes-storage/lnd1/macaroons/admin.macaroon
             url: localhost:10009
 
     -   id: 2
         data:
-            cert: nodes-storage/lightning-test_lnd1_2/cert/tls.cert
-            macaroon: nodes-storage/lightning-test_lnd1_2/macaroons/admin.macaroon
+            cert: nodes-storage/lnd2/cert/tls.cert
+            macaroon: nodes-storage/lnd2/macaroons/admin.macaroon
             url: localhost:10010

@@ -24,11 +24,12 @@ services:
 
   lnd1:
     image: lightninglabs/lnd:v0.19.3-beta.rc2
+    container_name: lnd1
     depends_on:
       - btcd
     command:
       - lnd
-      - --btcd.rpchost=btcd:18556          # localhost à la place de btcd pour le certificat
+      - --btcd.rpchost=btcd:18556
       - --bitcoin.active
       - --bitcoin.simnet
       - --bitcoin.node=btcd
@@ -49,6 +50,7 @@ services:
 
   lnd2:
     image: lightninglabs/lnd:v0.19.3-beta.rc2
+    container_name: lnd2
     depends_on:
       - btcd
     command:
@@ -74,6 +76,7 @@ services:
 
   lndtower:
     image: lightninglabs/lnd:v0.19.3-beta.rc2
+    container_name: lndtower
     command:
       - lnd
       - --bitcoin.simnet

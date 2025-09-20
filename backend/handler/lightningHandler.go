@@ -3,11 +3,29 @@ package handler
 import (
 	"net/http"
 	"fmt"
-	config "github.com/Lmare/lightning-test"
 	lightningService "github.com/Lmare/lightning-test/backend/service/lightningService"
 	nodeService "github.com/Lmare/lightning-test/backend/service/nodeService"
 )
 
+
+func HandleListOfNodes(response http.ResponseWriter, request *http.Request) {
+
+	descriptors, err := nodeService.ListOfNodes()
+	if(err != nil) {
+		fail(response, request, "Info transmisent incorrectes", err)
+		return
+	}
+
+	nodes := lightningService.GetListOfNode(descriptors)
+	if IsHTMX(request) {
+		HtmxResponse(response, "backend/templates/lightning/nodes.html", nodes)
+	} else {
+		JsonResponse(response, nodes)
+	}
+}
+
+
+// get the info of one Node
 func HandleNodeInfo(response http.ResponseWriter, request *http.Request) {
 
 	authData, err := nodeService.GetLndClientAuthData(1)
@@ -30,6 +48,9 @@ func HandleNodeInfo(response http.ResponseWriter, request *http.Request) {
 	}
 }
 
+
+// Update name of the node & color
+// TODO : update lnd to have gRPC methode to do that
 func HandleUpdateNodeInfo(response http.ResponseWriter, request *http.Request) {
 	// Parse les données du corps
     err := request.ParseForm()
@@ -46,21 +67,22 @@ func HandleUpdateNodeInfo(response http.ResponseWriter, request *http.Request) {
 
 
 	// connection info of lnd1
-	basePath := config.Load().ProjectPath + "/nodes-storage/lightning-test_lnd1_1"
-	authData := lightningService.NewLndClientAuthData(basePath + "/cert/tls.cert", basePath + "/macaroons/admin.macaroon", "localhost:10009");
+	authData, err := nodeService.GetLndClientAuthData(1)
+	if(err != nil) {
+		fail(response, request, "Info transmisent incorrectes", err)
+		return
+	}
+
 
 	err = lightningService.UpdateAliasAndColor(authData, alias, color)
 	if err != nil {
-		if IsHTMX(request) {
-			HtmxMessageKo(response, "Modifications fail.")
-		} else {
-			// TODO format d'erreur à définir pour unifomisation
-		}
-	} else {
-		if IsHTMX(request) {
-			HtmxMessageOk(response, "Modifications successfully applied.")
-		} else {
-			OkNoContent(response)
-		}
+		fail(response, request, "Modifications fail.", err)
 	}
+
+	if IsHTMX(request) {
+		HtmxMessageOk(response, "Modifications successfully applied.")
+	} else {
+		OkNoContent(response)
+	}
+
 }

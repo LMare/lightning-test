@@ -7,22 +7,19 @@ import (
 
 	config "github.com/Lmare/lightning-test"
 	exception "github.com/Lmare/lightning-test/backend/exception"
-	lightningService "github.com/Lmare/lightning-test/backend/service/lightningService"
+	nodeModel "github.com/Lmare/lightning-test/backend/model/nodeModel"
 )
 
 
 
-type NodeConfigDescriptor struct {
-	AuthData	lightningService.LndClientAuthData	`yaml:"data"`
-	Id			int									`yaml:"id"`
-}
+
 
 type nodesConfigDescriptor struct {
-	Nodes	[]NodeConfigDescriptor	`yaml:nodes`
+	Nodes	[]nodeModel.NodeConfigDescriptor	`yaml:nodes`
 }
 
 // Read a yaml file to get the resource to connect to the nodes
-func ListOfNodes() ([]NodeConfigDescriptor, error) {
+func ListOfNodes() ([]nodeModel.NodeConfigDescriptor, error) {
 	y := config.Load().NodesFileDescriptor
 
 	data, err := os.ReadFile(y)
@@ -42,11 +39,11 @@ func ListOfNodes() ([]NodeConfigDescriptor, error) {
 }
 
 // get connection data of a specific node
-func GetLndClientAuthData(id int) (lightningService.LndClientAuthData, error) {
+func GetLndClientAuthData(id int) (nodeModel.LndClientAuthData, error) {
 	nodes, err := ListOfNodes()
 	if err != nil {
 		err := exception.NewError("Erreur lors de la récupération des nodes", err, exception.NewExampleError)
-		return lightningService.NewLndClientAuthData("", "", ""), err
+		return nodeModel.LndClientAuthData{}, err
 	}
 
 	for _, node := range nodes {
@@ -55,5 +52,5 @@ func GetLndClientAuthData(id int) (lightningService.LndClientAuthData, error) {
 		}
 	}
 	err = exception.NewError(fmt.Sprintf("La node id %d n'existe pas", id), err, exception.NewExampleError)
-	return lightningService.NewLndClientAuthData("", "", ""), err
+	return nodeModel.LndClientAuthData{}, err
 }

@@ -11,25 +11,13 @@ import (
     "google.golang.org/grpc/credentials"
     lnrpc "github.com/Lmare/lightning-test/backend/gRPC/github.com/lightningnetwork/lnd/lnrpc"
 	exception "github.com/Lmare/lightning-test/backend/exception"
+	nodeModel "github.com/Lmare/lightning-test/backend/model/nodeModel"
 )
-
-type LndClientAuthData struct {
-	TlsCertPath 	string	`yaml:"cert"`
-	MacaroonPath 	string	`yaml:"macaroon"`
-	LndAddress 		string	`yaml:"url"`
-}
-
-
-
-
-func NewLndClientAuthData(c, m, a string) LndClientAuthData {
-	return LndClientAuthData{c, m, a}
-}
 
 
 
 // get the gRPC client to interract with a node
-func getLightningClient(dataClient LndClientAuthData) (lnrpc.LightningClient, *grpc.ClientConn, error) {
+func getLightningClient(dataClient nodeModel.LndClientAuthData) (lnrpc.LightningClient, *grpc.ClientConn, error) {
 
     // Charger le certificat TLS
     cert, err := ioutil.ReadFile(dataClient.TlsCertPath)

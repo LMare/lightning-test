@@ -2,9 +2,11 @@ package lightningService
 
 import (
 	"context"
+	"fmt"
 
 	lnrpc "github.com/Lmare/lightning-test/backend/gRPC/github.com/lightningnetwork/lnd/lnrpc"
 	exception "github.com/Lmare/lightning-test/backend/exception"
+	nodeModel "github.com/Lmare/lightning-test/backend/model/nodeModel"
 )
 
 type InfoLndNode struct {
@@ -21,8 +23,48 @@ type InfoLndNode struct {
 	SyncedToGraph			bool		`json:"syncedToGraph"`
 }
 
+type NodeBasicInfo struct {
+	Id 		int		`json:"id"`
+	Alias	string	`json:"alias"`
+	Color	string	`json:"color"`
+}
+
+// Get the active list of node
+func GetListOfNode(descriptors []nodeModel.NodeConfigDescriptor) ([]NodeBasicInfo) {
+	l := []NodeBasicInfo{}
+
+	for _, descriptor := range descriptors {
+		basicInfo, err := getBasicInfo(descriptor)
+	    if err != nil {
+			fmt.Println("[WARN] ", err)
+			continue
+	    }
+		l = append(l, basicInfo)
+	}
+	return l
+}
+
+// get the basical info of a node
+func getBasicInfo(descriptor nodeModel.NodeConfigDescriptor) (NodeBasicInfo, error) {
+	client, conn, err := getLightningClient(descriptor.AuthData)
+	if err != nil {
+		err := exception.NewError(fmt.Sprintf("Unable to open dial with Node[%d] : %v", descriptor.Id, err), err, exception.NewExampleError)
+		return NodeBasicInfo{}, err
+	}
+	defer conn.Close()
+
+	resp, err := client.GetInfo(context.Background(), &lnrpc.GetInfoRequest{})
+	if err != nil {
+		err := exception.NewError(fmt.Sprintf("[WARN] Unable to getInfo of Node[%d] : %v", descriptor.Id, err), err, exception.NewExampleError)
+		return NodeBasicInfo{}, err
+	}
+
+	return NodeBasicInfo{Id: descriptor.Id, Alias: resp.GetAlias(), Color: resp.GetColor(),},  nil
+}
+
+
 // return node Information
-func GetUsefullInfo(dataClient LndClientAuthData) (*InfoLndNode, error) {
+func GetUsefullInfo(dataClient nodeModel.LndClientAuthData) (*InfoLndNode, error) {
 	client, conn, err := getLightningClient(dataClient)
 	if err != nil {
 		err := exception.NewError("cannot init Lightning Client", err, exception.NewExampleError)
@@ -52,7 +94,7 @@ func GetUsefullInfo(dataClient LndClientAuthData) (*InfoLndNode, error) {
 }
 
 
-func UpdateAliasAndColor(dataClient LndClientAuthData, alias string, color string) error {
+func UpdateAliasAndColor(dataClient nodeModel.LndClientAuthData, alias string, color string) error {
 	client, conn, err := getLightningClient(dataClient)
 	if err != nil {
 		err := exception.NewError("cannot init Lightning Client", err, exception.NewExampleError)
