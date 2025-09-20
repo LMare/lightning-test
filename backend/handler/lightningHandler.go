@@ -4,19 +4,23 @@ import (
 	"net/http"
 	"fmt"
 	config "github.com/Lmare/lightning-test"
-	service "github.com/Lmare/lightning-test/backend/service/lightningService"
+	lightningService "github.com/Lmare/lightning-test/backend/service/lightningService"
+	nodeService "github.com/Lmare/lightning-test/backend/service/nodeService"
 )
 
 func HandleNodeInfo(response http.ResponseWriter, request *http.Request) {
 
-	// connection info of lnd1
-	basePath := config.Load().ProjectPath + "/nodes-storage/lightning-test_lnd1_1"
-	authData := service.NewLndClientAuthData(basePath + "/cert/tls.cert", basePath + "/macaroons/admin.macaroon", "localhost:10009");
+	authData, err := nodeService.GetLndClientAuthData(1)
+	if(err != nil) {
+		fail(response, request, "Info transmisent incorrectes", err)
+		return
+	}
 
 	// get the info of the node
-	data, err := service.GetUsefullInfo(authData)
+	data, err := lightningService.GetUsefullInfo(authData)
 	if(err != nil) {
-		LogException(err)
+		fail(response, request, "Echec de la communication avec le noeud LND", err)
+		return
 	}
 
 	if IsHTMX(request) {
@@ -43,9 +47,9 @@ func HandleUpdateNodeInfo(response http.ResponseWriter, request *http.Request) {
 
 	// connection info of lnd1
 	basePath := config.Load().ProjectPath + "/nodes-storage/lightning-test_lnd1_1"
-	authData := service.NewLndClientAuthData(basePath + "/cert/tls.cert", basePath + "/macaroons/admin.macaroon", "localhost:10009");
+	authData := lightningService.NewLndClientAuthData(basePath + "/cert/tls.cert", basePath + "/macaroons/admin.macaroon", "localhost:10009");
 
-	err = service.UpdateAliasAndColor(authData, alias, color)
+	err = lightningService.UpdateAliasAndColor(authData, alias, color)
 	if err != nil {
 		if IsHTMX(request) {
 			HtmxMessageKo(response, "Modifications fail.")

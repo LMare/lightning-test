@@ -14,22 +14,27 @@ import (
 )
 
 type LndClientAuthData struct {
-	tlsCertPath 	string
-	macaroonPath 	string
-	lndAddress 		string
+	TlsCertPath 	string	`yaml:"cert"`
+	MacaroonPath 	string	`yaml:"macaroon"`
+	LndAddress 		string	`yaml:"url"`
 }
+
+
+
 
 func NewLndClientAuthData(c, m, a string) LndClientAuthData {
 	return LndClientAuthData{c, m, a}
 }
 
+
+
 // get the gRPC client to interract with a node
 func getLightningClient(dataClient LndClientAuthData) (lnrpc.LightningClient, *grpc.ClientConn, error) {
 
     // Charger le certificat TLS
-    cert, err := ioutil.ReadFile(dataClient.tlsCertPath)
+    cert, err := ioutil.ReadFile(dataClient.TlsCertPath)
     if err != nil {
-		err := exception.NewError("Erreur lecture TLS cert", err, exception.NewExampleError)
+		err := exception.NewError(fmt.Sprintf("Erreur lecture TLS cert : %s", dataClient.TlsCertPath), err, exception.NewExampleError)
 		return nil, nil, err
     }
     certPool := x509.NewCertPool()
@@ -37,16 +42,16 @@ func getLightningClient(dataClient LndClientAuthData) (lnrpc.LightningClient, *g
     creds := credentials.NewClientTLSFromCert(certPool, "")
 
     // Charger le macaroon
-    macaroonBytes, err := ioutil.ReadFile(dataClient.macaroonPath)
+    macaroonBytes, err := ioutil.ReadFile(dataClient.MacaroonPath)
     if err != nil {
-		err := exception.NewError("Erreur lecture macaroon", err, exception.NewExampleError)
+		err := exception.NewError(fmt.Sprintf("Erreur lecture macaroon : %s", dataClient.MacaroonPath), err, exception.NewExampleError)
 		return nil, nil, err
     }
     macaroonHex := fmt.Sprintf("%x", macaroonBytes)
 
     // Créer un dial gRPC sécurisé
     conn, err := grpc.Dial(
-        dataClient.lndAddress,
+        dataClient.LndAddress,
         grpc.WithTransportCredentials(creds),
         grpc.WithPerRPCCredentials(macaroonCreds{macaroonHex}),
     )

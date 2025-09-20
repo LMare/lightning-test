@@ -11,11 +11,12 @@ import (
 )
 
 type Config struct {
-	BackendPort  string
-	BackendUrl   string
-	FrontendPort string
-	FrontendUrl  string
-	ProjectPath	string
+	BackendPort  		string
+	BackendUrl			string
+	FrontendPort		string
+	FrontendUrl			string
+	ProjectPath			string
+	NodesFileDescriptor	string
 }
 
 var (
@@ -31,11 +32,12 @@ func Load() *Config {
 		}
 
 		cfg = &Config{
-			BackendPort:  getEnv("BACKEND_PORT", "8080"),
-			BackendUrl:   getEnv("BACKEND_URL", "http://localhost"),
-			FrontendPort: getEnv("FRONTEND_PORT", "8081"),
-			FrontendUrl:  getEnv("FRONTEND_URL", "http://localhost"),
-			ProjectPath: rootDir(),
+			BackendPort:			getEnv("BACKEND_PORT", "8080"),
+			BackendUrl:				getEnv("BACKEND_URL", "http://localhost"),
+			FrontendPort:			getEnv("FRONTEND_PORT", "8081"),
+			FrontendUrl:			getEnv("FRONTEND_URL", "http://localhost"),
+			ProjectPath:			rootDir(),
+			NodesFileDescriptor:	rootDir() + getEnv("FILE_NODES_DESCRIPTOR", ""),
 		}
 	})
 

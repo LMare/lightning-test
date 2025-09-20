@@ -11,6 +11,15 @@ import (
 	"runtime"
 )
 
+func fail(response http.ResponseWriter, request *http.Request, message string, exception error) {
+	LogException(exception)
+	if IsHTMX(request) {
+		HtmxMessageKo(response, message)
+	} else {
+		//TODO
+	}
+}
+
 // Transform the objet as a Json and put it in the reponse
 func JsonResponse(response http.ResponseWriter, objet any) {
 
