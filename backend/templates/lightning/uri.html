@@ -1,0 +1,14 @@
+<div>
+	<div class="text-center">
+		<img
+			class="inline-block"
+			src="https://api.qrserver.com/v1/create-qr-code/?data={{ . }}&size=150x150"
+			alt="qrcode of node URI"/>
+	</div>
+	<div class="mt-4">
+		<span class="text-base text-gray-700" title="{{ . }}">
+			{{ truncateUri . 7 }}
+		</span>
+		<button onclick="copyURI('{{ . }}')" title="copy" alt="copy the node URI" >📋</button>
+	<div>
+</div>

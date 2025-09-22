@@ -48,18 +48,42 @@ func GetListOfNode(descriptors []nodeModel.NodeConfigDescriptor) ([]NodeBasicInf
 func getBasicInfo(descriptor nodeModel.NodeConfigDescriptor) (NodeBasicInfo, error) {
 	client, conn, err := getLightningClient(descriptor.AuthData)
 	if err != nil {
-		err := exception.NewError(fmt.Sprintf("Unable to open dial with Node[%d] : %v", descriptor.Id, err), err, exception.NewExampleError)
+		err := exception.NewError(fmt.Sprintf("Unable to open dial with Node[%d]", descriptor.Id), err, exception.NewExampleError)
 		return NodeBasicInfo{}, err
 	}
 	defer conn.Close()
 
 	resp, err := client.GetInfo(context.Background(), &lnrpc.GetInfoRequest{})
 	if err != nil {
-		err := exception.NewError(fmt.Sprintf("[WARN] Unable to getInfo of Node[%d] : %v", descriptor.Id, err), err, exception.NewExampleError)
+		err := exception.NewError(fmt.Sprintf("Unable to getInfo of Node[%d]", descriptor.Id), err, exception.NewExampleError)
 		return NodeBasicInfo{}, err
 	}
 
 	return NodeBasicInfo{Id: descriptor.Id, Alias: resp.GetAlias(), Color: resp.GetColor(),},  nil
+}
+
+// get the uri of the lnd
+func GetFirstUri(dataClient nodeModel.LndClientAuthData) (string, error) {
+	client, conn, err := getLightningClient(dataClient)
+	if err != nil {
+		err := exception.NewError("Unable to open dial", err, exception.NewExampleError)
+		return "", err
+	}
+	defer conn.Close()
+
+	resp, err := client.GetInfo(context.Background(), &lnrpc.GetInfoRequest{})
+	if err != nil {
+		err := exception.NewError("Unable to getInfo of Node", err, exception.NewExampleError)
+		return "", err
+	}
+	// extract the uri
+	uris := resp.GetUris()
+	uri := ""
+	if len(uris) > 0 {
+		uri = uris[0]
+	}
+
+	return uri,  nil
 }
 
 

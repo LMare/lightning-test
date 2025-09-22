@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"html/template"
+	"path/filepath"
 	"errors"
     "log"
     "strings"
@@ -39,6 +40,16 @@ func HtmxResponse(response http.ResponseWriter, file string, viewObject any) {
 	tmpl := template.Must(template.ParseFiles("backend/templates/" + file))
 	tmpl.Execute(response, viewObject)
 }
+
+// render and object in Htmx with defined functions
+func htmxResponseWithFuncs(response http.ResponseWriter, file string, viewObject any, funcs template.FuncMap) {
+	response.Header().Set("Content-Type", "text/html")
+	tmpl := template.Must(template.New(filepath.Base(file)).
+				Funcs(funcs).
+				ParseFiles("backend/templates/" + file))
+	tmpl.Execute(response, viewObject)
+}
+
 
 // return a response of success
 // load the template HTML to render the object

@@ -46,5 +46,5 @@ docker cp lnd1:/root/.lnd/data/chain/bitcoin/simnet/admin.macaroon .
 docker cp lnd1:/root/.lnd/data/chain/bitcoin/simnet/invoice.macaroon .
 docker cp lnd1:/root/.lnd/data/chain/bitcoin/simnet/readonly.macaroon .
 
-#Activate taproot by gererating some blocks in simnet
-btcctl --simnet generate 1500
+#Activate taproot by gererating some blocks in simnet (note : new coinbase need a maturity of 100 to be avairiable)
+docker exec -it btcd btcctl --simnet generate 1500

@@ -5,3 +5,4 @@ pkg
 
 #path storage of macaroons & cert of nodes
 nodes-storage/
+seed_capture/

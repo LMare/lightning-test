@@ -1,103 +1,145 @@
-<section>
-	<h2 class="text-xl font-semibold mb-2">Node Lightning </h2>
+<div style="display:flex;flex-direction: row;">
+	<div style="flex-direction: column;">
 
+		<section class="mt-6 mx-6 w-100 bg-base-100 p-4 rounded-box shadow-md">
+			<h2 class="text-xl text-center font-semibold mb-2">⚡️ Lightning nodes ⚡️</h2>
+			<table class="table table-zebra table-sm table-bordered">
+				<thead>
+					<th scope="col" id="id">Id</th>
+					<th scope="col" id="alias">Alias</th>
+				</thead>
+				<tbody
+					id="table-nodes-body"
+					class="cursor-pointer"
+					hx-get="/api/lightning/nodes"
+					hx-trigger="load"
+					hx-target="this"
+					hx-swap="innerHTML"
+					hx-on="htmx:afterSwap: enrichRgaaTableRows(this, ['id', 'alias'])">
 
-	<table class="table table-zebra table-sm table-bordered">
-		<thead>
-			<th scope="col" id="id">Id</th>
-			<th scope="col" id="alias">Alias</th>
-		</thead>
-		<tbody
-			id="table-nodes-body"
-			class="cursor-pointer"
-			hx-get="/api/lightning/nodes"
-			hx-trigger="load"
-			hx-target="this"
-			hx-swap="innerHTML"
-			hx-on="htmx:afterSwap: enrichRgaaTableRows(this, ['id', 'alias'])">
+					<tr>
+						<td colspan="2">Chargement en cours...</td>
+					</tr>
+				</tbody>
+			</table>
 
-			<tr>
-				<td colspan="2">Chargement en cours...</td>
-			</tr>
-		</tbody>
-	</table>
+		</section>
 
-</section>
+		<section id="info" style="display: none;" class="mt-6 mx-6 w-100 bg-base-100 p-4 rounded-box shadow-md node-event-container">
+			<h2 class="text-xl text-center font-semibold mb-2">⚡️ Informations about your node ⚡️</h2>
+			<div
+				id="node-data"
+				class="node-event"
+				hx-get="/api/lightning/nodeInfo"
+				hx-vals=""
+				hx-trigger="nodeSelected"
+				hx-target="this"
+				hx-swap="innerHTML"
+				hx-on="htmx:afterSwap: updateNodeData()">
+			</div>
 
-<section id="info" style="display: none;">
-	<p class="text-base text-gray-700 mb-4">Here the information about your node ⚡️ !</p>
-	<div
-		id="node-data"
-		hx-get="/api/lightning/nodeInfo"
-		hx-vals=""
-		hx-trigger="nodeSelected"
-		hx-target="this"
-		hx-swap="innerHTML"
-		hx-on="htmx:afterSwap: updateNodeData()">
+			<div id="node-section" class="node-info" style="border-left: 4px solid #3399ff; padding: 1em;">
+				<h3 id="alias-display" class="flex items-center gap-2">
+					Alias : <span id="alias-value"></span>
+					<button onclick="enableEdit()" class="text-sm" aria-label="Modifier l'alias" title="Modifier l'alias">✏️</button>
+				</h3>
+
+				<form hx-put="/api/lightning/nodeInfo" id="edit-form" hx-swap="none" style="display: none;" class="mt-2">
+					<input type="text" name="alias" id="alias-input" class="border px-2 py-1 rounded" />
+					<input type="color" name="color" id="color-input" class="ml-2" />
+					<button type="submit" class="ml-2 text-sm" aria-label="Sauvegarder" title="Sauvegarder">💾</button>
+					<button type="button" onclick="cancelEdit()" class="ml-1 text-sm" aria-label="Annuler" title="Annuler">❌</button>
+				</form>
+			</div>
+		</section>
+
 	</div>
+	<div style="flex-direction:column">
 
-	<section id="node-section" class="node-info" style="border-left: 4px solid #3399ff; padding: 1em;">
-		<h3 id="alias-display" class="flex items-center gap-2">
-			Alias : <span id="alias-value"></span>
-			<button onclick="enableEdit()" class="text-sm" aria-label="Modifier l'alias" title="Modifier l'alias">✏️</button>
-		</h3>
+		<section style="display:none;" class="mt-6 mx-6 w-100 bg-base-100 p-4 rounded-box shadow-md node-event-container">
+			<h2 class="text-xl text-center font-semibold mb-2">⚡️ URI ⚡️</h2>
+			<p class="text-base text-gray-700 mb-4">You can share the url on your lightning node</p>
+			<div
+				class="node-event"
+				hx-get="/api/lightning/uri"
+				hx-vals=""
+				hx-trigger="nodeSelected"
+				hx-target="this"
+				hx-swap="innerHTML">
+			</div>
+		</section>
 
-		<form hx-put="/api/lightning/nodeInfo" id="edit-form" hx-swap="none" style="display: none;" class="mt-2">
-			<input type="text" name="alias" id="alias-input" class="border px-2 py-1 rounded" />
-			<input type="color" name="color" id="color-input" class="ml-2" />
-			<button type="submit" class="ml-2 text-sm" aria-label="Sauvegarder" title="Sauvegarder">💾</button>
-			<button type="button" onclick="cancelEdit()" class="ml-1 text-sm" aria-label="Annuler" title="Annuler">❌</button>
-		</form>
-	</section>
+	</div>
+</div>
+<script>
 
-	<script>
+	/************************* Edit info ****************************/
 
-		/************************* Edit info ****************************/
+	function updateNodeData() {
+		const alias = document.querySelector("#node-data [data-alias]")?.dataset.alias;
+		const color = document.querySelector("#node-data [data-color]")?.dataset.color;
 
-		function updateNodeData() {
-			const alias = document.querySelector("#node-data [data-alias]")?.dataset.alias;
-			const color = document.querySelector("#node-data [data-color]")?.dataset.color;
+		if (alias && color) {
+			document.getElementById("alias-value").textContent = alias;
+			document.getElementById("node-section").style.borderLeftColor = color;
+			document.getElementById("alias-input").value = alias;
+			document.getElementById("color-input").value = color;
+		}
+	}
 
-			if (alias && color) {
-				document.getElementById("alias-value").textContent = alias;
-				document.getElementById("node-section").style.borderLeftColor = color;
-				document.getElementById("alias-input").value = alias;
-				document.getElementById("color-input").value = color;
-			}
+	function enableEdit() {
+		document.getElementById("alias-display").style.display = "none";
+		document.getElementById("edit-form").style.display = "block";
+		document.getElementById("alias-input").value = nodeData.alias;
+		document.getElementById("color-input").value = nodeData.color;
+	}
+
+	function cancelEdit() {
+		document.getElementById("edit-form").style.display = "none";
+		document.getElementById("alias-display").style.display = "flex";
+	}
+
+	/********************************* Event on th tab **************************************/
+
+	document.querySelector("#table-nodes-body").addEventListener("click", function(e) {
+		let tr = e.target.closest("tr");
+		if (tr) {
+			// css for the selected ligne
+			document.querySelectorAll("tr").forEach(row => row.classList.remove("selected"));
+			tr.classList.add("selected");
+
+			// show the section info
+			document.querySelectorAll(".node-event-container").forEach(el => {
+				el.style.display = "block";
+			});
+
+			// trigger the loading of informations
+			const nodeDataDiv = document.querySelectorAll(".node-event").forEach(el => {
+				el.setAttribute("hx-vals", JSON.stringify({ id: tr.dataset.id }));
+				el.dispatchEvent(new Event("nodeSelected"));
+			});
+
+		}
+	});
+
+	/*************************************** URI **********************************/
+
+	function copyURI(uri) {
+		if (!navigator.clipboard) {
+			alert("Copie non supportée sur ce navigateur.");
+			return;
 		}
 
-		function enableEdit() {
-			document.getElementById("alias-display").style.display = "none";
-			document.getElementById("edit-form").style.display = "block";
-			document.getElementById("alias-input").value = nodeData.alias;
-			document.getElementById("color-input").value = nodeData.color;
-		}
-
-		function cancelEdit() {
-			document.getElementById("edit-form").style.display = "none";
-			document.getElementById("alias-display").style.display = "flex";
-		}
-
-		/********************************* Event on th tab **************************************/
-
-		document.querySelector("#table-nodes-body").addEventListener("click", function(e) {
-			let tr = e.target.closest("tr");
-			if (tr) {
-				// css for the selected ligne
-				document.querySelectorAll("tr").forEach(row => row.classList.remove("selected"));
-				tr.classList.add("selected");
-
-				// show the section info
-				document.querySelector("#info").style.display = "block"
-
-				// trigger the loading of informations
-				const nodeDataDiv = document.querySelector("#node-data");
-				nodeDataDiv.setAttribute("hx-vals", JSON.stringify({ id: tr.dataset.id }));
-				nodeDataDiv.dispatchEvent(new Event("nodeSelected"));
-
-			}
+		navigator.clipboard.writeText(uri)
+		.then(() => {
+			console.log("Copié !");
+		})
+		.catch(err => {
+			console.error("Erreur de copie :", err);
+			alert("Impossible de copier. Vérifie les permissions ou le navigateur.");
 		});
+	}
 
-	</script>
+	/*************************************** URI **********************************/
 
-</section>
+</script>

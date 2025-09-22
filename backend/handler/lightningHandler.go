@@ -4,12 +4,14 @@ import (
 	"net/http"
 	"fmt"
 	"strconv"
+	"html/template"
+	"strings"
 
 	lightningService "github.com/Lmare/lightning-test/backend/service/lightningService"
 	nodeService "github.com/Lmare/lightning-test/backend/service/nodeService"
 )
 
-
+// get the list of node
 func HandleListOfNodes(response http.ResponseWriter, request *http.Request) {
 
 	descriptors, err := nodeService.ListOfNodes()
@@ -25,6 +27,54 @@ func HandleListOfNodes(response http.ResponseWriter, request *http.Request) {
 		JsonResponse(response, nodes)
 	}
 }
+
+func HandleShowUri(response http.ResponseWriter, request *http.Request) {
+	// paramètre de la node
+	idStr := request.FormValue("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		fail(response, request, "Pas d'id transmis", err)
+		return
+	}
+	// récupération info de connexion à la node
+	authData, err := nodeService.GetLndClientAuthData(id)
+	if(err != nil) {
+		fail(response, request, "Node inexistante", err)
+		return
+	}
+
+	// get the uri of the node
+	uri, err := lightningService.GetFirstUri(authData)
+	if(err != nil) {
+		fail(response, request, "Echec de la communication avec le noeud LND", err)
+		return
+	}
+
+	// Render
+	if IsHTMX(request) {
+		funcMap := template.FuncMap{"truncateUri": truncateUri,}
+		htmxResponseWithFuncs(response, "lightning/uri.html", uri, funcMap)
+	} else {
+		JsonResponse(response, uri)
+	}
+
+}
+
+// réduit une uri
+func truncateUri(s string, n int) string {
+    at := strings.Index(s, "@")
+    if at == -1 || at < 2*n {
+        return s // pas de @ ou trop court pour tronquer
+    }
+
+    start := s[:n]
+    end := s[at-n : at]
+    host := s[at:] // inclut le @
+
+    return start + "..." + end + host
+}
+
+
 
 
 // get the info of one Node
@@ -61,7 +111,7 @@ func HandleNodeInfo(response http.ResponseWriter, request *http.Request) {
 
 // Update name of the node & color
 // TODO : update lnd to have gRPC methode to do that
-func HandleUpdateNodeInfo(response http.ResponseWriter, request *http.Request) {
+func HandleUpdateNodeAlias(response http.ResponseWriter, request *http.Request) {
 	// Parse les données du corps
     err := request.ParseForm()
     if err != nil {

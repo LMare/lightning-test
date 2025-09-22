@@ -14,8 +14,9 @@ services:
       - --listen=0.0.0.0:18555          # reseau P2P
       - --debuglevel=debug
       - --txindex
-      - --miningaddr=SSwfPFMdZMGvQ5VyBQsHPdy69sPxevhxe5 # address récompense de minage pour la génération de bloc auto en simnet
-
+      # address récompense de minage pour la génération de bloc auto en simnet
+      #       lncli --network=simnet newaddress np2wkh
+      - --miningaddr=sb1q86m66vgfj2f600fap8e28hpk7c0ezkcvruhsnh
     ports:
       - "18556:18556"
       - "18555:18555"
@@ -25,6 +26,7 @@ services:
   lnd1:
     image: lightninglabs/lnd:v0.19.3-beta.rc2
     container_name: lnd1
+    hostname: lnd1
     depends_on:
       - btcd
     command:
@@ -40,6 +42,7 @@ services:
       - --watchtower.active
       - --watchtower.externalip=lndtower:9911
       - --rpclisten=0.0.0.0:10009                   # exposition du port à l'extérieur
+      - --externalip=lnd1:10009                     # uris pour le getinfo
 
     ports:
       - "10009:10009"
@@ -51,6 +54,7 @@ services:
   lnd2:
     image: lightninglabs/lnd:v0.19.3-beta.rc2
     container_name: lnd2
+    hostname: lnd2
     depends_on:
       - btcd
     command:
@@ -66,6 +70,7 @@ services:
       - --watchtower.active
       - --watchtower.externalip=lndtower:9911
       - --rpclisten=0.0.0.0:10009
+      - --externalip=lnd2:10009
 
     ports:
       - "10010:10009"
@@ -77,6 +82,7 @@ services:
   lndtower:
     image: lightninglabs/lnd:v0.19.3-beta.rc2
     container_name: lndtower
+    hostname: lndtower
     command:
       - lnd
       - --bitcoin.simnet
@@ -86,6 +92,8 @@ services:
       - --bitcoin.node=btcd
       - --btcd.rpcuser=user
       - --btcd.rpcpass=pass
+      - --rpclisten=0.0.0.0:10009
+      - --externalip=lndtower:10009
     ports:
       - "9911:9911"
     volumes:

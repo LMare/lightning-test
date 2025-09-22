@@ -19,9 +19,10 @@ func GetRouter() *Router {
 	router := Router{routes: make(map[string]*route)}
 	router.add("/", http.MethodGet, HandleRoot)
 	router.add("/user", http.MethodGet, HandleListPersonne)
+	router.add("/lightning/uri", http.MethodGet, HandleShowUri)
 	router.add("/lightning/nodes", http.MethodGet, HandleListOfNodes)
 	router.add("/lightning/nodeInfo", http.MethodGet, HandleNodeInfo)
-	router.add("/lightning/nodeInfo", http.MethodPut, HandleUpdateNodeInfo)
+	router.add("/lightning/alias", http.MethodPut, HandleUpdateNodeAlias)
 
 	return &router
 }
