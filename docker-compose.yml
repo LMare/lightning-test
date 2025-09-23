@@ -37,7 +37,7 @@ services:
       - --bitcoin.node=btcd
       - --btcd.rpcuser=user
       - --btcd.rpcpass=pass
-      - --listen=0.0.0.0:9735
+      - --listen=0.0.0.0:9735                       # reseau P2P pour le connect
       - --debuglevel=trace
       - --watchtower.active
       - --watchtower.externalip=lndtower:9911
@@ -65,7 +65,7 @@ services:
       - --bitcoin.node=btcd
       - --btcd.rpcuser=user
       - --btcd.rpcpass=pass
-      - --listen=0.0.0.0:9736
+      - --listen=0.0.0.0:9735
       - --debuglevel=info
       - --watchtower.active
       - --watchtower.externalip=lndtower:9911
@@ -93,7 +93,7 @@ services:
       - --btcd.rpcuser=user
       - --btcd.rpcpass=pass
       - --rpclisten=0.0.0.0:10009
-      - --externalip=lndtower:10009
+      - --externalip=lnd2:10009
     ports:
       - "9911:9911"
     volumes:

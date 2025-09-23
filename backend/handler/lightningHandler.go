@@ -109,6 +109,45 @@ func HandleNodeInfo(response http.ResponseWriter, request *http.Request) {
 }
 
 
+func HandleAddPeer(response http.ResponseWriter, request *http.Request) {
+	// Parse les données du corps
+    err := request.ParseForm()
+    if err != nil {
+        http.Error(response, "Erreur de parsing", http.StatusBadRequest)
+        return
+    }
+
+	idStr := request.FormValue("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		fail(response, request, "Pas d'id transmis", err)
+		return
+	}
+	uri := request.FormValue("uri")
+	// Get Data to connect lnd
+	authData, err := nodeService.GetLndClientAuthData(id)
+	if(err != nil) {
+		fail(response, request, "Info transmisent incorrectes", err)
+		return
+	}
+	// Add the pair
+	err = lightningService.AddPeer(authData, uri)
+	if err != nil {
+		fail(response, request, "Fail to add the peer.", err)
+		return
+	}
+
+	if IsHTMX(request) {
+		HtmxMessageOk(response, "Peer successfully added.")
+	} else {
+		OkNoContent(response)
+	}
+
+
+}
+
+
+
 // Update name of the node & color
 // TODO : update lnd to have gRPC methode to do that
 func HandleUpdateNodeAlias(response http.ResponseWriter, request *http.Request) {
@@ -125,14 +164,12 @@ func HandleUpdateNodeAlias(response http.ResponseWriter, request *http.Request) 
 	color := request.FormValue("color")
     fmt.Println("color reçu : ", color)
 
-
 	// connection info of lnd1
 	authData, err := nodeService.GetLndClientAuthData(1)
 	if(err != nil) {
 		fail(response, request, "Info transmisent incorrectes", err)
 		return
 	}
-
 
 	err = lightningService.UpdateAliasAndColor(authData, alias, color)
 	if err != nil {

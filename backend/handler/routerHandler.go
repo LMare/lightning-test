@@ -18,11 +18,14 @@ type Router struct {
 func GetRouter() *Router {
 	router := Router{routes: make(map[string]*route)}
 	router.add("/", http.MethodGet, HandleRoot)
-	router.add("/user", http.MethodGet, HandleListPersonne)
-	router.add("/lightning/uri", http.MethodGet, HandleShowUri)
+
+	router.add("/lightning/alias", http.MethodPut, HandleUpdateNodeAlias)
 	router.add("/lightning/nodes", http.MethodGet, HandleListOfNodes)
 	router.add("/lightning/nodeInfo", http.MethodGet, HandleNodeInfo)
-	router.add("/lightning/alias", http.MethodPut, HandleUpdateNodeAlias)
+	router.add("/lightning/peer", http.MethodPost, HandleAddPeer)
+	router.add("/lightning/uri", http.MethodGet, HandleShowUri)
+
+	router.add("/users", http.MethodGet, HandleListPersonne)
 
 	return &router
 }

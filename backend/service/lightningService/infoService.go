@@ -3,6 +3,7 @@ package lightningService
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	lnrpc "github.com/Lmare/lightning-test/backend/gRPC/github.com/lightningnetwork/lnd/lnrpc"
 	exception "github.com/Lmare/lightning-test/backend/exception"
@@ -117,7 +118,25 @@ func GetUsefullInfo(dataClient nodeModel.LndClientAuthData) (*InfoLndNode, error
 	}, nil
 }
 
+// Connect to a new Pair
+func AddPeer(dataClient nodeModel.LndClientAuthData, uri string) error {
+	client, conn, err := getLightningClient(dataClient)
+	if err != nil {
+		return exception.NewError("cannot init Lightning Client", err, exception.NewExampleError)
+    }
+    defer conn.Close()
 
+	parts := strings.Split(uri, "@")
+	_, err = client.ConnectPeer(context.Background(), &lnrpc.ConnectPeerRequest{Addr: &lnrpc.LightningAddress{Pubkey: parts[0], Host: parts[1],},})
+	if err != nil {
+		return exception.NewError("Error on adding a peer", err, exception.NewExampleError)
+	}
+	return nil
+}
+
+
+
+// TODO:
 func UpdateAliasAndColor(dataClient nodeModel.LndClientAuthData, alias string, color string) error {
 	client, conn, err := getLightningClient(dataClient)
 	if err != nil {

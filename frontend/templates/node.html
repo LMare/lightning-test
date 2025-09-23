@@ -1,6 +1,7 @@
 <div style="display:flex;flex-direction: row;">
 	<div style="flex-direction: column;">
 
+		<!-- List Nodes -->
 		<section class="mt-6 mx-6 w-100 bg-base-100 p-4 rounded-box shadow-md">
 			<h2 class="text-xl text-center font-semibold mb-2">⚡️ Lightning nodes ⚡️</h2>
 			<table class="table table-zebra table-sm table-bordered">
@@ -25,6 +26,8 @@
 
 		</section>
 
+
+		<!-- Info -->
 		<section id="info" style="display: none;" class="mt-6 mx-6 w-100 bg-base-100 p-4 rounded-box shadow-md node-event-container">
 			<h2 class="text-xl text-center font-semibold mb-2">⚡️ Informations about your node ⚡️</h2>
 			<div
@@ -38,17 +41,17 @@
 				hx-on="htmx:afterSwap: updateNodeData()">
 			</div>
 
-			<div id="node-section" class="node-info" style="border-left: 4px solid #3399ff; padding: 1em;">
-				<h3 id="alias-display" class="flex items-center gap-2">
+			<div id="node-section" class="node-info" style="border-left: 4px solid #3399ff; padding-left: 1em;">
+				<p id="alias-display" class="flex items-center gap-2 p-[5px]">
 					Alias : <span id="alias-value"></span>
-					<button onclick="enableEdit()" class="text-sm" aria-label="Modifier l'alias" title="Modifier l'alias">✏️</button>
-				</h3>
+					<button onclick="enableEdit()" class="text-sm" aria-label="Edit" title="edit">✏️</button>
+				</p>
 
-				<form hx-put="/api/lightning/nodeInfo" id="edit-form" hx-swap="none" style="display: none;" class="mt-2">
-					<input type="text" name="alias" id="alias-input" class="border px-2 py-1 rounded" />
-					<input type="color" name="color" id="color-input" class="ml-2" />
-					<button type="submit" class="ml-2 text-sm" aria-label="Sauvegarder" title="Sauvegarder">💾</button>
-					<button type="button" onclick="cancelEdit()" class="ml-1 text-sm" aria-label="Annuler" title="Annuler">❌</button>
+				<form hx-put="/api/lightning/nodeInfo" id="edit-form" hx-swap="none" style="display: none;align-items: center;">
+					<input type="text" name="alias" id="alias-input" class="border w-[24ch] px-2 py-1 rounded" />
+					<input type="color" name="color" id="color-input" class="ml-2 w-6" />
+					<button type="submit" class="ml-2 text-sm" aria-label="Save" title="Save">💾</button>
+					<button type="button" onclick="cancelEdit()" class="ml-1 text-sm" aria-label="Cancel" title="Cancel">❌</button>
 				</form>
 			</div>
 		</section>
@@ -56,6 +59,8 @@
 	</div>
 	<div style="flex-direction:column">
 
+
+		<!-- URI -->
 		<section style="display:none;" class="mt-6 mx-6 w-100 bg-base-100 p-4 rounded-box shadow-md node-event-container">
 			<h2 class="text-xl text-center font-semibold mb-2">⚡️ URI ⚡️</h2>
 			<p class="text-base text-gray-700 mb-4">You can share the url on your lightning node</p>
@@ -68,6 +73,18 @@
 				hx-swap="innerHTML">
 			</div>
 		</section>
+
+		<!-- Pairs -->
+		<section style="display:none;" class="mt-6 mx-6 w-100 bg-base-100 p-4 rounded-box shadow-md node-event-container">
+			<h2 class="text-xl text-center font-semibold mb-2">⚡️ Pairs ⚡️</h2>
+			<p class="text-base text-gray-700 mb-4">Connect to a new peer (note std P2P port : 9735 )</p>
+			<form hx-post="/api/lightning/peer" hx-vals="" id="addPeer" hx-swap="none" class="mt-2 node-event">
+				<label for="uri" class="text-base text-gray-700 mb-4">Add a pair</label>
+				<input type="text" name="uri" id="uri" class="border px-2 py-1 rounded" />
+				<button type="submit" class="ml-2 text-sm" aria-label="Connect" title="Connect">🔗</button>
+			</form>
+		</section>
+
 
 	</div>
 </div>
@@ -89,9 +106,7 @@
 
 	function enableEdit() {
 		document.getElementById("alias-display").style.display = "none";
-		document.getElementById("edit-form").style.display = "block";
-		document.getElementById("alias-input").value = nodeData.alias;
-		document.getElementById("color-input").value = nodeData.color;
+		document.getElementById("edit-form").style.display = "flex";
 	}
 
 	function cancelEdit() {
@@ -126,20 +141,24 @@
 
 	function copyURI(uri) {
 		if (!navigator.clipboard) {
-			alert("Copie non supportée sur ce navigateur.");
+			alert("Copy not supported on this browser.");
 			return;
 		}
 
 		navigator.clipboard.writeText(uri)
 		.then(() => {
-			console.log("Copié !");
+			console.log("Copy !");
 		})
 		.catch(err => {
 			console.error("Erreur de copie :", err);
-			alert("Impossible de copier. Vérifie les permissions ou le navigateur.");
+			alert("Impossible to copy. Check the permissions or the browser.");
 		});
 	}
 
 	/*************************************** URI **********************************/
+
+	document.querySelector("#addPeer").addEventListener("nodeSelected", function(e) {
+		this.reset()
+	});
 
 </script>
