@@ -108,7 +108,7 @@ func HandleNodeInfo(response http.ResponseWriter, request *http.Request) {
 	}
 }
 
-
+// Create a connexion to a new Peer
 func HandleAddPeer(response http.ResponseWriter, request *http.Request) {
 	// Parse les données du corps
     err := request.ParseForm()
@@ -142,8 +142,51 @@ func HandleAddPeer(response http.ResponseWriter, request *http.Request) {
 	} else {
 		OkNoContent(response)
 	}
+}
 
 
+// create a channel
+func HandleOpenChannel(response http.ResponseWriter, request *http.Request) {
+
+	// Parse les données du corps
+    err := request.ParseForm()
+    if err != nil {
+        http.Error(response, "Erreur de parsing", http.StatusBadRequest)
+        return
+    }
+
+	idStr := request.FormValue("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		fail(response, request, "Pas d'id transmis", err)
+		return
+	}
+	pubKey := request.FormValue("pubKey")
+	amountStr := request.FormValue("amount")
+	amount, err := strconv.ParseInt(amountStr, 10, 64)
+	if err != nil {
+		fail(response, request, "Amount value incorrect", err)
+		return
+	}
+
+	// Get Data to connect lnd
+	authData, err := nodeService.GetLndClientAuthData(id)
+	if(err != nil) {
+		fail(response, request, "Info transmisent incorrectes", err)
+		return
+	}
+	// create the channel
+	err = lightningService.OpenChannel(authData, pubKey, amount)
+	if err != nil {
+		fail(response, request, "Fail to create the channel.", err)
+		return
+	}
+
+	if IsHTMX(request) {
+		HtmxMessageOk(response, "Channel successfully created.")
+	} else {
+		OkNoContent(response)
+	}
 }
 
 

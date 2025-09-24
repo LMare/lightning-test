@@ -20,6 +20,7 @@ func GetRouter() *Router {
 	router.add("/", http.MethodGet, HandleRoot)
 
 	router.add("/lightning/alias", http.MethodPut, HandleUpdateNodeAlias)
+	router.add("/lightning/channel", http.MethodPost, HandleOpenChannel)
 	router.add("/lightning/nodes", http.MethodGet, HandleListOfNodes)
 	router.add("/lightning/nodeInfo", http.MethodGet, HandleNodeInfo)
 	router.add("/lightning/peer", http.MethodPost, HandleAddPeer)

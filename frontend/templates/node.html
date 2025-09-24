@@ -59,7 +59,6 @@
 	</div>
 	<div style="flex-direction:column">
 
-
 		<!-- URI -->
 		<section style="display:none;" class="mt-6 mx-6 w-100 bg-base-100 p-4 rounded-box shadow-md node-event-container">
 			<h2 class="text-xl text-center font-semibold mb-2">⚡️ URI ⚡️</h2>
@@ -77,15 +76,31 @@
 		<!-- Pairs -->
 		<section style="display:none;" class="mt-6 mx-6 w-100 bg-base-100 p-4 rounded-box shadow-md node-event-container">
 			<h2 class="text-xl text-center font-semibold mb-2">⚡️ Pairs ⚡️</h2>
-			<p class="text-base text-gray-700 mb-4">Connect to a new peer (note std P2P port : 9735 )</p>
-			<form hx-post="/api/lightning/peer" hx-vals="" id="addPeer" hx-swap="none" class="mt-2 node-event">
+			<p class="text-base text-gray-700 mb-4">Connect to a new peer (note : std P2P port : 9735 )</p>
+			<form hx-post="/api/lightning/peer" hx-vals="" hx-swap="none" class="mt-2 node-event doReset">
 				<label for="uri" class="text-base text-gray-700 mb-4">Add a pair</label>
 				<input type="text" name="uri" id="uri" class="border px-2 py-1 rounded" />
 				<button type="submit" class="ml-2 text-sm" aria-label="Connect" title="Connect">🔗</button>
 			</form>
 		</section>
 
+	</div>
 
+	<div style="flex-direction:column">
+		<!-- Create Channel -->
+		<section style="display:none;" class="mt-6 mx-6 w-100 bg-base-100 p-4 rounded-box shadow-md node-event-container">
+			<h2 class="text-xl text-center font-semibold mb-2">⚡️ New Channel ⚡️</h2>
+			<p class="text-base text-gray-700 mb-4">🚧 Soon a more friendly way to create a channel 🏗️</p>
+			<form hx-post="/api/lightning/channel" hx-vals="" hx-swap="none" class="mt-2 node-event doReset" style="display:flex; flex-direction:column">
+				<label for="pubKey" class="text-base text-gray-700">Public Key</label>
+				<input type="text" name="pubKey" id="pubKey" class="border px-2 py-1 rounded" />
+				<label for="amount" class="text-base text-gray-700">Amount</label>
+				<input type="number" name="amount" id="pubKey" class="border px-2 py-1 rounded" />
+				<div class="text-center">
+					<button type="submit" class="mt-2 border border-gray-300 p-1 rounded text-sm" aria-label="Create channel" title="Create channel">🛠️ ⚡🔗⚡</button>
+				</div>
+			</form>
+		</section>
 	</div>
 </div>
 <script>
@@ -157,8 +172,10 @@
 
 	/*************************************** URI **********************************/
 
-	document.querySelector("#addPeer").addEventListener("nodeSelected", function(e) {
-		this.reset()
+	document.querySelectorAll("form.doReset").forEach(f => {
+		f.addEventListener("nodeSelected", function(e) {
+			this.reset()
+		});
 	});
 
 </script>
