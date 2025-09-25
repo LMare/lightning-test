@@ -12,7 +12,7 @@ import (
 )
 
 // get the list of node
-func HandleListOfNodes(response http.ResponseWriter, request *http.Request) {
+func handleListOfNodes(response http.ResponseWriter, request *http.Request) {
 
 	descriptors, err := nodeService.ListOfNodes()
 	if(err != nil) {
@@ -28,7 +28,8 @@ func HandleListOfNodes(response http.ResponseWriter, request *http.Request) {
 	}
 }
 
-func HandleShowUri(response http.ResponseWriter, request *http.Request) {
+// get the URI of the node
+func handleShowUri(response http.ResponseWriter, request *http.Request) {
 	// paramètre de la node
 	idStr := request.FormValue("id")
 	id, err := strconv.Atoi(idStr)
@@ -75,10 +76,17 @@ func truncateUri(s string, n int) string {
 }
 
 
+// réduit une chaine
+func truncate(s string, n int) string {
+    start := s[:n]
+	end := s[at-n : at]
+    return start + "..." + end
+}
+
 
 
 // get the info of one Node
-func HandleNodeInfo(response http.ResponseWriter, request *http.Request) {
+func handleNodeInfo(response http.ResponseWriter, request *http.Request) {
 	// paramètre de la node
 	idStr := request.FormValue("id")
 	id, err := strconv.Atoi(idStr)
@@ -109,7 +117,7 @@ func HandleNodeInfo(response http.ResponseWriter, request *http.Request) {
 }
 
 // Create a connexion to a new Peer
-func HandleAddPeer(response http.ResponseWriter, request *http.Request) {
+func handleAddPeer(response http.ResponseWriter, request *http.Request) {
 	// Parse les données du corps
     err := request.ParseForm()
     if err != nil {
@@ -146,7 +154,7 @@ func HandleAddPeer(response http.ResponseWriter, request *http.Request) {
 
 
 // create a channel
-func HandleOpenChannel(response http.ResponseWriter, request *http.Request) {
+func handleOpenChannel(response http.ResponseWriter, request *http.Request) {
 
 	// Parse les données du corps
     err := request.ParseForm()
@@ -189,11 +197,58 @@ func HandleOpenChannel(response http.ResponseWriter, request *http.Request) {
 	}
 }
 
+// Create an invoice
+func handleCreateInvoice(response http.ResponseWriter, request *http.Request) {
+
+	// Parse les données du corps
+	err := request.ParseForm()
+	if err != nil {
+		http.Error(response, "Erreur de parsing", http.StatusBadRequest)
+		return
+	}
+
+	idStr := request.FormValue("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		fail(response, request, "Pas d'id transmis", err)
+		return
+	}
+	memo := request.FormValue("memo")
+	amountStr := request.FormValue("amount")
+	amount, err := strconv.ParseInt(amountStr, 10, 64)
+	if err != nil {
+		fail(response, request, "Amount value incorrect", err)
+		return
+	}
+
+	// Get Data to connect lnd
+	authData, err := nodeService.GetLndClientAuthData(id)
+	if(err != nil) {
+		fail(response, request, "Info transmisent incorrectes", err)
+		return
+	}
+	// create the invoice
+	p, err := lightningService.CreateQuickInvoice(authData, memo, amount)
+	if err != nil {
+		fail(response, request, "Fail to create the invoice.", err)
+		return
+	}
+
+	// Render
+	if IsHTMX(request) {
+		funcMap := template.FuncMap{"truncate": truncate,}
+		htmxResponseWithFuncs(response, "lightning/paymentRequest.html", p, funcMap)
+	} else {
+		JsonResponse(response, p)
+	}
+
+}
+
 
 
 // Update name of the node & color
 // TODO : update lnd to have gRPC methode to do that
-func HandleUpdateNodeAlias(response http.ResponseWriter, request *http.Request) {
+func handleUpdateNodeAlias(response http.ResponseWriter, request *http.Request) {
 	// Parse les données du corps
     err := request.ParseForm()
     if err != nil {

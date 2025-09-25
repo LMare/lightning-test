@@ -62,7 +62,7 @@
 		<!-- URI -->
 		<section style="display:none;" class="mt-6 mx-6 w-100 bg-base-100 p-4 rounded-box shadow-md node-event-container">
 			<h2 class="text-xl text-center font-semibold mb-2">⚡️ URI ⚡️</h2>
-			<p class="text-base text-gray-700 mb-4">You can share the url on your lightning node</p>
+			<p class="text-base text-gray-700 mb-4">You can share the url of your lightning node</p>
 			<div
 				class="node-event"
 				hx-get="/api/lightning/uri"
@@ -101,6 +101,36 @@
 				</div>
 			</form>
 		</section>
+
+		<!-- Create Invoice -->
+		<section style="display:none;" class="mt-6 mx-6 w-100 bg-base-100 p-4 rounded-box shadow-md node-event-container">
+			<h2 class="text-xl text-center font-semibold mb-2">⚡️ New Invoice ⚡️</h2>
+			<div id="invoice-form">
+				<p class="text-base text-gray-700 mb-4"> Create a quick invoice 🪙 </p>
+				<form
+						hx-post="/api/lightning/invoice"
+						hx-vals=""
+						hx-swap="innerHTML"
+						hx-target="#invoice-result"
+						hx-on="htmx:afterRequest:showInvoice()"
+						class="mt-2 node-event doReset"
+						style="display:flex; flex-direction:column">
+					<label for="memo" class="text-base text-gray-700">Memo</label>
+					<input type="text" name="memo" id="memo" class="border px-2 py-1 rounded" />
+					<label for="invoice-amount" class="text-base text-gray-700">Amount 🪙</label>
+					<input type="number" name="amount" id="invoice-amount" class="border px-2 py-1 rounded" />
+					<div class="text-center">
+						<button type="submit" class="mt-2 border border-gray-300 p-1 rounded text-sm" aria-label="Create invoice" title="Create invoice">🧾⚡</button>
+					</div>
+				</form>
+			</div>
+			<div style="display:none" id="invoice-display">
+				<div id="invoice-result"></div>
+				<button type="button" onclick="resetInvoice()" title="Return" aria-label="Return">🔁</button>
+			</div>
+		</section>
+
+
 	</div>
 </div>
 <script>
@@ -152,15 +182,15 @@
 		}
 	});
 
-	/*************************************** URI **********************************/
+	/*************************************** Common **********************************/
 
-	function copyURI(uri) {
+	function copy(text) {
 		if (!navigator.clipboard) {
 			alert("Copy not supported on this browser.");
 			return;
 		}
 
-		navigator.clipboard.writeText(uri)
+		navigator.clipboard.writeText(text)
 		.then(() => {
 			console.log("Copy !");
 		})
@@ -170,12 +200,23 @@
 		});
 	}
 
-	/*************************************** URI **********************************/
 
 	document.querySelectorAll("form.doReset").forEach(f => {
 		f.addEventListener("nodeSelected", function(e) {
 			this.reset()
 		});
 	});
+
+	/*************************************** Invoice **********************************/
+	function resetInvoice() {
+		document.querySelector("#invoice-display").style.display = "none";
+		document.querySelector("#invoice-form").style.display = "block";
+		document.querySelector("#invoice-form form").reset();
+	}
+
+	function showInvoice() {
+		document.querySelector("#invoice-display").style.display = "block";
+		document.querySelector("#invoice-form").style.display = "none";
+	}
 
 </script>

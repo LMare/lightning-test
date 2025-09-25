@@ -1,0 +1,14 @@
+<div>
+	<div class="text-center">
+		<img
+			class="inline-block"
+			src="https://api.qrserver.com/v1/create-qr-code/?data={{ . }}&size=200x200"
+			alt="qrcode of payment request"/>
+	</div>
+	<div class="mt-4">
+		<span class="text-base text-gray-700" title="{{ . }}">
+			{{ truncate . 8 }}
+		</span>
+		<button onclick="copy('{{ . }}')" title="Copy" alt="Copy the Payment Request" >📋</button>
+	<div>
+</div>
