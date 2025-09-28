@@ -79,6 +79,7 @@ func truncateUri(s string, n int) string {
 // réduit une chaine
 func truncate(s string, n int) string {
     start := s[:n]
+	at := len(s)
 	end := s[at-n : at]
     return start + "..." + end
 }
@@ -242,6 +243,45 @@ func handleCreateInvoice(response http.ResponseWriter, request *http.Request) {
 		JsonResponse(response, p)
 	}
 
+}
+
+func handleMakePaiment(response http.ResponseWriter, request *http.Request) {
+	// Parse les données du corps
+	err := request.ParseForm()
+	if err != nil {
+		http.Error(response, "Erreur de parsing", http.StatusBadRequest)
+		return
+	}
+
+	idStr := request.FormValue("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		fail(response, request, "Pas d'id transmis", err)
+		return
+	}
+	paymentRequest := request.FormValue("paymentRequest")
+
+	// Get Data to connect lnd
+	authData, err := nodeService.GetLndClientAuthData(id)
+	if(err != nil) {
+		fail(response, request, "Info transmisent incorrectes", err)
+		return
+	}
+	// create the invoice
+	err = lightningService.MakePaiment(authData, paymentRequest)
+	if err != nil {
+		fail(response, request, "Fail to pay the invoice.", err)
+		return
+	}
+
+	// TODO : Exploiter le stream pour obtenir les erreurs 
+
+	// Render
+	if IsHTMX(request) {
+		HtmxMessageOk(response, "Payment successfully excuted.")
+	} else {
+		OkNoContent(response)
+	}
 }
 
 

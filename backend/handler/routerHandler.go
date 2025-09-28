@@ -24,6 +24,7 @@ func GetRouter() *Router {
 	router.add("/lightning/invoice", http.MethodPost, handleCreateInvoice)
 	router.add("/lightning/nodes", http.MethodGet, handleListOfNodes)
 	router.add("/lightning/nodeInfo", http.MethodGet, handleNodeInfo)
+	router.add("/lightning/paiment", http.MethodPost, handleMakePaiment)
 	router.add("/lightning/peer", http.MethodPost, handleAddPeer)
 	router.add("/lightning/uri", http.MethodGet, handleShowUri)
 

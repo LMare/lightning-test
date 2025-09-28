@@ -13,58 +13,60 @@
 	<script src="/asset/js/generic.js"></script>
 	<link href="/asset/css/generic.css" rel="stylesheet" />
 </head>
-<body class="bg-base-200 min-h-screen flex flex-col items-center p-6">
+<body class="bg-base-200 h-screen overflow-hidden flex flex-col items-center p-6">
 
-	<!-- Toaster container -->
-	<div class="fixed top-4 right-4 z-50 max-w-sm w-full">
-		 <div id="toaster"></div>
-	</div>
-
-	<h1 class="text-3xl font-bold mb-6">Lightning-test Project</h1>
-
-	<div class="navbar bg-base-100 rounded-box" >
-		<div class="navbar-center hidden lg:flex">
-			<ul id="menu" class="menu menu-horizontal px-1" hx-target="#result">
-				<li>
-					<a class="flex items-center gap-2 {{if eq .ActivePage "hello"}}active{{end}}"
-						hx-get="/hello"
-						hx-push-url="true"
-						hx-on="
-							htmx:beforeRequest: document.querySelectorAll('#menu a')
-								.forEach(el => el.classList.remove('active'));
-							htmx:afterRequest: this.classList.add('active')">
-							👋 Hello World
-					</a>
-				</li>
-				<li>
-					<a class="flex items-center gap-2 {{if eq .ActivePage "person"}}active{{end}}"
-						hx-get="/person"
-						hx-target="#result"
-						hx-push-url="true"
-						hx-on="
-							htmx:beforeRequest: document.querySelectorAll('#menu a')
-								.forEach(el => el.classList.remove('active'));
-							htmx:afterRequest: this.classList.add('active')">
-							🧑‍🤝‍🧑 Persons
-					</a>
-				</li>
-				<li>
-					<a class="flex items-center gap-2 {{if eq .ActivePage "node"}}active{{end}}"
-						hx-get="/node"
-						hx-target="#result"
-						hx-push-url="true"
-						hx-on="
-							htmx:beforeRequest: document.querySelectorAll('#menu a')
-								.forEach(el => el.classList.remove('active'));
-							htmx:afterRequest: this.classList.add('active')">
-							⚡️ Lightning Node
-					</a>
-				</li>
-			</ul>
+	<header class="flex flex-col items-center w-full">
+		<!-- Toaster container -->
+		<div class="fixed top-4 right-4 z-50 max-w-sm w-full">
+			 <div id="toaster"></div>
 		</div>
-	</div>
 
-	<div id="result" >
+		<h1 class="text-3xl font-bold mb-6">Lightning-test Project</h1>
+
+		<div class="navbar bg-base-100 rounded-box" >
+			<div class="navbar-center hidden lg:flex">
+				<ul id="menu" class="menu menu-horizontal px-1" hx-target="#result">
+					<li>
+						<a class="flex items-center gap-2 {{if eq .ActivePage "hello"}}active{{end}}"
+							hx-get="/hello"
+							hx-push-url="true"
+							hx-on="
+								htmx:beforeRequest: document.querySelectorAll('#menu a')
+									.forEach(el => el.classList.remove('active'));
+								htmx:afterRequest: this.classList.add('active')">
+								👋 Hello World
+						</a>
+					</li>
+					<li>
+						<a class="flex items-center gap-2 {{if eq .ActivePage "person"}}active{{end}}"
+							hx-get="/person"
+							hx-target="#result"
+							hx-push-url="true"
+							hx-on="
+								htmx:beforeRequest: document.querySelectorAll('#menu a')
+									.forEach(el => el.classList.remove('active'));
+								htmx:afterRequest: this.classList.add('active')">
+								🧑‍🤝‍🧑 Persons
+						</a>
+					</li>
+					<li>
+						<a class="flex items-center gap-2 {{if eq .ActivePage "node"}}active{{end}}"
+							hx-get="/node"
+							hx-target="#result"
+							hx-push-url="true"
+							hx-on="
+								htmx:beforeRequest: document.querySelectorAll('#menu a')
+									.forEach(el => el.classList.remove('active'));
+								htmx:afterRequest: this.classList.add('active')">
+								⚡️ Lightning Node
+						</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</header>
+
+	<div id="result" class="overflow-y-auto" >
 		{{ .Content }}
 	</div>
 

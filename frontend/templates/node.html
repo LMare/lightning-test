@@ -106,7 +106,7 @@
 		<section style="display:none;" class="mt-6 mx-6 w-100 bg-base-100 p-4 rounded-box shadow-md node-event-container">
 			<h2 class="text-xl text-center font-semibold mb-2">⚡️ New Invoice ⚡️</h2>
 			<div id="invoice-form">
-				<p class="text-base text-gray-700 mb-4"> Create a quick invoice 🪙 </p>
+				<p class="text-base text-gray-700 mb-4">Create a quick invoice 🪙</p>
 				<form
 						hx-post="/api/lightning/invoice"
 						hx-vals=""
@@ -133,6 +133,30 @@
 
 	</div>
 </div>
+
+<div style="display:flex;flex-direction: row;">
+	<!-- Pay Invoice -->
+	<section style="display:none;" class="mt-6 mx-6 w-100 bg-base-100 p-4 rounded-box shadow-md node-event-container">
+		<h2 class="text-xl text-center font-semibold mb-2">⚡️ Pay Invoice ⚡️</h2>
+		<div id="invoice-form">
+			<p class="text-base text-gray-700 mb-4">Pay a invoice 🪙</p>
+			<form
+					hx-post="/api/lightning/paiment"
+					hx-vals=""
+					hx-swap="none"
+					class="mt-2 node-event doReset"
+					style="display:flex; flex-direction:column">
+				<label for="invoice-pay" class="text-base text-gray-700">Invoice</label>
+				<textarea name="paymentRequest" cols="30" rows="8" id="invoice-pay" class="border px-2 py-1 rounded"></textarea>
+				<div class="text-center">
+					<button type="submit" class="mt-2 border border-gray-300 p-1 rounded text-sm" aria-label="Pay invoice" title="Pay invoice">💸⚡</button>
+				</div>
+			</form>
+		</div>
+	</section>
+</div>
+
+
 <script>
 
 	/************************* Edit info ****************************/

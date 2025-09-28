@@ -6,6 +6,7 @@ import (
 	"strings"
 	"encoding/hex"
 
+	routerrpc "github.com/Lmare/lightning-test/backend/gRPC/github.com/lightningnetwork/lnd/lnrpc/routerrpc"
 	lnrpc "github.com/Lmare/lightning-test/backend/gRPC/github.com/lightningnetwork/lnd/lnrpc"
 	exception "github.com/Lmare/lightning-test/backend/exception"
 	nodeModel "github.com/Lmare/lightning-test/backend/model/nodeModel"
@@ -81,6 +82,20 @@ func CreateQuickInvoice(dataClient nodeModel.LndClientAuthData, memo string, amo
 		return "", exception.NewError("Error on creating invoice", err, exception.NewExampleError)
 	}
 
-
 	return i.PaymentRequest, nil
+}
+
+// pay the invoice
+func MakePaiment(dataClient nodeModel.LndClientAuthData, paymentRequest string) error {
+	client, conn, err := getRouterClient(dataClient)
+	if err != nil {
+		return exception.NewError("Cannot init Router Client", err, exception.NewExampleError)
+    }
+    defer conn.Close()
+
+	_, err = client.SendPaymentV2(context.Background(), &routerrpc.SendPaymentRequest{PaymentRequest: paymentRequest})
+	if err != nil {
+		return exception.NewError("Error on creating invoice", err, exception.NewExampleError)
+	}
+	return nil
 }
