@@ -22,9 +22,9 @@ func handleListOfNodes(response http.ResponseWriter, request *http.Request) {
 
 	nodes := lightningService.GetListOfNode(descriptors)
 	if IsHTMX(request) {
-		HtmxResponse(response, "lightning/nodes.html", nodes)
+		htmxResponse(response, "lightning/nodes.html", nodes)
 	} else {
-		JsonResponse(response, nodes)
+		jsonResponse(response, nodes)
 	}
 }
 
@@ -56,12 +56,12 @@ func handleShowUri(response http.ResponseWriter, request *http.Request) {
 		funcMap := template.FuncMap{"truncateUri": truncateUri,}
 		htmxResponseWithFuncs(response, "lightning/uri.html", uri, funcMap)
 	} else {
-		JsonResponse(response, uri)
+		jsonResponse(response, uri)
 	}
 
 }
 
-// réduit une uri
+// reduce an uri
 func truncateUri(s string, n int) string {
     at := strings.Index(s, "@")
     if at == -1 || at < 2*n {
@@ -76,7 +76,7 @@ func truncateUri(s string, n int) string {
 }
 
 
-// réduit une chaine
+// reduce a string
 func truncate(s string, n int) string {
     start := s[:n]
 	at := len(s)
@@ -111,9 +111,9 @@ func handleNodeInfo(response http.ResponseWriter, request *http.Request) {
 
 	// Render
 	if IsHTMX(request) {
-		HtmxResponse(response, "lightning/nodeInfo.html", data)
+		htmxResponse(response, "lightning/nodeInfo.html", data)
 	} else {
-		JsonResponse(response, data)
+		jsonResponse(response, data)
 	}
 }
 
@@ -147,7 +147,7 @@ func handleAddPeer(response http.ResponseWriter, request *http.Request) {
 	}
 
 	if IsHTMX(request) {
-		HtmxMessageOk(response, "Peer successfully added.")
+		htmxMessageOk(response, "Peer successfully added.")
 	} else {
 		OkNoContent(response)
 	}
@@ -192,7 +192,7 @@ func handleOpenChannel(response http.ResponseWriter, request *http.Request) {
 	}
 
 	if IsHTMX(request) {
-		HtmxMessageOk(response, "Channel successfully created.")
+		htmxMessageOk(response, "Channel successfully created.")
 	} else {
 		OkNoContent(response)
 	}
@@ -240,7 +240,7 @@ func handleCreateInvoice(response http.ResponseWriter, request *http.Request) {
 		funcMap := template.FuncMap{"truncate": truncate,}
 		htmxResponseWithFuncs(response, "lightning/paymentRequest.html", p, funcMap)
 	} else {
-		JsonResponse(response, p)
+		jsonResponse(response, p)
 	}
 
 }
@@ -268,20 +268,14 @@ func handleMakePaiment(response http.ResponseWriter, request *http.Request) {
 		return
 	}
 	// create the invoice
-	err = lightningService.MakePaiment(authData, paymentRequest)
+	streamId, err := lightningService.MakePaiment(authData, paymentRequest)
 	if err != nil {
 		fail(response, request, "Fail to pay the invoice.", err)
 		return
 	}
 
-	// TODO : Exploiter le stream pour obtenir les erreurs 
-
-	// Render
-	if IsHTMX(request) {
-		HtmxMessageOk(response, "Payment successfully excuted.")
-	} else {
-		OkNoContent(response)
-	}
+	// TODO have a jwt token on the streamId depending of the connected User
+	htmxStreamEvent(response, request, streamId)
 }
 
 
@@ -315,7 +309,7 @@ func handleUpdateNodeAlias(response http.ResponseWriter, request *http.Request) 
 	}
 
 	if IsHTMX(request) {
-		HtmxMessageOk(response, "Modifications successfully applied.")
+		htmxMessageOk(response, "Modifications successfully applied.")
 	} else {
 		OkNoContent(response)
 	}

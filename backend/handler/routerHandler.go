@@ -30,6 +30,8 @@ func GetRouter() *Router {
 
 	router.add("/users", http.MethodGet, HandleListPersonne)
 
+	router.add("/stream-event", http.MethodGet, handleStreamEvent)
+
 	return &router
 }
 

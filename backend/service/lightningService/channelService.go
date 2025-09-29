@@ -10,6 +10,7 @@ import (
 	lnrpc "github.com/Lmare/lightning-test/backend/gRPC/github.com/lightningnetwork/lnd/lnrpc"
 	exception "github.com/Lmare/lightning-test/backend/exception"
 	nodeModel "github.com/Lmare/lightning-test/backend/model/nodeModel"
+	streamService "github.com/Lmare/lightning-test/backend/service/streamService"
 )
 
 
@@ -86,16 +87,21 @@ func CreateQuickInvoice(dataClient nodeModel.LndClientAuthData, memo string, amo
 }
 
 // pay the invoice
-func MakePaiment(dataClient nodeModel.LndClientAuthData, paymentRequest string) error {
+// return streamId, error
+func MakePaiment(dataClient nodeModel.LndClientAuthData, paymentRequest string) (string, error) {
 	client, conn, err := getRouterClient(dataClient)
 	if err != nil {
-		return exception.NewError("Cannot init Router Client", err, exception.NewExampleError)
+		return "", exception.NewError("Cannot init Router Client", err, exception.NewExampleError)
     }
-    defer conn.Close()
 
-	_, err = client.SendPaymentV2(context.Background(), &routerrpc.SendPaymentRequest{PaymentRequest: paymentRequest})
+	stream, err := client.SendPaymentV2(context.Background(), &routerrpc.SendPaymentRequest{PaymentRequest: paymentRequest})
 	if err != nil {
-		return exception.NewError("Error on creating invoice", err, exception.NewExampleError)
+		return "", exception.NewError("Error on creating invoice", err, exception.NewExampleError)
 	}
-	return nil
+	streamId := streamService.KeepStream(streamService.StreamWrapper[lnrpc.Payment]{
+		RecvCallback: stream.Recv,
+		CloseCallback: conn.Close,
+	})
+
+	return streamId, nil
 }

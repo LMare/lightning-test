@@ -12,8 +12,8 @@ func HandleListPersonne(response http.ResponseWriter, request *http.Request) {
 	users := personneService.ListUsers()
 	if IsHTMX(request) {
 		vo := personView.ViewObject(users)
-		HtmxResponse(response, "personView/user.html", vo)
+		htmxResponse(response, "personView/user.html", vo)
 	} else {
-		JsonResponse(response, users)
+		jsonResponse(response, users)
 	}
 }

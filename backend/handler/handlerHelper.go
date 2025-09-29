@@ -21,8 +21,17 @@ func fail(response http.ResponseWriter, request *http.Request, message string, e
 	}
 }
 
+func htmxStreamEvent(response http.ResponseWriter, request *http.Request, streamId string) {
+	if IsHTMX(request) {
+		htmxResponse(response, "action/streamEvent.html", streamId)
+	} else {
+		jsonResponse(response, streamId)
+	}
+}
+
+
 // Transform the objet as a Json and put it in the reponse
-func JsonResponse(response http.ResponseWriter, objet any) {
+func jsonResponse(response http.ResponseWriter, objet any) {
 
 	objetJson, err := json.Marshal(objet)
 
@@ -35,7 +44,7 @@ func JsonResponse(response http.ResponseWriter, objet any) {
 }
 
 // render and object in Htmx
-func HtmxResponse(response http.ResponseWriter, file string, viewObject any) {
+func htmxResponse(response http.ResponseWriter, file string, viewObject any) {
 	response.Header().Set("Content-Type", "text/html")
 	tmpl := template.Must(template.ParseFiles("backend/templates/" + file))
 	tmpl.Execute(response, viewObject)
@@ -53,7 +62,7 @@ func htmxResponseWithFuncs(response http.ResponseWriter, file string, viewObject
 
 // return a response of success
 // load the template HTML to render the object
-func HtmxMessageOk(response http.ResponseWriter, message string) {
+func htmxMessageOk(response http.ResponseWriter, message string) {
 	response.Header().Set("Content-Type", "text/html")
 
 	tmpl := template.Must(template.ParseFiles("backend/templates/action/success.html"))
