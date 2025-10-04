@@ -88,20 +88,20 @@ func CreateQuickInvoice(dataClient nodeModel.LndClientAuthData, memo string, amo
 
 // pay the invoice
 // return streamId, error
-func MakePaiment(dataClient nodeModel.LndClientAuthData, paymentRequest string) (string, error) {
+func MakePaiment(dataClient nodeModel.LndClientAuthData, paymentRequest string) error {
 	client, conn, err := getRouterClient(dataClient)
 	if err != nil {
-		return "", exception.NewError("Cannot init Router Client", err, exception.NewExampleError)
+		return exception.NewError("Cannot init Router Client", err, exception.NewExampleError)
     }
 
 	stream, err := client.SendPaymentV2(context.Background(), &routerrpc.SendPaymentRequest{PaymentRequest: paymentRequest})
 	if err != nil {
-		return "", exception.NewError("Error on creating invoice", err, exception.NewExampleError)
+		return exception.NewError("Error on creating invoice", err, exception.NewExampleError)
 	}
-	streamId := streamService.KeepStream(streamService.StreamWrapper[lnrpc.Payment]{
+	streamService.StreamResult(streamService.StreamWrapper[lnrpc.Payment]{
 		RecvCallback: stream.Recv,
 		CloseCallback: conn.Close,
 	})
 
-	return streamId, nil
+	return nil
 }

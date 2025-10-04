@@ -268,14 +268,14 @@ func handleMakePaiment(response http.ResponseWriter, request *http.Request) {
 		return
 	}
 	// create the invoice
-	streamId, err := lightningService.MakePaiment(authData, paymentRequest)
+	err = lightningService.MakePaiment(authData, paymentRequest)
 	if err != nil {
 		fail(response, request, "Fail to pay the invoice.", err)
 		return
 	}
 
 	// TODO have a jwt token on the streamId depending of the connected User
-	htmxStreamEvent(response, request, streamId)
+	htmxStreamEvent(response, request, "")
 }
 
 

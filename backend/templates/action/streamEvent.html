@@ -1,7 +1,6 @@
-<div data-stream-id="{{ . }}"></div>
 <!-- TODO : mettre dans le toaster ? -->
-<!--
-<div hx-ext="sse" sse-connect="/stream-event?streamId={{ . }}" sse-swap="message">
-  <div id="message"></div>
+<div hx-ext="sse" sse-connect="__API_PREFIX__/stream-event?streamId={{ . }}" sse-close="end">
+  <div sse-swap="message"></div>
+  <div sse-swap="error"></div>
+  <div sse-swap="end"></div>
 </div>
--->
