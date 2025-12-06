@@ -30,9 +30,10 @@ spec:
       labels:
         app: lnd
     spec:
-      serviceAccountName: lnd-secret-writer # allow the sidecar to set the secrets 
+      serviceAccountName: lnd-secret-writer # allow the sidecar to set the secrets
       containers:
-        - args:
+        - name: lnd
+          args:
             - lnd
             - --btcd.rpchost=$(BTCD_URL)
             - --bitcoin.active
@@ -58,7 +59,8 @@ spec:
                containerPort: 10009
              - name: p2p-port
                containerPort: 9735
-        - image: LMare/lnd-sidecar-secret-writer:latest
+        - name: sidecar
+          image: LMare/lnd-sidecar-secret-writer:latest
           volumeMounts:
             - name: lnd-data
               mountPath: /root/.lnd

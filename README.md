@@ -31,7 +31,7 @@ TODO :
 
 ### 1. Cluster Setup
 - [X] Spin up a local Kubernetes cluster (Kind, Minikube, or k3s).
-- [ ] Configure `kubectl` and create a dedicated namespace (e.g. `lightning`).
+- [X] Configure `kubectl` and create a dedicated namespace (e.g. `lightning`).
 
 ### 2. Core Components
 - [X] **Frontend:** Deployment + Service + Ingress (stateless, scalable).
@@ -43,10 +43,10 @@ TODO :
 - [X] Define **PersistentVolumeClaims** for each LND and btcd.
 - [X] Create a **Secret bundle** (`lnd-credentials`) to store certs/macaroons for all **LND** pods.
 - [ ] Create a **Secret bundle** (`btcd-credentials`) to store certs for all (or once ?)  **BTCD** pods.
-- [ ] Implement a **job or init process** (sidecar ?) that copies certs/macaroons from **LND** PVCs into the Secret bundle.
-- [ ] Implement a **job or init process** (sidecar ?) that copies certs from **BTCD** PVCs into the Secret bundle.
-- [ ] Mount the lnd Secret in the backend in read-only mode.
-- [ ] Mount the btcd Secret in the lnd in read-only mode.
+- [ ] Implement a **sidecar**  that copies certs/macaroons from **LND** PVCs into the **Secret bundle**.
+- [ ] Implement a **sidecar**  that copies certs/macaroons from **Secret bundle** into the **Backend**.
+- [ ] Implement a **job or init process** (sidecar ?) that copies certs from **BTCD** PVCs into the **Secret bundle**.
+- [ ] Mount the **btcd Secret** in the **lnd** in read-only mode.
 
 ### 4. Backend Responsibilities
 - [ ] Discover LND pods via the headless service (`lnd-0.lnd-headless`, etc.).
@@ -55,12 +55,13 @@ TODO :
 - [ ] Replace static `nodes.yaml` with dynamic discovery logic.
 
 ### 5. Networking & Service Discovery
-- [ ] Configure a **headless Service** for LND to provide stable DNS per pod.
+- [X] Configure a **headless Service** for LND to provide stable DNS per pod.
 - [ ] Ensure the backend can dynamically map endpoints (`lnd-N`) to certs/macaroons.
-- [ ] Use Ingress to expose frontend/backend APIs externally.
+- [X] Use Ingress to expose frontend APIs externally.
 
 ### 6. Security & Best Practices
-- [ ] Restrict RBAC permissions for the job that updates the Secret bundle.
+- [X] Restrict RBAC permissions for the job that **updates** the Secret bundle **LND**.
+- [X] Restrict RBAC permissions for the job that **read** the Secret bundle **LND**.
 - [ ] Mount Secrets as read-only in backend pods.
 - [ ] Separate configs: ConfigMaps for non-sensitive data, Secrets for sensitive data.
 - [ ] Add liveness/readiness probes for backend and LND.
@@ -69,7 +70,7 @@ TODO :
 - [ ] Test scaling: `kubectl scale statefulset lnd --replicas=5`
 - [ ] Verify the backend adapts automatically to new pods.
 - [ ] Add monitoring (Prometheus + Grafana) and centralized logging.
-- [ ] Define NetworkPolicies to restrict communication paths (backend ↔ LND ↔ btcd).
+- [ ] Define NetworkPolicies to restrict communication paths (frontend ↔ backend ↔ LND ↔ btcd).
 
 ### 8. Finalization
 - [ ] Organize manifests into folders (`frontend/`, `backend/`, `lnd/`, `btcd/`).

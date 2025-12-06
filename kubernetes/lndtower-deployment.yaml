@@ -1,47 +1,48 @@
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  annotations:
-    kompose.cmd: kompose convert -f docker-compose.yml
-    kompose.version: 1.37.0 (fb0539e64)
-  labels:
-    io.kompose.service: lndtower
-  name: lndtower
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      io.kompose.service: lndtower
-  strategy:
-    type: Recreate
-  template:
-    metadata:
-      annotations:
-        kompose.cmd: kompose convert -f docker-compose.yml
-        kompose.version: 1.37.0 (fb0539e64)
-      labels:
-        io.kompose.service: lndtower
-    spec:
-      containers:
-        - args:
-            - lnd
-            - --bitcoin.simnet
-            - --watchtower.active
-            - --listen=0.0.0.0:9911
-            - --debuglevel=info
-            - --bitcoin.node=btcd
-            - --btcd.rpcuser=user
-            - --btcd.rpcpass=pass
-            - --rpclisten=0.0.0.0:10009
-            - --externalip=lndtower:9735
-          image: LMare/lnd:v0.20.0-beta-custom
-          name: lndtower
-          volumeMounts:
-            - mountPath: /root/.lnd
-              name: tower-data
-      hostname: lndtower
-      restartPolicy: Always
-      volumes:
-        - name: tower-data
-          persistentVolumeClaim:
-            claimName: tower-data
+# /*
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   annotations:
+#     kompose.cmd: kompose convert -f docker-compose.yml
+#     kompose.version: 1.37.0 (fb0539e64)
+#   labels:
+#     io.kompose.service: lndtower
+#   name: lndtower
+# spec:
+#   replicas: 1
+#   selector:
+#     matchLabels:
+#       io.kompose.service: lndtower
+#   strategy:
+#     type: Recreate
+#   template:
+#     metadata:
+#       annotations:
+#         kompose.cmd: kompose convert -f docker-compose.yml
+#         kompose.version: 1.37.0 (fb0539e64)
+#       labels:
+#         io.kompose.service: lndtower
+#     spec:
+#       containers:
+#         - args:
+#             - lnd
+#             - --bitcoin.simnet
+#             - --watchtower.active
+#             - --listen=0.0.0.0:9911
+#             - --debuglevel=info
+#             - --bitcoin.node=btcd
+#             - --btcd.rpcuser=user
+#             - --btcd.rpcpass=pass
+#             - --rpclisten=0.0.0.0:10009
+#             - --externalip=lndtower:9735
+#           image: LMare/lnd:v0.20.0-beta-custom
+#           name: lndtower
+#           volumeMounts:
+#             - mountPath: /root/.lnd
+#               name: tower-data
+#       hostname: lndtower
+#       restartPolicy: Always
+#       volumes:
+#         - name: tower-data
+#           persistentVolumeClaim:
+#             claimName: tower-data

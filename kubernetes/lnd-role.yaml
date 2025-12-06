@@ -8,3 +8,14 @@ rules:
   resources: ["secrets"]
   resourceNames: ["lnd-credentials"]
   verbs: ["patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: lnd-secret-reader-role
+  namespace: lightning-playground
+rules:
+- apiGroups: [""]
+  resources: ["secrets"]
+  resourceNames: ["lnd-credentials"]
+  verbs: ["get", "watch"]
