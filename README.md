@@ -41,7 +41,7 @@ TODO :
 
 ### 3. Data & Secrets Management
 - [X] Define **PersistentVolumeClaims** for each LND and btcd.
-- [ ] Create a **Secret bundle** (`lnd-credentials`) to store certs/macaroons for all **LND** pods.
+- [X] Create a **Secret bundle** (`lnd-credentials`) to store certs/macaroons for all **LND** pods.
 - [ ] Create a **Secret bundle** (`btcd-credentials`) to store certs for all (or once ?)  **BTCD** pods.
 - [ ] Implement a **job or init process** (sidecar ?) that copies certs/macaroons from **LND** PVCs into the Secret bundle.
 - [ ] Implement a **job or init process** (sidecar ?) that copies certs from **BTCD** PVCs into the Secret bundle.

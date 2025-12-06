@@ -30,6 +30,7 @@ spec:
       labels:
         app: lnd
     spec:
+      serviceAccountName: lnd-secret-writer # allow the sidecar to set the secrets 
       containers:
         - args:
             - lnd
@@ -57,6 +58,10 @@ spec:
                containerPort: 10009
              - name: p2p-port
                containerPort: 9735
+        - image: LMare/lnd-sidecar-secret-writer:latest
+          volumeMounts:
+            - name: lnd-data
+              mountPath: /root/.lnd
       restartPolicy: Always
     volumeClaimTemplates:
       metadata:
