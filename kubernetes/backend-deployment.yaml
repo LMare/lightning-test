@@ -19,10 +19,13 @@ spec:
       labels:
         app: backend
     spec:
-      serviceAccountName: lnd-secret-reader
+      serviceAccountName: backend-service-account
       volumes:
-        - name: shared-data
+        - name: lnd-shared-data
           emptyDir: {}
+        - name: lnd-secret-vol
+          secret:
+            secretName: lnd-credentials
       containers:
         - name: backend
           image: LMare/lightning-playground-backend:v0.2.0-SNAPSHOT
@@ -31,11 +34,15 @@ spec:
             - name: backend-port
               containerPort: 8080
           volumeMounts:
-            - name: shared-data
+            - name: lnd-shared-data
               mountPath: /app/nodes-storage
+
         - name: sidecar
-          image: LMare/backend-sidecar-secret-reader:latest
+          image: LMare/backend-sidecar:v0.1.0
           volumeMounts:
-            - name: shared-data
+            - name: lnd-shared-data
               mountPath: /app/nodes-storage
+            - name: lnd-secret-vol
+              mountPath: /app/secrets
+              
       restartPolicy: Always

@@ -27,8 +27,6 @@ TODO :
 
 ## TODO List for Kubernetes Migration (Lightning Network Project)
 
-(generated after a brainstorming with Copilot)
-
 ### 1. Cluster Setup
 - [X] Spin up a local Kubernetes cluster (Kind, Minikube, or k3s).
 - [X] Configure `kubectl` and create a dedicated namespace (e.g. `lightning`).
@@ -42,11 +40,13 @@ TODO :
 ### 3. Data & Secrets Management
 - [X] Define **PersistentVolumeClaims** for each LND and btcd.
 - [X] Create a **Secret bundle** (`lnd-credentials`) to store certs/macaroons for all **LND** pods.
-- [ ] Create a **Secret bundle** (`btcd-credentials`) to store certs for all (or once ?)  **BTCD** pods.
-- [ ] Implement a **sidecar**  that copies certs/macaroons from **LND** PVCs into the **Secret bundle**.
-- [ ] Implement a **sidecar**  that copies certs/macaroons from **Secret bundle** into the **Backend**.
-- [ ] Implement a **job or init process** (sidecar ?) that copies certs from **BTCD** PVCs into the **Secret bundle**.
-- [ ] Mount the **btcd Secret** in the **lnd** in read-only mode.
+- [X] Create a **Secret bundle** (`btcd-credentials`) to store certs for all (only one BTCD for now)  **BTCD** pods.
+- [ ] Implement a **lnd-sidecar** that copies certs/macaroons from **LND** PVCs into the `lnd-credentials`.
+- [ ] Implement a **lnd-sidecar**  that copies certs from `btcd-credentials` into the **LND**
+- [ ] Implement a **backend-sidecar**  that copies certs/macaroons from `lnd-credentials` into the **Backend**.
+- [ ] Implement a **btcd-sidecar** that copies certs from **BTCD** PVCs into the `btcd-credentials`.
+- [X] Mount the `btcd-credentials` in the **lnd-sidecar** in read-only mode.
+- [X] Mount the `lnd-credentials` in the **backend-sidecar** in read-only mode.
 
 ### 4. Backend Responsibilities
 - [ ] Discover LND pods via the headless service (`lnd-0.lnd-headless`, etc.).

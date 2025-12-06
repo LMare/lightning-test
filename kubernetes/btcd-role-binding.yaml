@@ -1,0 +1,27 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: btcd-secret-writer-binding
+  namespace: lightning-playground
+roleRef:
+  kind: Role
+  name: btcd-secret-writer-role
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+    - kind: ServiceAccount
+      name: btcd-service-account
+      namespace: lightning-playground
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: btcd-secret-reader-binding
+  namespace: lightning-playground
+roleRef:
+  kind: Role
+  name: btcd-secret-reader-role
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+    - kind: ServiceAccount
+      name: lnd-service-account
+      namespace: lightning-playground

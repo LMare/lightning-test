@@ -5,7 +5,7 @@ metadata:
   namespace: lightning-playground
 subjects:
 - kind: ServiceAccount
-  name: lnd-secret-writer
+  name: lnd-service-account
   namespace: lightning-playground
 roleRef:
   kind: Role
@@ -19,7 +19,7 @@ metadata:
   namespace: lightning-playground
 subjects:
 - kind: ServiceAccount
-  name: lnd-secret-reader
+  name: backend-service-account
   namespace: lightning-playground
 roleRef:
   kind: Role

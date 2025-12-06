@@ -6,11 +6,9 @@ metadata:
     app: btcd
   name: btcd
   namespace : lightning-playground
-env:
-    - name: MINING_ADDR
-      value: rneZnvYmrLg9V6seGghNXmdfzatNsHgb54
 spec:
   serviceName: btcd-headless  # to give the unique url for each pod
+  serviceAccountName: btcd-service-account
   replicas: 1
   selector:
     matchLabels:
@@ -21,7 +19,11 @@ spec:
         app: btcd
     spec:
       containers:
-        - args:
+        - name: btcd
+          env:
+            - name: MINING_ADDR
+              value: rneZnvYmrLg9V6seGghNXmdfzatNsHgb54
+          args:
             - btcd
             - --simnet
             - --rpcuser=user
@@ -44,6 +46,13 @@ spec:
               containerPort: 18556
             - name: p2p-port
               containerPort: 18555
+
+        - name: sidecar
+          image: LMare/btcd-sidecar:v0.1.0
+          volumeMounts:
+            - name: btcd-data           # to read the certs & sent to Secret Bundle BTCD
+              mountPath: /root/.btcd
+              
       restartPolicy: Always
     volumeClaimTemplates:
       metadata:
