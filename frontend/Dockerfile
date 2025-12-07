@@ -2,7 +2,7 @@
 ### docker build -t lightning-playground-frontend:latest -f frontend/Dockerfile .
 
 ARG ALPINE_TAG=3.22
-ARG GO_TAG=1.0.0
+ARG GO_TAG=1.25.0
 
 # 1. Build de l'application frontend
 FROM golang:$GO_TAG AS compiler

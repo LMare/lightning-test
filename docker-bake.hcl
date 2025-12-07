@@ -35,6 +35,9 @@ group "backend" {
 group "frontend" {
 	targets = ["frontend-alpine", "frontend-scratch"]
 }
+group "sidecars" {
+	targets = ["sidecar-backend", "sidecar-lnd", "sidecar-btcd"]
+}
 group "default" {
 	targets = ["frontend", "backend", "btcd", "lnd"]
 }
@@ -90,4 +93,28 @@ target "lnd" {
 	  git_url = "https://github.com/LMare/lnd"
   }
   tags = ["LMare/lnd:${LND_TAG}"]
+}
+
+target "sidecar-backend" {
+  context = "."
+  dockerfile = "./sidecar/Dockerfile"
+  args = { TYPE_SIDECAR = "backend" }
+  inherits = ["common-app-args"]
+  tags = ["LMare/lightning-playground-sidecar-backend:${APP_VERSION}"]
+}
+
+target "sidecar-lnd" {
+  context = "."
+  dockerfile = "./sidecar/Dockerfile"
+  args = { TYPE_SIDECAR = "lnd" }
+  inherits = ["common-app-args"]
+  tags = ["LMare/lightning-playground-sidecar-lnd:${APP_VERSION}"]
+}
+
+target "sidecar-btcd" {
+  context = "."
+  dockerfile = "./sidecar/Dockerfile"
+  args = { TYPE_SIDECAR = "btcd" }
+  inherits = ["common-app-args"]
+  tags = ["LMare/lightning-playground-sidecar-btcd:${APP_VERSION}"]
 }
