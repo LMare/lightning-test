@@ -18,9 +18,6 @@ spec:
         app: lnd
     spec:
       volumes:
-        - name: btcd-secret-vol
-          secret:
-            secretName: btcd-credentials
         - name: btcd-data
           emptyDir: {}
       containers:
@@ -67,12 +64,10 @@ spec:
               value: "btcd-0.btcd-headless.lightning-playground.svc.cluster.local:18556"
 
         - name: sidecar
-          image: LMare/lnd-sidecar:v0.1.0
+          image: LMare/sidecar-lnd:v0.1.0
           volumeMounts:
             - name: lnd-data            # to read the certs + macarron & sent to Secret Bundle LND
               mountPath: /root/.lnd
-            - name: btcd-secret-vol     # to read the certs of Secret Bundle BTCD
-              mountPath: /root/secrets
             - name: btcd-data           # to write the certs btcd to for LND
               mountPath: /root/.btcd
 

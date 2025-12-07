@@ -41,10 +41,10 @@ TODO :
 - [X] Define **PersistentVolumeClaims** for each LND and btcd.
 - [X] Create a **Secret bundle** (`lnd-credentials`) to store certs/macaroons for all **LND** pods.
 - [X] Create a **Secret bundle** (`btcd-credentials`) to store certs for all (only one BTCD for now)  **BTCD** pods.
-- [ ] Implement a **lnd-sidecar** that copies certs/macaroons from **LND** PVCs into the `lnd-credentials`.
-- [ ] Implement a **lnd-sidecar**  that copies certs from `btcd-credentials` into the **LND**
-- [ ] Implement a **backend-sidecar**  that copies certs/macaroons from `lnd-credentials` into the **Backend**.
-- [ ] Implement a **btcd-sidecar** that copies certs from **BTCD** PVCs into the `btcd-credentials`.
+- [X] Implement a **lnd-sidecar** that copies certs/macaroons from **LND** PVCs into the `lnd-credentials`.
+- [X] Implement a **lnd-sidecar**  that copies certs from `btcd-credentials` into the **LND**
+- [X] Implement a **backend-sidecar**  that copies certs/macaroons from `lnd-credentials` into the **Backend**.
+- [X] Implement a **btcd-sidecar** that copies certs from **BTCD** PVCs into the `btcd-credentials`.
 - [X] Mount the `btcd-credentials` in the **lnd-sidecar** in read-only mode.
 - [X] Mount the `lnd-credentials` in the **backend-sidecar** in read-only mode.
 
@@ -62,7 +62,6 @@ TODO :
 ### 6. Security & Best Practices
 - [X] Restrict RBAC permissions for the job that **updates** the Secret bundle **LND**.
 - [X] Restrict RBAC permissions for the job that **read** the Secret bundle **LND**.
-- [ ] Mount Secrets as read-only in backend pods.
 - [ ] Separate configs: ConfigMaps for non-sensitive data, Secrets for sensitive data.
 - [ ] Add liveness/readiness probes for backend and LND.
 

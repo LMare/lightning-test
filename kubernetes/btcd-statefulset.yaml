@@ -48,11 +48,11 @@ spec:
               containerPort: 18555
 
         - name: sidecar
-          image: LMare/btcd-sidecar:v0.1.0
+          image: LMare/sidecar-btcd:v0.1.0
           volumeMounts:
             - name: btcd-data           # to read the certs & sent to Secret Bundle BTCD
               mountPath: /root/.btcd
-              
+
       restartPolicy: Always
     volumeClaimTemplates:
       metadata:

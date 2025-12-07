@@ -23,9 +23,6 @@ spec:
       volumes:
         - name: lnd-shared-data
           emptyDir: {}
-        - name: lnd-secret-vol
-          secret:
-            secretName: lnd-credentials
       containers:
         - name: backend
           image: LMare/lightning-playground-backend:v0.2.0-SNAPSHOT
@@ -38,11 +35,9 @@ spec:
               mountPath: /app/nodes-storage
 
         - name: sidecar
-          image: LMare/backend-sidecar:v0.1.0
+          image: LMare/sidecar-backend:v0.1.0
           volumeMounts:
             - name: lnd-shared-data
               mountPath: /app/nodes-storage
-            - name: lnd-secret-vol
-              mountPath: /app/secrets
-              
+
       restartPolicy: Always
