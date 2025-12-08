@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	sidecar "github.com/Lmare/lightning-playground/sidecar"
 )
 
@@ -9,15 +10,19 @@ import (
 const namespace = "lightning-playground"
 const secretBtcd = "btcd-credentials"
 const mountedBtcdVol = "/root/.btcd/"
-const certName = "tls.cert"
+const certName = "rpc.cert"
 
 func main() {
+	fmt.Println("[Sidecar btcd] Starting")
 	readBtcdCertAsSecretAndPatch()
+	fmt.Println("[Sidecar btcd] Complete -> go to sleep")
+	select {}
 }
 
 
 // Read the btcd cert and share it
 func readBtcdCertAsSecretAndPatch() {
+	fmt.Println("[Sidecar btcd] readBtcdCertAsSecretAndPatch...")
 	callback := &sidecar.Callback {
 	    Context : map[string]interface{} {
 			"namespace" : namespace,
@@ -31,6 +36,8 @@ func readBtcdCertAsSecretAndPatch() {
 		},
 	}
 	if err := callback.CallNext(); err != nil {
+		fmt.Println("[Sidecar btcd] readBtcdCertAsSecretAndPatch... Failed !")
 		panic("error on readBtcdCertAsSecretAndPatch : %s" + err.Error())
 	}
+	fmt.Println("[Sidecar btcd] readBtcdCertAsSecretAndPatch... Done !")
 }

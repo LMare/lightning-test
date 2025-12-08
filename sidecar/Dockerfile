@@ -21,5 +21,5 @@ FROM scratch
 ARG TYPE_SIDECAR=lnd
 ENV TYPE_SIDECAR=$TYPE_SIDECAR
 WORKDIR /app
-COPY --from=compiler /app/sidecar-$TYPE_SIDECAR ./
-ENTRYPOINT ["/app/sidecar-$TYPE_SIDECAR"]
+COPY --from=compiler /app/sidecar-$TYPE_SIDECAR ./sidecar
+ENTRYPOINT ["/app/sidecar"]

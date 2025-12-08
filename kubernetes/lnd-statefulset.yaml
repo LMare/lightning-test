@@ -7,7 +7,6 @@ metadata:
   namespace : lightning-playground
 spec:
   serviceName: lnd-headless
-  serviceAccountName: lnd-service-account
   replicas: 2
   selector:
     matchLabels:
@@ -17,6 +16,7 @@ spec:
       labels:
         app: lnd
     spec:
+      serviceAccountName: lnd-service-account
       volumes:
         - name: btcd-data
           emptyDir: {}
@@ -64,7 +64,7 @@ spec:
               value: "btcd-0.btcd-headless.lightning-playground.svc.cluster.local:18556"
 
         - name: sidecar
-          image: LMare/sidecar-lnd:v0.1.0
+          image: LMare/lightning-playground-sidecar-lnd:v0.2.0-2
           volumeMounts:
             - name: lnd-data            # to read the certs + macarron & sent to Secret Bundle LND
               mountPath: /root/.lnd
@@ -72,8 +72,8 @@ spec:
               mountPath: /root/.btcd
 
       restartPolicy: Always
-    volumeClaimTemplates:
-      metadata:
+  volumeClaimTemplates:
+    - metadata:
         name: lnd-data
       spec:
         accessModes: ["ReadWriteOnce"]

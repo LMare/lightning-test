@@ -65,6 +65,7 @@ func WatchSecretModified(c *Callback) error {
     }
 
 	go func() {
+		fmt.Println("[Sidecar : WatchSecretModified] Routine launched")
 	    // Boucle sur les événements
 	    for event := range watchInterface.ResultChan() {
 	        switch event.Type {
@@ -82,6 +83,7 @@ func WatchSecretModified(c *Callback) error {
 			    }
 	        }
 	    }
+		fmt.Println("[Sidecar : WatchSecretModified] Routine stopped")
 	}()
 	return nil
 }

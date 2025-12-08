@@ -1,4 +1,12 @@
 apiVersion: v1
+kind: ConfigMap
+metadata:
+  annotations:
+    use-subpath: "true"
+  labels:
+    app: btcd
+  name: btcd-config-map
+  namespace: lightning-playground
 data:
   btcd.conf: |+
     rpcuser=user
@@ -6,12 +14,3 @@ data:
     rpcserver=localhost:18556
     rpccert=/root/.btcd/rpc.cert
     simnet=1
-
-kind: ConfigMap
-metadata:
-  annotations:
-    use-subpath: "true"
-  labels:
-    app: btcd
-  name: btcd-cm1
-  namespace: lightning-playground

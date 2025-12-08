@@ -8,7 +8,6 @@ metadata:
   namespace : lightning-playground
 spec:
   serviceName: btcd-headless  # to give the unique url for each pod
-  serviceAccountName: btcd-service-account
   replicas: 1
   selector:
     matchLabels:
@@ -18,6 +17,7 @@ spec:
       labels:
         app: btcd
     spec:
+      serviceAccountName: btcd-service-account
       containers:
         - name: btcd
           env:
@@ -39,7 +39,7 @@ spec:
             - mountPath: /root/.btcd
               name: btcd-data
             - mountPath: /root/.btcd/btcd.conf
-              name: btcd-cm1
+              name: btcd-config
               subPath: btcd.conf
           ports:
             - name: grpc-port
@@ -48,14 +48,17 @@ spec:
               containerPort: 18555
 
         - name: sidecar
-          image: LMare/sidecar-btcd:v0.1.0
+          image: LMare/lightning-playground-sidecar-btcd:v0.2.0-3
           volumeMounts:
             - name: btcd-data           # to read the certs & sent to Secret Bundle BTCD
               mountPath: /root/.btcd
-
+      volumes:
+        - name: btcd-config
+          configMap:
+            name: btcd-config-map
       restartPolicy: Always
-    volumeClaimTemplates:
-      metadata:
+  volumeClaimTemplates:
+    - metadata:
         name: btcd-data
       spec:
         accessModes: ["ReadWriteOnce"]

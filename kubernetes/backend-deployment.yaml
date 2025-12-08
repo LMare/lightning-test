@@ -19,6 +19,7 @@ spec:
       labels:
         app: backend
     spec:
+      enableServiceLinks: false # conflit with .env variable
       serviceAccountName: backend-service-account
       volumes:
         - name: lnd-shared-data
@@ -35,7 +36,7 @@ spec:
               mountPath: /app/nodes-storage
 
         - name: sidecar
-          image: LMare/sidecar-backend:v0.1.0
+          image: LMare/lightning-playground-sidecar-backend:v0.2.0-2
           volumeMounts:
             - name: lnd-shared-data
               mountPath: /app/nodes-storage

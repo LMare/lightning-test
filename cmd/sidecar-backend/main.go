@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	sidecar "github.com/Lmare/lightning-playground/sidecar"
 )
 
@@ -10,13 +11,17 @@ const secretlnd = "lnd-credentials"
 const mountedBackendStorage = "/app/nodes-storage"
 
 func main() {
+	fmt.Println("[Sidecar backend] Starting")
 	getLndSecretAndSaveThem()
 	watchLndSecretModifiedAndSaveThem()
+	fmt.Println("[Sidecar backend] Complete -> go to sleep")
+    select {}
 }
 
 
 // Get the lnd credentials and Store them
 func getLndSecretAndSaveThem() {
+	fmt.Println("[Sidecar backend] getLndSecretAndSaveThem...")
 	callback := &sidecar.Callback {
 	    Context : map[string]interface{} {
 			"namespace" : namespace,
@@ -30,14 +35,17 @@ func getLndSecretAndSaveThem() {
 		},
 	}
 	if err := callback.CallNext(); err != nil {
+		fmt.Println("[Sidecar backend] getLndSecretAndSaveThem... Failed !")
 		panic("error on getLndSecretAndSaveThem : %s" + err.Error())
 	}
+	fmt.Println("[Sidecar backend] getLndSecretAndSaveThem... Done !")
 }
 
 
 
 // Get the lnd credentials and Store them
 func watchLndSecretModifiedAndSaveThem() {
+	fmt.Println("[Sidecar backend] watchLndSecretModifiedAndSaveThem...")
 	callback := &sidecar.Callback {
 	    Context : map[string]interface{} {
 			"namespace" : namespace,
@@ -51,6 +59,8 @@ func watchLndSecretModifiedAndSaveThem() {
 		},
 	}
 	if err := callback.CallNext(); err != nil {
+		fmt.Println("[Sidecar backend] watchLndSecretModifiedAndSaveThem... Failed !")
 		panic("error on watchLndSecretModifiedAndSaveThem : %s" + err.Error())
 	}
+	fmt.Println("[Sidecar backend] watchLndSecretModifiedAndSaveThem... Done !")
 }

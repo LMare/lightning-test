@@ -97,22 +97,40 @@ TODO :
 docker buildx bake
 echo "127.0.0.1	lightning-playground.local" >> /etc/hosts
 cd kubernetes
+export VERSION=v0.2.0-3
 # cluster + docker images
 kind create cluster --name lightning-playground --config cluster.yaml
-kind load docker-image LMare/lightning-playground-frontend:v0.2.0-SNAPSHOT --name lightning-playground
-kind load docker-image LMare/lightning-playground-backend:v0.2.0-SNAPSHOT --name lightning-playground
+kind load docker-image LMare/lightning-playground-frontend:$VERSION        --name lightning-playground &
+kind load docker-image LMare/lightning-playground-backend:$VERSION         --name lightning-playground &
+kind load docker-image LMare/lightning-playground-sidecar-backend:$VERSION --name lightning-playground &
+kind load docker-image LMare/lightning-playground-sidecar-btcd:$VERSION    --name lightning-playground &
+kind load docker-image LMare/lightning-playground-sidecar-lnd:$VERSION     --name lightning-playground &
 
 kubectl create namespace lightning-playground
 # frontend
 kubectl apply -f frontend-deployment.yaml -n lightning-playground
-kubectl apply -f frontend-service.yaml -n lightning-playground
-kubectl apply -f frontend-ingress.yaml -n lightning-playground
+kubectl apply -f frontend-service.yaml    -n lightning-playground
+kubectl apply -f frontend-ingress.yaml    -n lightning-playground
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
-# backend : TODO
-kubectl apply -f backend-deployment.yaml -n lightning-playground
-kubectl apply -f backend-service.yaml -n lightning-playground
-# btcd : TODO
-# lnd : TODO
+# backend
+kubectl apply -f backend-deployment.yaml      -n lightning-playground
+kubectl apply -f backend-service.yaml         -n lightning-playground
+kubectl apply -f backend-service-account.yaml -n lightning-playground
+# btcd
+kubectl apply -f btcd-cm1-configmap.yaml    --n lightning-playground
+kubectl apply -f btcd-role-binding.yaml     --n lightning-playground
+kubectl apply -f btcd-role.yaml             --n lightning-playground
+kubectl apply -f btcd-secret.yaml           --n lightning-playground
+kubectl apply -f btcd-service-account.yaml  --n lightning-playground
+kubectl apply -f btcd-service-headless.yaml --n lightning-playground
+kubectl apply -f btcd-statefulset.yaml      --n lightning-playground
+# lnd
+kubectl apply -f lnd-rolebinding.yaml      --n lightning-playground
+kubectl apply -f lnd-role.yaml             --n lightning-playground
+kubectl apply -f lnd-secret.yaml           --n lightning-playground
+kubectl apply -f lnd-service-account.yaml  --n lightning-playground
+kubectl apply -f lnd-service-headless.yaml --n lightning-playground
+kubectl apply -f lnd-statefulset.yaml      --n lightning-playground
 ```
 Go to http://lightning-playground.local/
 -----------------------------------------------------------------------------------------------

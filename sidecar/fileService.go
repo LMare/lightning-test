@@ -120,10 +120,12 @@ func WatchFilePattern(c *Callback) error {
     }
 
 	go func() {
+		fmt.Println("[Sidecar : WatchFilePattern] Routine launched")
 	    for {
 	        select {
 	        case event, ok := <-watcher.Events:
 	            if !ok {
+					fmt.Println("[Sidecar : WatchFilePattern] Routine stopped")
 	                return
 	            }
 
@@ -139,6 +141,7 @@ func WatchFilePattern(c *Callback) error {
 
 	        case err, ok := <-watcher.Errors:
 	            if !ok {
+					fmt.Println("[Sidecar : WatchFilePattern] Routine stopped")
 	                return
 	            }
 	            fmt.Println("watcher error:", err)
