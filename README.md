@@ -97,7 +97,7 @@ TODO :
 docker buildx bake
 echo "127.0.0.1	lightning-playground.local" >> /etc/hosts
 cd kubernetes
-export VERSION=v0.2.0-3
+export VERSION=v0.2.0-5
 # cluster + docker images
 kind create cluster --name lightning-playground --config cluster.yaml
 kind load docker-image LMare/lightning-playground-frontend:$VERSION        --name lightning-playground &

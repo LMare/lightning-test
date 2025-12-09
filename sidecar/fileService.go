@@ -32,13 +32,13 @@ func SecretToPath(c *Callback) error {
     for key, value := range secret.Data {
         // transformer la clé
         parts := strings.Split(key, ".")
-        if len(parts) > 1 {
+        if len(parts) > 2 {
             // tout sauf le dernier devient des dossiers
-            dir := filepath.Join(basePath, filepath.Join(parts[:len(parts)-1]...))
+            dir := filepath.Join(basePath, filepath.Join(parts[:len(parts)-2]...))
             if err := os.MkdirAll(dir, 0o755); err != nil {
                 return fmt.Errorf("mkdir: %w", err)
             }
-            filePath := filepath.Join(dir, parts[len(parts)-1])
+            filePath := filepath.Join(dir, parts[len(parts)-2] + "." + parts[len(parts)-1])
             if err := os.WriteFile(filePath, value, 0o644); err != nil {
                 return fmt.Errorf("write: %w", err)
             }
@@ -99,7 +99,7 @@ func ReadFileAsSecret(c *Callback) error {
 //		- basePath String (ex : "/a/")
 //		- pattern String (ex : "*.d")
 // Add in the context :
-//		- filePath String (ex: ""/a/b/c.d")
+//		- filePath String (ex: "/a/b/c.d")
 func WatchFilePattern(c *Callback) error {
 	basePath, ok1 := c.Context["basePath"].(string)
     pattern, ok2 := c.Context["pattern"].(string)
@@ -112,7 +112,6 @@ func WatchFilePattern(c *Callback) error {
     if err != nil {
 		return fmt.Errorf("error creating watcher: %w", err)
     }
-    defer watcher.Close()
 
     // ajouter le dossier racine
     if err := watcher.Add(basePath); err != nil {
@@ -150,6 +149,45 @@ func WatchFilePattern(c *Callback) error {
 	}()
 	return nil
 }
+
+
+// Find a file (recursively in the folder) that match the pattern
+// From the context
+//		- basePath String (ex : "/a/")
+//		- pattern String (ex : "*.d")
+// Add in the context :
+//		- filePath String (ex: "/a/b/c.d")
+func FindFilesPattern(c *Callback) error {
+	basePath, ok1 := c.Context["basePath"].(string)
+    pattern, ok2 := c.Context["pattern"].(string)
+    if !ok1 || !ok2 {
+        return fmt.Errorf("missing or incorrect type for the context: basePath | pattern")
+    }
+
+    err := filepath.Walk(basePath, func(path string, info os.FileInfo, err error) error {
+        if err != nil {
+            return err
+        }
+        if !info.IsDir() {
+            matched, err := filepath.Match(pattern, filepath.Base(path))
+            if err != nil {
+                return err
+            }
+            if matched {
+                c.Context["filePath"] = path
+                return c.Clone().CallNext()
+            }
+        }
+        return nil
+    })
+
+    if err != nil {
+        return fmt.Errorf("error walking the path: %w", err)
+    }
+
+    return nil
+}
+
 
 
 // Call next only if the event is  Write

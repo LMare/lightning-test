@@ -14,15 +14,42 @@ const mountedLndVol = "/root/.lnd/"
 const mountedBtcdVol = "/root/.btcd/"
 const macarronPattern = "*.macaroon"
 const certName = "tls.cert"
-var lndNodeName = os.Getenv("NODE_NAME")
+var lndNodeName = os.Getenv("POD_NAME")
 
 func main() {
 	fmt.Println("[Sidecar lnd] Starting on " + lndNodeName)
 	pullBtcdSecret()
 	readLndCertAsSecretAndPatch()
+	readLndMacaroonAsSecretAndPatch()
 	watchLndMacaroonAsSecretAndPatch()
 	fmt.Println("[Sidecar lnd] Complete -> go to sleep")
 	select {}
+}
+
+// Read the lnd macarron and share it
+func readLndMacaroonAsSecretAndPatch() {
+	fmt.Println("[Sidecar lnd] readLndMacaroonAsSecretAndPatch...")
+	callback := &sidecar.Callback {
+	    Context : map[string]interface{} {
+			"namespace" : namespace,
+			"secretName" : secretLnd,
+			"mountedVolume" : mountedLndVol,
+			"pattern" : macarronPattern,
+			"secretPrefix" : lndNodeName,
+		},
+		Chain : []func(*sidecar.Callback) error {
+			sidecar.MountedVolumeToBasePath,
+			sidecar.FindFilesPattern,
+			sidecar.FilePathToFilePathInVolume,
+			sidecar.ReadFileAsSecret,
+			sidecar.PatchSecret,
+		},
+	}
+	if err := callback.CallNext(); err != nil {
+		fmt.Println("[Sidecar lnd] readLndMacaroonAsSecretAndPatch... Failed !")
+		panic("error on readLndMacaroonAsSecretAndPatch : %s" + err.Error())
+	}
+	fmt.Println("[Sidecar lnd] readLndMacaroonAsSecretAndPatch... Done !")
 }
 
 

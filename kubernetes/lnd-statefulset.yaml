@@ -64,13 +64,17 @@ spec:
               value: "btcd-0.btcd-headless.lightning-playground.svc.cluster.local:18556"
 
         - name: sidecar
-          image: LMare/lightning-playground-sidecar-lnd:v0.2.0-2
+          image: LMare/lightning-playground-sidecar-lnd:v0.2.0-5
           volumeMounts:
             - name: lnd-data            # to read the certs + macarron & sent to Secret Bundle LND
               mountPath: /root/.lnd
             - name: btcd-data           # to write the certs btcd to for LND
               mountPath: /root/.btcd
-
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
       restartPolicy: Always
   volumeClaimTemplates:
     - metadata:

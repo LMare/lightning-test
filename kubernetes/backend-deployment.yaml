@@ -3,7 +3,6 @@ apiVersion: apps/v1
 kind: Deployment  # -> des pods stateless, on scale facilement
 metadata:
   annotations:
-    version : 0.2.0-SNAPSHOT
     author: LMare
   labels:
     app: backend
@@ -26,7 +25,7 @@ spec:
           emptyDir: {}
       containers:
         - name: backend
-          image: LMare/lightning-playground-backend:v0.2.0-SNAPSHOT
+          image: LMare/lightning-playground-backend:v0.2.0-4
           name: backend
           ports:
             - name: backend-port
@@ -36,9 +35,19 @@ spec:
               mountPath: /app/nodes-storage
 
         - name: sidecar
-          image: LMare/lightning-playground-sidecar-backend:v0.2.0-2
+          image: LMare/lightning-playground-sidecar-backend:v0.2.0-5
           volumeMounts:
             - name: lnd-shared-data
               mountPath: /app/nodes-storage
+
+        - name: debug
+          image: busybox
+          command: ["sleep", "infinity"]
+          stdin: true
+          tty: true
+          volumeMounts:
+            - name: lnd-shared-data
+              mountPath: /app/nodes-storage
+
 
       restartPolicy: Always
