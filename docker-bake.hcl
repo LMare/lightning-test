@@ -1,5 +1,5 @@
 variable "APP_VERSION" {
-  default = "v0.2.0-5"
+  default = "v0.2.0-8"
 }
 variable "BTCD_VERSION" {
   default = "v0.25.0"
@@ -40,6 +40,16 @@ group "sidecars" {
 }
 group "default" {
 	targets = ["frontend", "backend", "btcd", "lnd"]
+}
+
+
+target "backend-compiler" {
+  context = "."
+  dockerfile = "./backend/Dockerfile"
+  target = "compiler"
+  args = { COMPILATION = "static" }
+  inherits = ["common-app-args"]
+  tags = ["backend-compiler:latest"]
 }
 
 
@@ -103,6 +113,15 @@ target "sidecar-backend" {
   tags = ["LMare/lightning-playground-sidecar-backend:${APP_VERSION}"]
 }
 
+target "sidecar-compiler" {
+  context = "."
+  dockerfile = "./sidecar/Dockerfile"
+  inherits = ["common-app-args"]
+  target = "compiler"
+  tags = ["sidecar-compiler:latest"]
+}
+
+
 target "sidecar-lnd" {
   context = "."
   dockerfile = "./sidecar/Dockerfile"
@@ -110,6 +129,9 @@ target "sidecar-lnd" {
   inherits = ["common-app-args"]
   tags = ["LMare/lightning-playground-sidecar-lnd:${APP_VERSION}"]
 }
+
+
+
 
 target "sidecar-btcd" {
   context = "."

@@ -18,4 +18,4 @@ rules:
 - apiGroups: [""]
   resources: ["secrets"]
   resourceNames: ["btcd-credentials"]
-  verbs: ["get"]
+  verbs: ["get", "watch"]

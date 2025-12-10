@@ -50,7 +50,7 @@ TODO :
 
 ### 4. Backend Responsibilities
 - [ ] Discover LND pods via the headless service (`lnd-0.lnd-headless`, etc.).
-- [ ] Read the corresponding certs/macaroons from the Secret bundle.
+- [X] **backend-sidecar** Read the corresponding certs/macaroons from the Secret bundle.
 - [ ] Use gRPC to **create or unlock wallets** via the `WalletUnlocker` service.
 - [ ] Replace static `nodes.yaml` with dynamic discovery logic.
 
@@ -97,7 +97,7 @@ TODO :
 docker buildx bake
 echo "127.0.0.1	lightning-playground.local" >> /etc/hosts
 cd kubernetes
-export VERSION=v0.2.0-5
+export VERSION=v0.2.0-8
 # cluster + docker images
 kind create cluster --name lightning-playground --config cluster.yaml
 kind load docker-image LMare/lightning-playground-frontend:$VERSION        --name lightning-playground &
@@ -117,20 +117,20 @@ kubectl apply -f backend-deployment.yaml      -n lightning-playground
 kubectl apply -f backend-service.yaml         -n lightning-playground
 kubectl apply -f backend-service-account.yaml -n lightning-playground
 # btcd
-kubectl apply -f btcd-cm1-configmap.yaml    --n lightning-playground
-kubectl apply -f btcd-role-binding.yaml     --n lightning-playground
-kubectl apply -f btcd-role.yaml             --n lightning-playground
-kubectl apply -f btcd-secret.yaml           --n lightning-playground
-kubectl apply -f btcd-service-account.yaml  --n lightning-playground
-kubectl apply -f btcd-service-headless.yaml --n lightning-playground
-kubectl apply -f btcd-statefulset.yaml      --n lightning-playground
+kubectl apply -f btcd-cm1-configmap.yaml    -n lightning-playground
+kubectl apply -f btcd-role-binding.yaml     -n lightning-playground
+kubectl apply -f btcd-role.yaml             -n lightning-playground
+kubectl apply -f btcd-secret.yaml           -n lightning-playground
+kubectl apply -f btcd-service-account.yaml  -n lightning-playground
+kubectl apply -f btcd-service-headless.yaml -n lightning-playground
+kubectl apply -f btcd-statefulset.yaml      -n lightning-playground
 # lnd
-kubectl apply -f lnd-rolebinding.yaml      --n lightning-playground
-kubectl apply -f lnd-role.yaml             --n lightning-playground
-kubectl apply -f lnd-secret.yaml           --n lightning-playground
-kubectl apply -f lnd-service-account.yaml  --n lightning-playground
-kubectl apply -f lnd-service-headless.yaml --n lightning-playground
-kubectl apply -f lnd-statefulset.yaml      --n lightning-playground
+kubectl apply -f lnd-rolebinding.yaml      -n lightning-playground
+kubectl apply -f lnd-role.yaml             -n lightning-playground
+kubectl apply -f lnd-secret.yaml           -n lightning-playground
+kubectl apply -f lnd-service-account.yaml  -n lightning-playground
+kubectl apply -f lnd-service-headless.yaml -n lightning-playground
+kubectl apply -f lnd-statefulset.yaml      -n lightning-playground
 ```
 Go to http://lightning-playground.local/
 -----------------------------------------------------------------------------------------------

@@ -24,7 +24,7 @@ spec:
         - name: lnd
           args:
             - lnd
-            - --btcd.rpchost=$(BTCD_URL)
+            - --btcd.rpchost=$(BTCD_URL):18556
             - --bitcoin.active
             - --bitcoin.simnet
             - --bitcoin.node=btcd
@@ -61,10 +61,10 @@ spec:
             - name: LND_DOMAIN
               value: "$(POD_NAME).lnd-headless.$(POD_NAMESPACE).svc.cluster.local"
             - name: BTCD_URL
-              value: "btcd-0.btcd-headless.lightning-playground.svc.cluster.local:18556"
+              value: "btcd-0.btcd-headless.lightning-playground.svc.cluster.local"
 
         - name: sidecar
-          image: LMare/lightning-playground-sidecar-lnd:v0.2.0-5
+          image: LMare/lightning-playground-sidecar-lnd:v0.2.0-8
           volumeMounts:
             - name: lnd-data            # to read the certs + macarron & sent to Secret Bundle LND
               mountPath: /root/.lnd

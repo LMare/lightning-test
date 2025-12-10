@@ -18,14 +18,39 @@ spec:
         app: btcd
     spec:
       serviceAccountName: btcd-service-account
-      hostname: btcd-0.btcd-headless.lightning-playground.svc.cluster.local #todo générique pour le certif
+      initContainers:
+        - name: generate-cert
+          image: btcsuite/btcd:v0.25.0
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              if [ ! -f /root/.btcd/rpc.cert ]; then
+                gencerts --host=${HOSTNAME} --directory=/root/.btcd/
+              fi
+          volumeMounts:
+            - mountPath: /root/.btcd
+              name: btcd-data
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: HOSTNAME
+              value: "$(POD_NAME).btcd-headless.$(POD_NAMESPACE).svc.cluster.local"
+        - name: share-cert
+          image: LMare/lightning-playground-sidecar-btcd:v0.2.0-8
+          volumeMounts:
+            - name: btcd-data           # to read the certs & sent to Secret Bundle BTCD
+              mountPath: /root/.btcd
       containers:
         - name: btcd
-          env:
-            - name: MINING_ADDR
-              value: rneZnvYmrLg9V6seGghNXmdfzatNsHgb54
+          image: btcsuite/btcd:v0.25.0
+          command: ["btcd"]
           args:
-            - btcd
             - --simnet
             - --rpcuser=user
             - --rpcpass=pass
@@ -34,8 +59,9 @@ spec:
             - --debuglevel=debug
             - --txindex
             - --miningaddr=$(MINING_ADDR)
-          image: btcsuite/btcd:v0.25.0
-          name: btcd
+          env:
+            - name: MINING_ADDR
+              value: rYMs5Y8Wi2HJi2F4jRDNxHRvd2GfgHLQZF
           volumeMounts:
             - mountPath: /root/.btcd
               name: btcd-data
@@ -48,11 +74,7 @@ spec:
             - name: p2p-port
               containerPort: 18555
 
-        - name: sidecar
-          image: LMare/lightning-playground-sidecar-btcd:v0.2.0-4
-          volumeMounts:
-            - name: btcd-data           # to read the certs & sent to Secret Bundle BTCD
-              mountPath: /root/.btcd
+
       volumes:
         - name: btcd-config
           configMap:

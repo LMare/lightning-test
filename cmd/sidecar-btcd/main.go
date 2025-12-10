@@ -13,10 +13,11 @@ const mountedBtcdVol = "/root/.btcd/"
 const certName = "rpc.cert"
 
 func main() {
+	// it's more a initContainers than a sidecar because there isn't rootine
+	// to stay alive
 	fmt.Println("[Sidecar btcd] Starting")
 	readBtcdCertAsSecretAndPatch()
-	fmt.Println("[Sidecar btcd] Complete -> go to sleep")
-	select {}
+	fmt.Println("[Sidecar btcd] Complete")
 }
 
 

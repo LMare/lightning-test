@@ -22,6 +22,7 @@ func main() {
 	readLndCertAsSecretAndPatch()
 	readLndMacaroonAsSecretAndPatch()
 	watchLndMacaroonAsSecretAndPatch()
+	watchBtcdSecretModifiedAndSaveThem()
 	fmt.Println("[Sidecar lnd] Complete -> go to sleep")
 	select {}
 }
@@ -125,4 +126,29 @@ func watchLndMacaroonAsSecretAndPatch() {
 		panic("error on watchLndMacaroonAsSecretAndPatch : " + err.Error())
 	}
 	fmt.Println("[Sidecar lnd] watchLndMacaroonAsSecretAndPatch... Done !")
+}
+
+
+
+
+// Get the lnd credentials and Store them
+func watchBtcdSecretModifiedAndSaveThem() {
+	fmt.Println("[Sidecar lnd] watchBtcdSecretModifiedAndSaveThem...")
+	callback := &sidecar.Callback {
+	    Context : map[string]interface{} {
+			"namespace" : namespace,
+			"secretName" : secretBtcd,
+			"mountedVolume" : mountedBtcdVol,
+		},
+		Chain : []func(*sidecar.Callback) error {
+			sidecar.WatchSecretModified,
+			sidecar.MountedVolumeToBasePath,
+			sidecar.SecretToPath,
+		},
+	}
+	if err := callback.CallNext(); err != nil {
+		fmt.Println("[Sidecar lnd] watchBtcdSecretModifiedAndSaveThem... Failed !")
+		panic("error on watchBtcdSecretModifiedAndSaveThem : %s" + err.Error())
+	}
+	fmt.Println("[Sidecar lnd] watchBtcdSecretModifiedAndSaveThem... Done !")
 }

@@ -35,7 +35,7 @@ spec:
               mountPath: /app/nodes-storage
 
         - name: sidecar
-          image: LMare/lightning-playground-sidecar-backend:v0.2.0-5
+          image: LMare/lightning-playground-sidecar-backend:v0.2.0-8
           volumeMounts:
             - name: lnd-shared-data
               mountPath: /app/nodes-storage

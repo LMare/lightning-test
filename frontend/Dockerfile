@@ -10,10 +10,12 @@ ARG COMPILATION=static
 ENV COMPILATION=$COMPILATION
 WORKDIR /app
 COPY go.mod go.sum ./
-RUN go mod download
+RUN --mount=type=cache,target=/go/pkg/mod \
+	go mod download
 COPY *.go ./
 COPY cmd/frontend cmd/frontend/
-RUN if [ "$COMPILATION" = "static" ]; then \
+RUN --mount=type=cache,target=/root/.cache/go-build \
+	if [ "$COMPILATION" = "static" ]; then \
 		echo "CGO_ENABLED=0 go build -o app-frontend ./cmd/frontend"; \
 		CGO_ENABLED=0 go build -o app-frontend ./cmd/frontend; \
 	else \

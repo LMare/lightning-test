@@ -113,8 +113,17 @@ func WatchFilePattern(c *Callback) error {
 		return fmt.Errorf("error creating watcher: %w", err)
     }
 
-    // ajouter le dossier racine
-    if err := watcher.Add(basePath); err != nil {
+    // ajouter le dossier racine + les sous dossier
+	err = filepath.Walk(basePath, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+            return err // important: ne pas ignorer les erreurs
+        }
+		if info.IsDir() {
+	        return watcher.Add(basePath)
+	    }
+	    return nil
+	})
+    if err != nil {
 		return fmt.Errorf("error adding basePath: %w", err)
     }
 
@@ -128,11 +137,45 @@ func WatchFilePattern(c *Callback) error {
 	                return
 	            }
 
+				// watch & check new folder
+				if event.Op&fsnotify.Create == fsnotify.Create {
+		            info, err := os.Stat(event.Name)
+		            if err == nil && info.IsDir() {
+		                fmt.Println("New folder detected:", event.Name)
+						c = c.Clone()
+						c.Context["event.Op"] = event.Op
+						filepath.Walk(basePath, func(path string, info os.FileInfo, err error) error {
+							if err != nil {
+					            return err
+					        }
+							if info.IsDir() {
+						        return watcher.Add(basePath)
+						    } else {
+								if info.Mode().IsRegular() {
+									// check if match the pattern
+									if matched, err := filepath.Match(pattern, info.Name()); err == nil && matched {
+										go func ()  {
+											c = c.Clone()
+											c.Context["filePath"] = info.Name()
+											err = c.CallNext()
+											if err != nil {
+										        fmt.Println("error on watching file callback : %s", err)
+										    }
+										}()
+									}
+								}
+							}
+						    return nil
+						})
+		            }
+		        }
+
 				if matched, err := filepath.Match(pattern, filepath.Base(event.Name)); err == nil && matched {
+					c = c.Clone()
 					c.Context["filePath"] = event.Name
 					c.Context["event.Op"] = event.Op
 					fmt.Println("File changed :", event.Name)
-					err = c.Clone().CallNext()
+					err = c.CallNext()
 					if err != nil {
 				        fmt.Println("error on watching file callback : %s", err)
 				    }
@@ -149,6 +192,7 @@ func WatchFilePattern(c *Callback) error {
 	}()
 	return nil
 }
+
 
 
 // Find a file (recursively in the folder) that match the pattern
