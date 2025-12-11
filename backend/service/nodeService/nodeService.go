@@ -1,9 +1,8 @@
 package nodeService
 
 import (
-	yaml "gopkg.in/yaml.v3"
 	"os"
-	"fmt"
+	"path/filepath"
 
 	config "github.com/Lmare/lightning-playground"
 	exception "github.com/Lmare/lightning-playground/backend/exception"
@@ -11,46 +10,60 @@ import (
 )
 
 
+var conf = config.Load();
 
 
-
-type nodesConfigDescriptor struct {
-	Nodes	[]nodeModel.NodeConfigDescriptor	`yaml:nodes`
-}
-
-// Read a yaml file to get the resource to connect to the nodes
+// Return the indo to connect to the nodes
 func ListOfNodes() ([]nodeModel.NodeConfigDescriptor, error) {
-	y := config.Load().NodesFileDescriptor
+	nodes := []nodeModel.NodeConfigDescriptor{}
 
-	data, err := os.ReadFile(y)
+	ids, err := getNodesIds()
 	if err != nil {
-		err := exception.NewError(fmt.Sprintf("Erreur lors de la lecture du fichier %s de config des nodes", y), err, exception.NewExampleError)
-		return nil, err
+		return nodes, exception.NewError("Error getNodesIds", err, exception.NewExampleError)
+    }
+
+	for _, id := range ids {
+		nodes = append(nodes, getNodeConfigDescriptor(id))
 	}
 
-	var nodesConf nodesConfigDescriptor
-	err = yaml.Unmarshal(data, &nodesConf)
-	if err != nil {
-		err := exception.NewError("Erreur Unmarshal yaml to NodesConfigDescription", err, exception.NewExampleError)
-		return nil, err
-	}
-
-	return nodesConf.Nodes, nil
+	return nodes, nil
 }
 
-// get connection data of a specific node
-func GetLndClientAuthData(id int) (nodeModel.LndClientAuthData, error) {
-	nodes, err := ListOfNodes()
-	if err != nil {
-		err := exception.NewError("Erreur lors de la récupération des nodes", err, exception.NewExampleError)
-		return nodeModel.LndClientAuthData{}, err
-	}
 
-	for _, node := range nodes {
-		if node.Id == id {
-			return node.AuthData, nil
-		}
-	}
-	err = exception.NewError(fmt.Sprintf("La node id %d n'existe pas", id), err, exception.NewExampleError)
-	return nodeModel.LndClientAuthData{}, err
+// the instance of NodeConfigDescriptor for the node Id
+func getNodeConfigDescriptor(id string) nodeModel.NodeConfigDescriptor {
+	return nodeModel.NodeConfigDescriptor{Id: id, AuthData: GetLndClientAuthData(id),}
+}
+
+// the instance of LndClientAuthData for the Id
+func GetLndClientAuthData(id string) nodeModel.LndClientAuthData {
+	certPath := conf.NodeStorage + id + "/tls.cert"
+	macarronPath := conf.NodeStorage + id + "/data/chain/bitcoin/" + conf.LndNetwork + "/admin.macaroon"
+	url := id + "." + conf.LndDomain + ":10009"
+	return nodeModel.NewLndClientAuthData(certPath, macarronPath, url)
+}
+
+
+
+// Return the list of node Ids
+// Search in the filesystem
+func getNodesIds() ([]string, error) {
+	nodeIds := []string{}
+
+	// read Folder of Nodes
+    entries, err := os.ReadDir(conf.NodeStorage)
+    if err != nil {
+		return nodeIds, exception.NewError("Erreur on reading NodeStorage", err, exception.NewExampleError)
+    }
+
+    // Parcourir les entrées et filtrer uniquement les dossiers
+    for _, entry := range entries {
+        if entry.IsDir() {
+			if matched, err := filepath.Match(conf.NodeNamePattern, entry.Name()); err == nil && matched {
+				nodeIds = append(nodeIds, entry.Name())
+			}
+        }
+    }
+
+	return nodeIds, nil
 }

@@ -7,11 +7,11 @@ ARG GO_TAG=1.25.0
 FROM golang:$GO_TAG AS compiler
 WORKDIR /app
 COPY go.mod go.sum ./
-RUN --mount=type=cache,target=/go/pkg/mod \
+RUN --mount=type=cache,target=/go/pkg/mod,id=gomod,sharing=locked \
 	go mod download
 COPY sidecar sidecar/
 COPY cmd cmd
-RUN --mount=type=cache,target=/root/.cache/go-build,id=gobuild,sharing=locked \
+RUN --mount=type=cache,target=/root/.cache/go-build,id=gobuild-sidecar,sharing=locked \
     --mount=type=cache,target=/go/pkg/mod,id=gomod,sharing=locked \
     CGO_ENABLED=0 \
     go build -o sidecar-lnd ./cmd/sidecar-lnd && \

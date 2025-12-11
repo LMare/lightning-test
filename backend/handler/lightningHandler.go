@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"html/template"
 	"strings"
+	"regexp"
 
 	lightningService "github.com/Lmare/lightning-playground/backend/service/lightningService"
 	nodeService "github.com/Lmare/lightning-playground/backend/service/nodeService"
@@ -28,21 +29,22 @@ func handleListOfNodes(response http.ResponseWriter, request *http.Request) {
 	}
 }
 
+// check if the format of the id is valid
+func isVaildFormatOfId(id string) bool {
+	re := regexp.MustCompile(`^[a-zA-Z0-9_-]+$`)
+	return re.MatchString(id)
+}
+
 // get the URI of the node
 func handleShowUri(response http.ResponseWriter, request *http.Request) {
 	// paramètre de la node
-	idStr := request.FormValue("id")
-	id, err := strconv.Atoi(idStr)
-	if err != nil {
-		fail(response, request, "Pas d'id transmis", err)
+	id := request.FormValue("id")
+	if !isVaildFormatOfId(id) {
+		fail(response, request, "Pas d'id transmis", nil)
 		return
 	}
 	// récupération info de connexion à la node
-	authData, err := nodeService.GetLndClientAuthData(id)
-	if(err != nil) {
-		fail(response, request, "Node inexistante", err)
-		return
-	}
+	authData := nodeService.GetLndClientAuthData(id)
 
 	// get the uri of the node
 	uri, err := lightningService.GetFirstUri(authData)
@@ -92,18 +94,13 @@ func truncate(s string, n int) string {
 // get the info of one Node
 func handleNodeInfo(response http.ResponseWriter, request *http.Request) {
 	// paramètre de la node
-	idStr := request.FormValue("id")
-	id, err := strconv.Atoi(idStr)
-	if err != nil {
-		fail(response, request, "Pas d'id transmis", err)
+	id := request.FormValue("id")
+	if !isVaildFormatOfId(id) {
+		fail(response, request, "Pas d'id transmis", nil)
 		return
 	}
 	// récupération info de connexion à la node
-	authData, err := nodeService.GetLndClientAuthData(id)
-	if(err != nil) {
-		fail(response, request, "Node inexistante", err)
-		return
-	}
+	authData := nodeService.GetLndClientAuthData(id)
 
 	// get the info of the node
 	data, err := lightningService.GetUsefullInfo(authData)
@@ -129,19 +126,15 @@ func handleAddPeer(response http.ResponseWriter, request *http.Request) {
         return
     }
 
-	idStr := request.FormValue("id")
-	id, err := strconv.Atoi(idStr)
-	if err != nil {
+	id := request.FormValue("id")
+	if !isVaildFormatOfId(id) {
 		fail(response, request, "Pas d'id transmis", err)
 		return
 	}
 	uri := request.FormValue("uri")
 	// Get Data to connect lnd
-	authData, err := nodeService.GetLndClientAuthData(id)
-	if(err != nil) {
-		fail(response, request, "Info transmisent incorrectes", err)
-		return
-	}
+	authData := nodeService.GetLndClientAuthData(id)
+
 	// Add the pair
 	err = lightningService.AddPeer(authData, uri)
 	if err != nil {
@@ -167,9 +160,8 @@ func handleOpenChannel(response http.ResponseWriter, request *http.Request) {
         return
     }
 
-	idStr := request.FormValue("id")
-	id, err := strconv.Atoi(idStr)
-	if err != nil {
+	id := request.FormValue("id")
+	if !isVaildFormatOfId(id) {
 		fail(response, request, "Pas d'id transmis", err)
 		return
 	}
@@ -182,11 +174,8 @@ func handleOpenChannel(response http.ResponseWriter, request *http.Request) {
 	}
 
 	// Get Data to connect lnd
-	authData, err := nodeService.GetLndClientAuthData(id)
-	if(err != nil) {
-		fail(response, request, "Info transmisent incorrectes", err)
-		return
-	}
+	authData := nodeService.GetLndClientAuthData(id)
+
 	// create the channel
 	err = lightningService.OpenChannel(authData, pubKey, amount)
 	if err != nil {
@@ -211,9 +200,8 @@ func handleCreateInvoice(response http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	idStr := request.FormValue("id")
-	id, err := strconv.Atoi(idStr)
-	if err != nil {
+	id := request.FormValue("id")
+	if !isVaildFormatOfId(id) {
 		fail(response, request, "Pas d'id transmis", err)
 		return
 	}
@@ -226,11 +214,8 @@ func handleCreateInvoice(response http.ResponseWriter, request *http.Request) {
 	}
 
 	// Get Data to connect lnd
-	authData, err := nodeService.GetLndClientAuthData(id)
-	if(err != nil) {
-		fail(response, request, "Info transmisent incorrectes", err)
-		return
-	}
+	authData := nodeService.GetLndClientAuthData(id)
+
 	// create the invoice
 	p, err := lightningService.CreateQuickInvoice(authData, memo, amount)
 	if err != nil {
@@ -257,20 +242,16 @@ func handleMakePaiment(response http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	idStr := request.FormValue("id")
-	id, err := strconv.Atoi(idStr)
-	if err != nil {
+	id := request.FormValue("id")
+	if !isVaildFormatOfId(id) {
 		fail(response, request, "Pas d'id transmis", err)
 		return
 	}
 	paymentRequest := request.FormValue("paymentRequest")
 
 	// Get Data to connect lnd
-	authData, err := nodeService.GetLndClientAuthData(id)
-	if(err != nil) {
-		fail(response, request, "Info transmisent incorrectes", err)
-		return
-	}
+	authData := nodeService.GetLndClientAuthData(id)
+
 	// create the invoice
 	err = lightningService.MakePaiment(authData, paymentRequest)
 	if err != nil {
@@ -305,19 +286,14 @@ func handleUpdateNodeAlias(response http.ResponseWriter, request *http.Request) 
     fmt.Println("color reçu : ", color)
 
 	// paramètre de la node
-	idStr := request.FormValue("id")
-	id, err := strconv.Atoi(idStr)
-	if err != nil {
+	id := request.FormValue("id")
+	if !isVaildFormatOfId(id) {
 		fail(response, request, "Pas d'id transmis", err)
 		return
 	}
 
 	// connection info of lnd1
-	authData, err := nodeService.GetLndClientAuthData(id)
-	if(err != nil) {
-		fail(response, request, "Info transmisent incorrectes", err)
-		return
-	}
+	authData := nodeService.GetLndClientAuthData(id)
 
 	err = lightningService.UpdateAliasAndColor(authData, alias, color)
 	if err != nil {

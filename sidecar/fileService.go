@@ -149,19 +149,18 @@ func WatchFilePattern(c *Callback) error {
 					            return err
 					        }
 							if info.IsDir() {
-						        return watcher.Add(basePath)
+						        return watcher.Add(path)
 						    } else {
 								if info.Mode().IsRegular() {
 									// check if match the pattern
 									if matched, err := filepath.Match(pattern, info.Name()); err == nil && matched {
-										go func ()  {
-											c = c.Clone()
+										go func (c *Callback)  {
 											c.Context["filePath"] = info.Name()
 											err = c.CallNext()
 											if err != nil {
-										        fmt.Println("error on watching file callback : %s", err)
+										        fmt.Println("error on watching file callback : ", err)
 										    }
-										}()
+										}(c.Clone())
 									}
 								}
 							}

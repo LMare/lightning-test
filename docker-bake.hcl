@@ -1,5 +1,5 @@
 variable "APP_VERSION" {
-  default = "v0.2.0-8"
+  default = "v0.2.0-10"
 }
 variable "BTCD_VERSION" {
   default = "v0.25.0"
@@ -21,6 +21,10 @@ target "common-app-args" {
 		ALPINE_TAG = "${ALPINE_TAG}"
 		GO_TAG = "${GO_TAG}"
 	}
+}
+
+group "compiler" {
+	targets = ["sidecar-compiler", "backend-compiler", "frontend-compiler"]
 }
 
 group "app-scratch" {
@@ -47,7 +51,6 @@ target "backend-compiler" {
   context = "."
   dockerfile = "./backend/Dockerfile"
   target = "compiler"
-  args = { COMPILATION = "static" }
   inherits = ["common-app-args"]
   tags = ["backend-compiler:latest"]
 }
@@ -57,7 +60,6 @@ target "backend-scratch" {
   context = "."
   dockerfile = "./backend/Dockerfile"
   target = "backend-scratch"
-  args = { COMPILATION = "static" }
   inherits = ["common-app-args"]
   tags = ["LMare/lightning-playground-backend:${APP_VERSION}"]
 }
@@ -66,7 +68,6 @@ target "backend-alpine" {
   context = "."
   dockerfile = "./backend/Dockerfile"
   target = "backend-alpine"
-  args = { COMPILATION = "dynamic" }
   inherits = ["common-app-args"]
   tags = ["LMare/lightning-playground-backend:${APP_VERSION}-alpine-${ALPINE_TAG}"]
 }
@@ -74,8 +75,15 @@ target "backend-alpine" {
 target "frontend-scratch" {
   context = "."
   dockerfile = "./frontend/Dockerfile"
+  target = "compiler"
+  inherits = ["common-app-args"]
+  tags = ["frontend-compiler:latest"]
+}
+
+target "frontend-scratch" {
+  context = "."
+  dockerfile = "./frontend/Dockerfile"
   target = "frontend-scratch"
-  args = { COMPILATION = "static" }
   inherits = ["common-app-args"]
   tags = ["LMare/lightning-playground-frontend:${APP_VERSION}"]
 }
@@ -84,7 +92,6 @@ target "frontend-alpine" {
   context = "."
   dockerfile = "./frontend/Dockerfile"
   target = "frontend-alpine"
-  args = { COMPILATION = "dynamic" }
   inherits = ["common-app-args"]
   tags = ["LMare/lightning-playground-frontend:${APP_VERSION}-alpine-${ALPINE_TAG}"]
 }
@@ -129,8 +136,6 @@ target "sidecar-lnd" {
   inherits = ["common-app-args"]
   tags = ["LMare/lightning-playground-sidecar-lnd:${APP_VERSION}"]
 }
-
-
 
 
 target "sidecar-btcd" {

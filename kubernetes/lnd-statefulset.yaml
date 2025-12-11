@@ -7,7 +7,7 @@ metadata:
   namespace : lightning-playground
 spec:
   serviceName: lnd-headless
-  replicas: 2
+  replicas: 4
   selector:
     matchLabels:
       app: lnd
@@ -64,7 +64,7 @@ spec:
               value: "btcd-0.btcd-headless.lightning-playground.svc.cluster.local"
 
         - name: sidecar
-          image: LMare/lightning-playground-sidecar-lnd:v0.2.0-8
+          image: LMare/lightning-playground-sidecar-lnd:v0.2.0-10
           volumeMounts:
             - name: lnd-data            # to read the certs + macarron & sent to Secret Bundle LND
               mountPath: /root/.lnd

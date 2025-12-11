@@ -3,7 +3,7 @@ package nodeModel
 
 type NodeConfigDescriptor struct {
 	AuthData	LndClientAuthData	`yaml:"data"`
-	Id			int					`yaml:"id"`
+	Id			string					`yaml:"id"`
 }
 
 

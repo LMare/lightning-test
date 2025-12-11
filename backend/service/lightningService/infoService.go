@@ -24,7 +24,7 @@ type InfoLndNode struct {
 }
 
 type NodeBasicInfo struct {
-	Id 		int		`json:"id"`
+	Id 		string	`json:"id"`
 	Alias	string	`json:"alias"`
 	Color	string	`json:"color"`
 }

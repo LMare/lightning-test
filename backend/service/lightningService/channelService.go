@@ -94,6 +94,9 @@ func MakePaiment(dataClient nodeModel.LndClientAuthData, paymentRequest string) 
 		return exception.NewError("Cannot init Router Client", err, exception.NewExampleError)
     }
 
+
+
+	// TODO accept some feeds to pay ! 
 	stream, err := client.SendPaymentV2(context.Background(), &routerrpc.SendPaymentRequest{PaymentRequest: paymentRequest})
 	if err != nil {
 		return exception.NewError("Error on creating invoice", err, exception.NewExampleError)

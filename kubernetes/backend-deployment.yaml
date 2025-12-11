@@ -9,7 +9,7 @@ metadata:
   name: backend
   namespace : lightning-playground
 spec:
-  replicas: 2
+  replicas: 1 # Scalability works, but for the SSE we need a brocker
   selector:
     matchLabels:
       app: backend
@@ -25,14 +25,14 @@ spec:
           emptyDir: {}
       containers:
         - name: backend
-          image: LMare/lightning-playground-backend:v0.2.0-4
+          image: LMare/lightning-playground-backend:v0.2.0-9
           name: backend
           ports:
             - name: backend-port
               containerPort: 8080
           volumeMounts:
             - name: lnd-shared-data
-              mountPath: /app/nodes-storage
+              mountPath: /app/node-storage
 
         - name: sidecar
           image: LMare/lightning-playground-sidecar-backend:v0.2.0-8
@@ -47,7 +47,7 @@ spec:
           tty: true
           volumeMounts:
             - name: lnd-shared-data
-              mountPath: /app/nodes-storage
+              mountPath: /app/node-storage
 
 
       restartPolicy: Always

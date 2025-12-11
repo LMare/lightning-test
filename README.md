@@ -52,11 +52,11 @@ TODO :
 - [ ] Discover LND pods via the headless service (`lnd-0.lnd-headless`, etc.).
 - [X] **backend-sidecar** Read the corresponding certs/macaroons from the Secret bundle.
 - [ ] Use gRPC to **create or unlock wallets** via the `WalletUnlocker` service.
-- [ ] Replace static `nodes.yaml` with dynamic discovery logic.
+- [X] Replace static `nodes.yaml` with dynamic discovery logic.
 
 ### 5. Networking & Service Discovery
 - [X] Configure a **headless Service** for LND to provide stable DNS per pod.
-- [ ] Ensure the backend can dynamically map endpoints (`lnd-N`) to certs/macaroons.
+- [X] Ensure the backend can dynamically map endpoints (`lnd-N`) to certs/macaroons.
 - [X] Use Ingress to expose frontend APIs externally.
 
 ### 6. Security & Best Practices
