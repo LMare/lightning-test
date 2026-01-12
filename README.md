@@ -28,7 +28,6 @@ TODO :
 ## TODO List for Kubernetes Migration (Lightning Network Project)
 
 issues :
- - detection macaroon after creation of wallet not work
  - SSE with Deployement Backend broken -> need to put a broker
 
 ### 1. Cluster Setup
@@ -101,7 +100,7 @@ issues :
 docker buildx bake
 echo "127.0.0.1	lightning-playground.local" >> /etc/hosts
 cd kubernetes
-export VERSION=v0.2.0-10
+export VERSION=v0.2.0-14
 # cluster + docker images
 kind create cluster --name lightning-playground --config cluster.yaml
 kind load docker-image LMare/lightning-playground-frontend:$VERSION        --name lightning-playground &
