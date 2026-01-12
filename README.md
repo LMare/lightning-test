@@ -52,7 +52,7 @@ issues :
 - [X] Mount the `lnd-credentials` in the **backend-sidecar** in read-only mode.
 
 ### 4. Backend Responsibilities
-- [ ] Discover LND pods via the headless service (`lnd-0.lnd-headless`, etc.).
+- [X] Discover LND pods.
 - [X] **backend-sidecar** Read the corresponding certs/macaroons from the Secret bundle.
 - [ ] Use gRPC to **create or unlock wallets** via the `WalletUnlocker` service.
 - [X] Replace static `nodes.yaml` with dynamic discovery logic.
@@ -65,19 +65,19 @@ issues :
 ### 6. Security & Best Practices
 - [X] Restrict RBAC permissions for the job that **updates** the Secret bundle **LND**.
 - [X] Restrict RBAC permissions for the job that **read** the Secret bundle **LND**.
-- [ ] Separate configs: ConfigMaps for non-sensitive data, Secrets for sensitive data.
+- [X] Separate configs: ConfigMaps for non-sensitive data, Secrets for sensitive data.
 - [ ] Add liveness/readiness probes for backend and LND.
 
 ### 7. Scalability & Monitoring
-- [ ] Test scaling: `kubectl scale statefulset lnd --replicas=5`
-- [ ] Verify the backend adapts automatically to new pods.
+- [X] Test scaling: `kubectl scale statefulset lnd --replicas=5`
+- [X] Verify the backend adapts automatically to new pods.
 - [ ] Add monitoring (Prometheus + Grafana) and centralized logging.
 - [ ] Define NetworkPolicies to restrict communication paths (frontend ↔ backend ↔ LND ↔ btcd).
 
 ### 8. Finalization
 - [ ] Organize manifests into folders (`frontend/`, `backend/`, `lnd/`, `btcd/`).
 - [ ] Deploy everything with `kubectl apply -f ./manifests`.
-- [ ] Validate end-to-end flow: frontend → backend → LND → btcd.
+- [X] Validate end-to-end flow: frontend → backend → LND → btcd.
 - [ ] Document the workflow for reproducibility (CI/CD, Helm charts, etc.).
 
 ---
