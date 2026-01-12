@@ -27,6 +27,11 @@ TODO :
 
 ## TODO List for Kubernetes Migration (Lightning Network Project)
 
+issues :
+ - fees limite not set -> no routes funds
+ - detection macaroon after creation of wallet not work
+ - SSE with Deployement Backend broken -> need to put a broker
+
 ### 1. Cluster Setup
 - [X] Spin up a local Kubernetes cluster (Kind, Minikube, or k3s).
 - [X] Configure `kubectl` and create a dedicated namespace (e.g. `lightning`).
