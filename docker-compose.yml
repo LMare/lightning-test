@@ -5,8 +5,8 @@ services:
     image: LMare/lightning-playground-backend:${APP_VERSION}
     hostname: backend
     volumes:
-      - lnd-0_data:/app/nodes-storage/lnd-0
-      - lnd-1_data:/app/nodes-storage/lnd-1
+      - lnd-0_data:/app/node-storage/lnd-0
+      - lnd-1_data:/app/node-storage/lnd-1
 
   frontend:
     image: LMare/lightning-playground-frontend:${APP_VERSION}

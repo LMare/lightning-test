@@ -15,7 +15,7 @@ COPY cmd/frontend cmd/frontend/
 RUN --mount=type=cache,target=/root/.cache/go-build,id=gobuild-frontend,sharing=locked \
     --mount=type=cache,target=/go/pkg/mod,id=gomod,sharing=locked \
 	CGO_ENABLED=0 \
-	go build -o app-frontend ./cmd/frontend; \
+	go build -o app-frontend ./cmd/frontend;
 
 # 2. Construction du dossier /app avec le binaire + ressources
 FROM scratch AS builder

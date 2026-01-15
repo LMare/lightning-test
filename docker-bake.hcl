@@ -72,7 +72,7 @@ target "backend-alpine" {
   tags = ["LMare/lightning-playground-backend:${APP_VERSION}-alpine-${ALPINE_TAG}"]
 }
 
-target "frontend-scratch" {
+target "frontend-compiler" {
   context = "."
   dockerfile = "./frontend/Dockerfile"
   target = "compiler"
