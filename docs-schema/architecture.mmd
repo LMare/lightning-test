@@ -1,0 +1,51 @@
+graph TD
+    subgraph "Frontend Layer"
+        FE["🌐 Frontend<br/>Port: 8000<br/>HTML/CSS/JS"]
+    end
+    
+    subgraph "Backend Layer"
+        BE["⚙️ Backend<br/>Go Application"]
+        LH["lightningHandler<br/>Node Management"]
+        RH["routerHandler<br/>Payment Routes"]
+        UH["userHandler<br/>Users"]
+        SH["streamEventHandler<br/>Real-time Events"]
+    end
+    
+    subgraph "Lightning Network"
+        LND0["⚡ LND-0<br/>Port 9735 P2P<br/>Port 10009 gRPC<br/>Volume: lnd-0_data"]
+        LND1["⚡ LND-1<br/>Port 9735 P2P<br/>Port 10009 gRPC<br/>Volume: lnd-1_data"]
+        TOWER["🏠 LNDTower<br/>Watchtower<br/>Port 9911<br/>Volume: tower_data"]
+    end
+    
+    subgraph "Bitcoin Layer"
+        BTCD["🔗 BTCD<br/>Port 18556 RPC<br/>Port 18555 P2P<br/>Simnet Blockchain<br/>Volume: btcd_data"]
+    end
+    
+    FE -->|HTTP/REST| BE
+    BE --> LH
+    BE --> RH
+    BE --> UH
+    BE --> SH
+    
+    LH -->|gRPC:10009| LND0
+    RH -->|gRPC:10009| LND0
+    LH -->|gRPC:10009| LND1
+    RH -->|gRPC:10009| LND1
+    
+    LND0 -->|P2P:9735| LND1
+    LND0 -->|P2P:9735| TOWER
+    LND1 -->|P2P:9735| TOWER
+    
+    LND0 -->|RPC/mTLS:18556| BTCD
+    LND1 -->|RPC/mTLS:18556| BTCD
+    TOWER -->|RPC/mTLS:18556| BTCD
+    
+    classDef frontend fill:#FFD700,stroke:#333,stroke-width:2px
+    classDef backend fill:#87CEEB,stroke:#333,stroke-width:2px
+    classDef lightning fill:#FF6B6B,stroke:#333,stroke-width:2px
+    classDef bitcoin fill:#FFA500,stroke:#333,stroke-width:2px
+    
+    class FE frontend
+    class BE,LH,RH,UH,SH backend
+    class LND0,LND1,TOWER lightning
+    class BTCD bitcoin
