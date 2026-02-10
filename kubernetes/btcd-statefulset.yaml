@@ -42,7 +42,7 @@ spec:
             - name: HOSTNAME
               value: "$(POD_NAME).btcd-headless.$(POD_NAMESPACE).svc.cluster.local"
         - name: share-cert
-          image: LMare/lightning-playground-sidecar-btcd:v0.2.0-8
+          image: LMare/lightning-playground-sidecar-btcd:v0.2.0-14
           volumeMounts:
             - name: btcd-data           # to read the certs & sent to Secret Bundle BTCD
               mountPath: /root/.btcd
@@ -61,7 +61,7 @@ spec:
             - --miningaddr=$(MINING_ADDR)
           env:
             - name: MINING_ADDR
-              value: rYMs5Y8Wi2HJi2F4jRDNxHRvd2GfgHLQZF
+              value: rg9HszrSgMfuVsXTFzTQxns2HSTP4zVffG
           volumeMounts:
             - mountPath: /root/.btcd
               name: btcd-data

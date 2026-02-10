@@ -43,7 +43,7 @@ group "sidecars" {
 	targets = ["sidecar-backend", "sidecar-lnd", "sidecar-btcd"]
 }
 group "default" {
-	targets = ["frontend", "backend", "btcd", "lnd"]
+	targets = ["frontend", "backend", "btcd", "lnd", "sidecars"]
 }
 
 

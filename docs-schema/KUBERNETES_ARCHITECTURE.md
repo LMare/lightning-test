@@ -196,7 +196,7 @@ clusterIP: <auto>  # Load balancer sur pods
 ```yaml
 containers:
   - name: backend
-    image: LMare/lightning-playground-backend:v0.2.0-10
+    image: LMare/lightning-playground-backend:v0.2.0-14
     ports:
       - containerPort: 8080  # gRPC
     volumeMounts:
@@ -204,7 +204,7 @@ containers:
         mountPath: /app/node-storage
   
   - name: sidecar
-    image: LMare/lightning-playground-sidecar-backend:v0.2.0-8
+    image: LMare/lightning-playground-sidecar-backend:v0.2.0-14
     # Role: Gère les certificats/secrets LND
     #       Partage les données avec backend via volume emptyDir
 ```

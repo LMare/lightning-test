@@ -25,7 +25,7 @@ spec:
           emptyDir: {}
       containers:
         - name: backend
-          image: LMare/lightning-playground-backend:v0.2.0-10
+          image: LMare/lightning-playground-backend:v0.2.0-14
           name: backend
           ports:
             - name: backend-port
@@ -35,7 +35,7 @@ spec:
               mountPath: /app/node-storage
 
         - name: sidecar
-          image: LMare/lightning-playground-sidecar-backend:v0.2.0-8
+          image: LMare/lightning-playground-sidecar-backend:v0.2.0-14
           volumeMounts:
             - name: lnd-shared-data
               mountPath: /app/nodes-storage
