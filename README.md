@@ -75,7 +75,7 @@ issues :
 - [ ] Define NetworkPolicies to restrict communication paths (frontend ↔ backend ↔ LND ↔ btcd).
 
 ### 8. Finalization
-- [ ] Organize manifests into folders (`frontend/`, `backend/`, `lnd/`, `btcd/`).
+- [X] Organize manifests into folders (`frontend/`, `backend/`, `lnd/`, `btcd/`).
 - [ ] Deploy everything with `kubectl apply -f ./manifests`.
 - [X] Validate end-to-end flow: frontend → backend → LND → btcd.
 - [ ] Document the workflow for reproducibility (CI/CD, Helm charts, etc.).
@@ -99,10 +99,9 @@ issues :
 ```bash
 docker buildx bake
 echo "127.0.0.1	lightning-playground.local" >> /etc/hosts
-cd kubernetes
 export VERSION=v0.2.0-14
 # cluster + docker images
-kind create cluster --name lightning-playground --config cluster.yaml
+kind create cluster --name lightning-playground --config kubernetes/cluster.yaml
 kind load docker-image LMare/lightning-playground-frontend:$VERSION        --name lightning-playground &
 kind load docker-image LMare/lightning-playground-backend:$VERSION         --name lightning-playground &
 kind load docker-image LMare/lightning-playground-sidecar-backend:$VERSION --name lightning-playground &
@@ -111,33 +110,18 @@ kind load docker-image LMare/lightning-playground-sidecar-lnd:$VERSION     --nam
 kind load docker-image LMare/lnd:v0.20.0-beta-custom                       --name lightning-playground &
 kind load docker-image btcsuite/btcd:v0.25.0                               --name lightning-playground &
 
-kubectl create namespace lightning-playground
-# frontend
-kubectl apply -f frontend-deployment.yaml -n lightning-playground
-kubectl apply -f frontend-service.yaml    -n lightning-playground
-kubectl apply -f frontend-ingress.yaml    -n lightning-playground
+
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
-# backend
-kubectl apply -f backend-deployment.yaml      -n lightning-playground
-kubectl apply -f backend-service.yaml         -n lightning-playground
-kubectl apply -f backend-service-account.yaml -n lightning-playground
-# btcd
-kubectl apply -f btcd-cm1-configmap.yaml    -n lightning-playground
-kubectl apply -f btcd-role-binding.yaml     -n lightning-playground
-kubectl apply -f btcd-role.yaml             -n lightning-playground
-kubectl apply -f btcd-secret.yaml           -n lightning-playground
-kubectl apply -f btcd-service-account.yaml  -n lightning-playground
-kubectl apply -f btcd-service-headless.yaml -n lightning-playground
-kubectl apply -f btcd-statefulset.yaml      -n lightning-playground
-# lnd
-kubectl apply -f lnd-rolebinding.yaml      -n lightning-playground
-kubectl apply -f lnd-role.yaml             -n lightning-playground
-kubectl apply -f lnd-secret.yaml           -n lightning-playground
-kubectl apply -f lnd-service-account.yaml  -n lightning-playground
-kubectl apply -f lnd-service-headless.yaml -n lightning-playground
-kubectl apply -f lnd-statefulset.yaml      -n lightning-playground
+
+kubectl create namespace lightning-playground
+kubectl apply -f kubernetes/frontend -n lightning-playground
+kubectl apply -f kubernetes/backend  -n lightning-playground
+kubectl apply -f kubernetes/btcd     -n lightning-playground
+kubectl apply -f kubernetes/lnd      -n lightning-playground
 ```
+
 Go to http://lightning-playground.local/
+
 -----------------------------------------------------------------------------------------------
 
 ## Prupose
