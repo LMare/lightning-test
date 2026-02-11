@@ -17,18 +17,20 @@ Personnal projet to discover and improve skill on  :
   - docker compose
   - docker bake
   - CI
+  - Kubernetes
 
 TODO :
-  - CD / infra as code (Terraform + kubernetes with Kind)
-  - modules with Go
+  - SSE with Deployement Backend broken -> need to put a broker (ex: Redis)
+  - Add liveness/readiness probes for backend
+  - Add monitoring (Prometheus + Grafana)
+  - Wallet creation/unlock is handled by the backend via gRPC `WalletUnlocker` service).
+  - infra as code (Terraform + kubernetes with Kind) ?
+  - modules with Go ?
   - increase the test cover by implementing TI
 
 ---------------------------------------------------------------------------------------------
 
 ## TODO List for Kubernetes Migration (Lightning Network Project)
-
-issues :
- - SSE with Deployement Backend broken -> need to put a broker
 
 ### 1. Cluster Setup
 - [X] Spin up a local Kubernetes cluster (Kind, Minikube, or k3s).
@@ -76,7 +78,7 @@ issues :
 
 ### 8. Finalization
 - [X] Organize manifests into folders (`frontend/`, `backend/`, `lnd/`, `btcd/`).
-- [ ] Deploy everything with `kubectl apply -f ./manifests`.
+- [X] Deploy everything with `kubectl apply -f ./manifests`.
 - [X] Validate end-to-end flow: frontend → backend → LND → btcd.
 - [ ] Document the workflow for reproducibility (CI/CD, Helm charts, etc.).
 
@@ -97,28 +99,11 @@ issues :
 -----------------------------------------------------------------------------------------------
 ## Deploiment avec Kubernetes IN Docker
 ```bash
-docker buildx bake
-echo "127.0.0.1	lightning-playground.local" >> /etc/hosts
-export VERSION=v0.2.0-14
-# cluster + docker images
-kind create cluster --name lightning-playground --config kubernetes/cluster.yaml
-kind load docker-image LMare/lightning-playground-frontend:$VERSION        --name lightning-playground &
-kind load docker-image LMare/lightning-playground-backend:$VERSION         --name lightning-playground &
-kind load docker-image LMare/lightning-playground-sidecar-backend:$VERSION --name lightning-playground &
-kind load docker-image LMare/lightning-playground-sidecar-btcd:$VERSION    --name lightning-playground &
-kind load docker-image LMare/lightning-playground-sidecar-lnd:$VERSION     --name lightning-playground &
-kind load docker-image LMare/lnd:v0.20.0-beta-custom                       --name lightning-playground &
-kind load docker-image btcsuite/btcd:v0.25.0                               --name lightning-playground &
-
-
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
-
-kubectl create namespace lightning-playground
-kubectl apply -f kubernetes/frontend -n lightning-playground
-kubectl apply -f kubernetes/backend  -n lightning-playground
-kubectl apply -f kubernetes/btcd     -n lightning-playground
-kubectl apply -f kubernetes/lnd      -n lightning-playground
+make check-deps
+make all
 ```
+
+
 
 Go to http://lightning-playground.local/
 
