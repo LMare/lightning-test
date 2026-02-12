@@ -45,8 +45,7 @@ func WatchSecretModified(c *Callback) error {
 
 	clientset, err := kubernetesClient()
 	if err != nil {
-		return fmt.Errorf("error on kubernetes client: %w", err.Error())
-
+		return fmt.Errorf("error on kubernetes client: %w", err)
 	}
 
 	// Watch on the Secret inside the namespace
@@ -57,7 +56,7 @@ func WatchSecretModified(c *Callback) error {
 		},
 	)
 	if err != nil {
-		return fmt.Errorf("error on watching %s.%s : %w", namespace, secretName, err.Error())
+		return fmt.Errorf("error on watching %s.%s : %w", namespace, secretName, err)
 	}
 
 	go func() {

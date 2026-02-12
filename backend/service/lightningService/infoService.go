@@ -48,14 +48,14 @@ func GetListOfNode(descriptors []nodeModel.NodeConfigDescriptor) ([]NodeBasicInf
 func getBasicInfo(descriptor nodeModel.NodeConfigDescriptor) (NodeBasicInfo, error) {
 	client, conn, err := getLightningClient(descriptor.AuthData)
 	if err != nil {
-		err := exception.NewError(fmt.Sprintf("Unable to open dial with Node[%d]", descriptor.Id), err, exception.NewExampleError)
+		err := exception.NewError(fmt.Sprintf("Unable to open dial with Node[%s]", descriptor.Id), err, exception.NewExampleError)
 		return NodeBasicInfo{}, err
 	}
 	defer conn.Close()
 
 	resp, err := client.GetInfo(context.Background(), &lnrpc.GetInfoRequest{})
 	if err != nil {
-		err := exception.NewError(fmt.Sprintf("Unable to getInfo of Node[%d]", descriptor.Id), err, exception.NewExampleError)
+		err := exception.NewError(fmt.Sprintf("Unable to getInfo of Node[%s]", descriptor.Id), err, exception.NewExampleError)
 		return NodeBasicInfo{}, err
 	}
 

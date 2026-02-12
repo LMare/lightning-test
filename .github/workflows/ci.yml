@@ -11,21 +11,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Récupérer le code
+    - name: checkout code
       uses: actions/checkout@v4
 
-    - name: Installer Go
+    - name: Install Go
       uses: actions/setup-go@v5
       with:
         go-version: '1.25.0'
 
-    - name: Vérifier la compilation
+    - name: check compilation
       run: go build ./...
 
-    - name: Lancer les tests
+    - name: check errors formatting
+      run: go vet ./...
+
+    - name: run tests
       run: go test -v ./...
 
-    - name: Couverture des tests
+    - name: Tests covert 
       run: go test -coverprofile=cover.out ./... && go tool cover -func=cover.out 
 
     - name: Upload coverage to Codecov
