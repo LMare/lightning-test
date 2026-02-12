@@ -24,79 +24,13 @@ TODO :
   - Add liveness/readiness probes for backend
   - Add monitoring (Prometheus + Grafana)
   - Wallet creation/unlock is handled by the backend via gRPC `WalletUnlocker` service).
+  - Define NetworkPolicies to restrict communication paths (frontend ↔ backend ↔ LND ↔ btcd) ?
   - infra as code (Terraform + kubernetes with Kind) ?
   - modules with Go ?
   - increase the test cover by implementing TI
 
 ---------------------------------------------------------------------------------------------
 
-## TODO List for Kubernetes Migration (Lightning Network Project)
-
-### 1. Cluster Setup
-- [X] Spin up a local Kubernetes cluster (Kind, Minikube, or k3s).
-- [X] Configure `kubectl` and create a dedicated namespace (e.g. `lightning`).
-
-### 2. Core Components
-- [X] **Frontend:** Deployment + Service + Ingress (stateless, scalable).
-- [X] **Backend:** Deployment + Service (stateless, responsible for discovering LND pods and unlocking/creating wallets).
-- [X] **btcd:** StatefulSet + PVC + Service (Bitcoin full node).
-- [X] **LND:** StatefulSet + PVC + headless Service (multiple replicas, each with its own wallet/certs).
-
-### 3. Data & Secrets Management
-- [X] Define **PersistentVolumeClaims** for each LND and btcd.
-- [X] Create a **Secret bundle** (`lnd-credentials`) to store certs/macaroons for all **LND** pods.
-- [X] Create a **Secret bundle** (`btcd-credentials`) to store certs for all (only one BTCD for now)  **BTCD** pods.
-- [X] Implement a **lnd-sidecar** that copies certs/macaroons from **LND** PVCs into the `lnd-credentials`.
-- [X] Implement a **lnd-sidecar**  that copies certs from `btcd-credentials` into the **LND**
-- [X] Implement a **backend-sidecar**  that copies certs/macaroons from `lnd-credentials` into the **Backend**.
-- [X] Implement a **btcd-sidecar** that copies certs from **BTCD** PVCs into the `btcd-credentials`.
-- [X] Mount the `btcd-credentials` in the **lnd-sidecar** in read-only mode.
-- [X] Mount the `lnd-credentials` in the **backend-sidecar** in read-only mode.
-
-### 4. Backend Responsibilities
-- [X] Discover LND pods.
-- [X] **backend-sidecar** Read the corresponding certs/macaroons from the Secret bundle.
-- [ ] Use gRPC to **create or unlock wallets** via the `WalletUnlocker` service.
-- [X] Replace static `nodes.yaml` with dynamic discovery logic.
-
-### 5. Networking & Service Discovery
-- [X] Configure a **headless Service** for LND to provide stable DNS per pod.
-- [X] Ensure the backend can dynamically map endpoints (`lnd-N`) to certs/macaroons.
-- [X] Use Ingress to expose frontend APIs externally.
-
-### 6. Security & Best Practices
-- [X] Restrict RBAC permissions for the job that **updates** the Secret bundle **LND**.
-- [X] Restrict RBAC permissions for the job that **read** the Secret bundle **LND**.
-- [X] Separate configs: ConfigMaps for non-sensitive data, Secrets for sensitive data.
-- [ ] Add liveness/readiness probes for backend and LND.
-
-### 7. Scalability & Monitoring
-- [X] Test scaling: `kubectl scale statefulset lnd --replicas=5`
-- [X] Verify the backend adapts automatically to new pods.
-- [ ] Add monitoring (Prometheus + Grafana) and centralized logging.
-- [ ] Define NetworkPolicies to restrict communication paths (frontend ↔ backend ↔ LND ↔ btcd).
-
-### 8. Finalization
-- [X] Organize manifests into folders (`frontend/`, `backend/`, `lnd/`, `btcd/`).
-- [X] Deploy everything with `kubectl apply -f ./manifests`.
-- [X] Validate end-to-end flow: frontend → backend → LND → btcd.
-- [ ] Document the workflow for reproducibility (CI/CD, Helm charts, etc.).
-
----
-
-## ✅ Expected Result
-
-- Scaling LND pods is done with a single command (`kubectl scale`).
-- Each LND pod has its own wallet and certs, stored securely in PVCs and synced into a Secret bundle.
-- The backend dynamically discovers LND pods via DNS and uses the correct certs/macaroons from the Secret bundle.
-- Wallet creation/unlock is handled by the backend via gRPC (`WalletUnlocker` service).
-- Frontend and backend are exposed externally via Ingress.
-- Secrets are mounted read-only, RBAC is restricted, and configs are separated (ConfigMap vs Secret).
-- Monitoring, probes, and NetworkPolicies ensure production-grade reliability and observability.
-- The architecture is clean, Kubernetes-native, and ready to evolve toward production.
-
-
------------------------------------------------------------------------------------------------
 ## Deploiment avec Kubernetes IN Docker
 ```bash
 make check-deps
@@ -112,13 +46,25 @@ Go to http://lightning-playground.local/
 ## Prupose
 Be able to do a little web application to interract with and a lightning serveur running on simnet
 
+## Checking the prerequis
+```bash
+make check-deps
+```
+
+The application can be launch with `docker compose` or `Kubernetes (kind)` 
+
+
 ## Lauch the app
 
 ```bash
+# Docker compose
 docker buildx bake
 docker compose up -d
+# Kubernetes
+make all
 ```
-Go to : http://localhost:3000/
+Go to : http://localhost:3000/ (docker compose)
+Go to : http://lightning-playground.local/ (Kubernetes)
 
 ### First launch
 To use the lnd fonctionalities, you will need at least 2 lnd nodes with a wallet :
@@ -139,7 +85,7 @@ docker exec -it lightning-playground-lnd1-1 lncli --network=simnet newaddress np
 # Kubernetes
 kubectl exec -it lnd-0 -n lightning-playground -- lncli --network=simnet newaddress np2wkh
 ```
-Copy the address then replace the value of `miningaddr` in the service `btcd` of `docker-compose.yml` or `kubernetes/btcd-statefulset.yaml`.
+Copy the address then replace the value of `miningaddr` in the service `btcd` of `docker-compose.yml` or `kubernetes/manifests/btcd/btcd-statefulset.yaml`.
 And reload the containers
 ```bash
 # Docker compose
@@ -205,7 +151,10 @@ kubectl exec -it btcd-0 -n lightning-playground -- btcctl --simnet generate 1
   3. Generate an invoice
   4. Import the invoice on another node and pay-it
 
-
+### Adding lnd node (increase de replicas number)
+```bash
+kubectl scale statefulset lnd --replicas=5
+```
 
 ## Note :
 The app works with a LND customised [LMare/lnd](https://github.com/LMare/lnd/tree/feature/gRPC-alias-color).
