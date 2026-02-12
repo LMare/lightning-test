@@ -1,0 +1,29 @@
+# Deployement of pod frontend in stateless
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    version : 0.2.0-SNAPSHOT
+    author : LMare
+  labels:
+    app: frontend
+  name: frontend
+  namespace : lightning-playground
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      enableServiceLinks: false # conflit with .env variable
+      containers:
+        - image: LMare/lightning-playground-frontend:v0.2.0
+          name: frontend
+          ports:
+            - name: frontend-port
+              containerPort: 3000
+      restartPolicy: Always

@@ -16,7 +16,10 @@ type Config struct {
 	FrontendPort		string
 	FrontendUrl			string
 	ProjectPath			string
-	NodesFileDescriptor	string
+	NodeStorage			string
+	NodeNamePattern		string
+	LndNetwork			string
+	LndDomain			string
 }
 
 var (
@@ -37,7 +40,10 @@ func Load() *Config {
 			FrontendPort:			getEnv("FRONTEND_PORT", "8081"),
 			FrontendUrl:			getEnv("FRONTEND_URL", "http://localhost"),
 			ProjectPath:			rootDir(),
-			NodesFileDescriptor:	rootDir() + getEnv("FILE_NODES_DESCRIPTOR", ""),
+			NodeStorage:			getEnv("NODE_STORAGE", "/app/node-storage/"),
+			NodeNamePattern:		getEnv("NODE_NAME_PATTERN", "lnd-*"),
+			LndNetwork:				getEnv("LND_NETWORK", "simnet"),
+			LndDomain:				getEnv("LND_DOMAIN", "lnd-headless.lightning-playground.svc.cluster.local"),
 		}
 	})
 

@@ -2,24 +2,20 @@
 ### docker build -t lightning-playground-frontend:latest -f frontend/Dockerfile .
 
 ARG ALPINE_TAG=3.22
-ARG GO_TAG=1.0.0
+ARG GO_TAG=1.25.0
 
 # 1. Build de l'application frontend
 FROM golang:$GO_TAG AS compiler
-ARG COMPILATION=static
-ENV COMPILATION=$COMPILATION
 WORKDIR /app
 COPY go.mod go.sum ./
-RUN go mod download
+RUN --mount=type=cache,target=/go/pkg/mod,id=gomod,sharing=locked \
+	go mod download
 COPY *.go ./
 COPY cmd/frontend cmd/frontend/
-RUN if [ "$COMPILATION" = "static" ]; then \
-		echo "CGO_ENABLED=0 go build -o app-frontend ./cmd/frontend"; \
-		CGO_ENABLED=0 go build -o app-frontend ./cmd/frontend; \
-	else \
-		echo "go build -o app-frontend ./cmd/frontend"; \
-		go build -o app-frontend ./cmd/frontend; \
-	fi
+RUN --mount=type=cache,target=/root/.cache/go-build,id=gobuild-frontend,sharing=locked \
+    --mount=type=cache,target=/go/pkg/mod,id=gomod,sharing=locked \
+	CGO_ENABLED=0 \
+	go build -o app-frontend ./cmd/frontend;
 
 # 2. Construction du dossier /app avec le binaire + ressources
 FROM scratch AS builder

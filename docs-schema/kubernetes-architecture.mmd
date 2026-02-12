@@ -1,0 +1,103 @@
+graph TD
+    subgraph "Cluster-Resources<br/>KIND Cluster - lightning-playground namespace"
+        subgraph "Security & Storage (Top Layer)"
+            direction LR
+            SEC["🔐 Secrets<br/>btcd-secret<br/>lnd-secret<br/>mTLS certs"]
+            SA["👤 ServiceAccounts<br/>backend-sa<br/>lnd-sa<br/>btcd-sa"]
+            PVBTCD["💾 PV: btcd-data<br/>~20Gi<br/>blockchain"]
+            PVLND["💾 PV: lnd-*-data<br/>~5Gi each<br/>wallets"]
+        end
+        
+        subgraph "Frontend Layer"
+            FE1["🌐 Frontend-0<br/>Deployment pod<br/>Port: 8000"]
+            FE2["🌐 Frontend-1<br/>Deployment pod<br/>Port: 8000"]
+            FES["🌐 Frontend Service<br/>ClusterIP<br/>LB: FE-0/1"]
+            FEI["🌐 Ingress<br/>HTTP/HTTPS<br/>Port 80/443"]
+        end
+        
+        subgraph "Backend Layer"
+            BE1["⚙️ Backend-0<br/>+ sidecar<br/>gRPC 8080"]
+            BE2["⚙️ Backend-1<br/>+ sidecar<br/>gRPC 8080"]
+            BES["🔧 Backend Service<br/>ClusterIP<br/>LB: BE-0/1"]
+        end
+        
+        subgraph "Lightning Network<br/>StatefulSet (4 replicas)"
+            LND0["⚡ LND-0<br/>Port 9735<br/>Port 10009<br/>PVC: lnd-0"]
+            LND1["⚡ LND-1<br/>Port 9735<br/>Port 10009<br/>PVC: lnd-1"]
+            LND2["⚡ LND-2<br/>Port 9735<br/>Port 10009<br/>PVC: lnd-2"]
+            LND3["⚡ LND-3<br/>Port 9735<br/>Port 10009<br/>PVC: lnd-3"]
+            LNDS["🔗 LND Headless<br/>DNS: lnd-i<br/>.lnd-headless"]
+        end
+        
+        subgraph "Bitcoin Layer<br/>StatefulSet (1 replica)"
+            BTCD0["🔗 BTCD-0<br/>Port 18556 RPC<br/>Port 18555 P2P<br/>PVC: btcd"]
+            BTCDS["🔗 BTCD Headless<br/>DNS: btcd-0<br/>.btcd-headless"]
+        end
+    end
+    
+    FEI -->|ingress 80/443| FES
+    FES --> FE1
+    FES --> FE2
+    FE1 -->|HTTP| BES
+    FE2 -->|HTTP| BES
+    
+    BES --> BE1
+    BES --> BE2
+    
+    BE1 -->|gRPC:10009| LNDS
+    BE2 -->|gRPC:10009| LNDS
+    
+    LNDS --> LND0
+    LNDS --> LND1
+    LNDS --> LND2
+    LNDS --> LND3
+    
+    LND0 -->|P2P:9735| LND1
+    LND0 -->|P2P:9735| LND2
+    LND0 -->|P2P:9735| LND3
+    LND1 -->|P2P:9735| LND2
+    LND1 -->|P2P:9735| LND3
+    LND2 -->|P2P:9735| LND3
+    
+    LND0 -->|RPC/mTLS:18556| BTCDS
+    LND1 -->|RPC/mTLS:18556| BTCDS
+    LND2 -->|RPC/mTLS:18556| BTCDS
+    LND3 -->|RPC/mTLS:18556| BTCDS
+    
+    BTCDS --> BTCD0
+    
+    SEC -.->|inject| BE1
+    SEC -.->|inject| BE2
+    SEC -.->|inject| LND0
+    SEC -.->|inject| LND1
+    SEC -.->|inject| LND2
+    SEC -.->|inject| LND3
+    SEC -.->|inject| BTCD0
+    
+    SA -.->|uses| BE1
+    SA -.->|uses| BE2
+    SA -.->|uses| LND0
+    SA -.->|uses| LND1
+    SA -.->|uses| LND2
+    SA -.->|uses| LND3
+    SA -.->|uses| BTCD0
+    
+    PVBTCD -.->|mount| BTCD0
+    PVLND -.->|mount| LND0
+    PVLND -.->|mount| LND1
+    PVLND -.->|mount| LND2
+    PVLND -.->|mount| LND3
+    
+    classDef frontend fill:#FFD700,stroke:#333,stroke-width:2px,color:#000
+    classDef backend fill:#87CEEB,stroke:#333,stroke-width:2px,color:#000
+    classDef lightning fill:#FF6B6B,stroke:#333,stroke-width:2px,color:#fff
+    classDef bitcoin fill:#FFA500,stroke:#333,stroke-width:2px,color:#000
+    classDef storage fill:#90EE90,stroke:#333,stroke-width:2px,color:#000
+    classDef security fill:#DDA0DD,stroke:#333,stroke-width:2px,color:#000
+    
+    class FE1,FE2,FES,FEI frontend
+    class BE1,BE2,BES backend
+    class LND0,LND1,LND2,LND3,LNDS lightning
+    class BTCD0,BTCDS bitcoin
+    class PVBTCD,PVLND storage
+    class SA,SEC security

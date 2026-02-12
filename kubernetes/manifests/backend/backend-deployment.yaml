@@ -1,0 +1,53 @@
+# Deployement of pod backend in stateless
+apiVersion: apps/v1
+kind: Deployment  # -> des pods stateless, on scale facilement
+metadata:
+  annotations:
+    author: LMare
+  labels:
+    app: backend
+  name: backend
+  namespace : lightning-playground
+spec:
+  replicas: 1 # Scalability works, but for the SSE we need a brocker
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      enableServiceLinks: false # conflit with .env variable
+      serviceAccountName: backend-service-account
+      volumes:
+        - name: lnd-shared-data
+          emptyDir: {}
+      containers:
+        - name: backend
+          image: LMare/lightning-playground-backend:v0.2.0
+          name: backend
+          ports:
+            - name: backend-port
+              containerPort: 8080
+          volumeMounts:
+            - name: lnd-shared-data
+              mountPath: /app/node-storage
+
+        - name: sidecar
+          image: LMare/lightning-playground-sidecar-backend:v0.2.0
+          volumeMounts:
+            - name: lnd-shared-data
+              mountPath: /app/nodes-storage
+
+        - name: debug
+          image: busybox
+          command: ["sleep", "infinity"]
+          stdin: true
+          tty: true
+          volumeMounts:
+            - name: lnd-shared-data
+              mountPath: /app/node-storage
+
+
+      restartPolicy: Always

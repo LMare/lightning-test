@@ -1,0 +1,16 @@
+# Loadbalancer intern to access to a pod frontend
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  namespace: lightning-playground
+  labels:
+      app: frontend
+spec:
+  type: ClusterIP
+  selector:
+      app: frontend
+  ports:
+    - name: fe-entry
+      port: 80
+      targetPort: frontend-port

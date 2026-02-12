@@ -1,0 +1,41 @@
+graph TD
+    subgraph "Frontend Layer"
+        FE["🌐 Frontend<br/>HTML/CSS/JS"]
+    end
+    
+    subgraph "Backend Layer"
+        BE["⚙️ Backend<br/>Go Application"]
+    end
+    
+    subgraph "Lightning Network"
+        LND0["⚡ LND-0<br/>P2P / gRPC<br/>Volume: lnd-0_data"]
+        LND1["⚡ LND-1<br/>P2P / gRPC<br/>Volume: lnd-1_data"]
+        TOWER["🏠 LNDTower<br/>Watchtower<br/>Volume: tower_data"]
+    end
+    
+    subgraph "Bitcoin Layer"
+        BTCD["🔗 BTCD<br/>RPC / P2P<br/>Simnet Blockchain<br/>Volume: btcd_data"]
+    end
+    
+    FE -->|HTTP/REST| BE
+    
+    BE -->|gRPC:10009| LND0
+    BE -->|gRPC:10009| LND1
+    
+    LND0 -->|P2P:9735| LND1
+    LND0 -->|P2P:9735| TOWER
+    LND1 -->|P2P:9735| TOWER
+    
+    LND0 -->|RPC/mTLS:18556| BTCD
+    LND1 -->|RPC/mTLS:18556| BTCD
+    TOWER -->|RPC/mTLS:18556| BTCD
+    
+    classDef frontend fill:#FFD700,stroke:#333,stroke-width:2px
+    classDef backend fill:#87CEEB,stroke:#333,stroke-width:2px
+    classDef lightning fill:#FF6B6B,stroke:#333,stroke-width:2px
+    classDef bitcoin fill:#FFA500,stroke:#333,stroke-width:2px
+    
+    class FE frontend
+    class BE backend
+    class LND0,LND1,TOWER lightning
+    class BTCD bitcoin

@@ -1,0 +1,20 @@
+# Ingress frontend: permet d'exposer le fontend vers l'extérieur
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: frontend-ingress
+  namespace: lightning-playground
+  labels:
+      app: frontend
+spec:
+  rules:
+  - host: lightning-playground.local
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+            service:
+                name: frontend
+                port:
+                    name: fe-entry

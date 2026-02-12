@@ -1,5 +1,5 @@
 variable "APP_VERSION" {
-  default = "v0.1.2-SNAPSHOT"
+  default = "v0.2.0"
 }
 variable "BTCD_VERSION" {
   default = "v0.25.0"
@@ -23,6 +23,10 @@ target "common-app-args" {
 	}
 }
 
+group "compiler" {
+	targets = ["sidecar-compiler", "backend-compiler", "frontend-compiler"]
+}
+
 group "app-scratch" {
 	targets = ["backend-scratch", "frontend-scratch"]
 }
@@ -35,8 +39,20 @@ group "backend" {
 group "frontend" {
 	targets = ["frontend-alpine", "frontend-scratch"]
 }
+group "sidecars" {
+	targets = ["sidecar-backend", "sidecar-lnd", "sidecar-btcd"]
+}
 group "default" {
-	targets = ["frontend", "backend", "btcd", "lnd"]
+	targets = ["frontend", "backend", "btcd", "lnd", "sidecars"]
+}
+
+
+target "backend-compiler" {
+  context = "."
+  dockerfile = "./backend/Dockerfile"
+  target = "compiler"
+  inherits = ["common-app-args"]
+  tags = ["backend-compiler:latest"]
 }
 
 
@@ -44,7 +60,6 @@ target "backend-scratch" {
   context = "."
   dockerfile = "./backend/Dockerfile"
   target = "backend-scratch"
-  args = { COMPILATION = "static" }
   inherits = ["common-app-args"]
   tags = ["LMare/lightning-playground-backend:${APP_VERSION}"]
 }
@@ -53,16 +68,22 @@ target "backend-alpine" {
   context = "."
   dockerfile = "./backend/Dockerfile"
   target = "backend-alpine"
-  args = { COMPILATION = "dynamic" }
   inherits = ["common-app-args"]
   tags = ["LMare/lightning-playground-backend:${APP_VERSION}-alpine-${ALPINE_TAG}"]
+}
+
+target "frontend-compiler" {
+  context = "."
+  dockerfile = "./frontend/Dockerfile"
+  target = "compiler"
+  inherits = ["common-app-args"]
+  tags = ["frontend-compiler:latest"]
 }
 
 target "frontend-scratch" {
   context = "."
   dockerfile = "./frontend/Dockerfile"
   target = "frontend-scratch"
-  args = { COMPILATION = "static" }
   inherits = ["common-app-args"]
   tags = ["LMare/lightning-playground-frontend:${APP_VERSION}"]
 }
@@ -71,7 +92,6 @@ target "frontend-alpine" {
   context = "."
   dockerfile = "./frontend/Dockerfile"
   target = "frontend-alpine"
-  args = { COMPILATION = "dynamic" }
   inherits = ["common-app-args"]
   tags = ["LMare/lightning-playground-frontend:${APP_VERSION}-alpine-${ALPINE_TAG}"]
 }
@@ -90,4 +110,38 @@ target "lnd" {
 	  git_url = "https://github.com/LMare/lnd"
   }
   tags = ["LMare/lnd:${LND_TAG}"]
+}
+
+target "sidecar-backend" {
+  context = "."
+  dockerfile = "./sidecar/Dockerfile"
+  args = { TYPE_SIDECAR = "backend" }
+  inherits = ["common-app-args"]
+  tags = ["LMare/lightning-playground-sidecar-backend:${APP_VERSION}"]
+}
+
+target "sidecar-compiler" {
+  context = "."
+  dockerfile = "./sidecar/Dockerfile"
+  inherits = ["common-app-args"]
+  target = "compiler"
+  tags = ["sidecar-compiler:latest"]
+}
+
+
+target "sidecar-lnd" {
+  context = "."
+  dockerfile = "./sidecar/Dockerfile"
+  args = { TYPE_SIDECAR = "lnd" }
+  inherits = ["common-app-args"]
+  tags = ["LMare/lightning-playground-sidecar-lnd:${APP_VERSION}"]
+}
+
+
+target "sidecar-btcd" {
+  context = "."
+  dockerfile = "./sidecar/Dockerfile"
+  args = { TYPE_SIDECAR = "btcd" }
+  inherits = ["common-app-args"]
+  tags = ["LMare/lightning-playground-sidecar-btcd:${APP_VERSION}"]
 }

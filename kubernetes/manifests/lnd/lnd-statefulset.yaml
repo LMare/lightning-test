@@ -1,0 +1,86 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: lnd
+  name: lnd
+  namespace : lightning-playground
+spec:
+  serviceName: lnd-headless
+  replicas: 4
+  selector:
+    matchLabels:
+      app: lnd
+  template:
+    metadata:
+      labels:
+        app: lnd
+    spec:
+      serviceAccountName: lnd-service-account
+      volumes:
+        - name: btcd-data
+          emptyDir: {}
+      containers:
+        - name: lnd
+          args:
+            - lnd
+            - --btcd.rpchost=$(BTCD_URL):18556
+            - --bitcoin.active
+            - --bitcoin.simnet
+            - --bitcoin.node=btcd
+            - --btcd.rpcuser=user
+            - --btcd.rpcpass=pass
+            - --listen=0.0.0.0:9735
+            - --debuglevel=trace
+            #- --watchtower.active
+            #- --watchtower.externalip=lndtower:9911
+            - --rpclisten=0.0.0.0:10009
+            - --externalip="$(LND_DOMAIN):9735"
+            - --tlsextradomain=$(LND_DOMAIN)
+          image: LMare/lnd:v0.20.0-beta-custom
+          name: lnd
+          volumeMounts:
+            - name: lnd-data
+              mountPath: /root/.lnd
+            - name: btcd-data
+              mountPath: /root/.btcd
+          ports:
+             - name: grpc-port
+               containerPort: 10009
+             - name: p2p-port
+               containerPort: 9735
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: LND_DOMAIN
+              value: "$(POD_NAME).lnd-headless.$(POD_NAMESPACE).svc.cluster.local"
+            - name: BTCD_URL
+              value: "btcd-0.btcd-headless.lightning-playground.svc.cluster.local"
+
+        - name: sidecar
+          image: LMare/lightning-playground-sidecar-lnd:v0.2.0
+          volumeMounts:
+            - name: lnd-data            # to read the certs + macarron & sent to Secret Bundle LND
+              mountPath: /root/.lnd
+            - name: btcd-data           # to write the certs btcd to for LND
+              mountPath: /root/.btcd
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+      restartPolicy: Always
+  volumeClaimTemplates:
+    - metadata:
+        name: lnd-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 20Mi # Sould be enought in simnet

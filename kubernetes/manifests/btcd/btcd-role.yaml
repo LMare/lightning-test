@@ -1,0 +1,21 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: btcd-secret-writer-role
+  namespace: lightning-playground
+rules:
+- apiGroups: [""]
+  resources: ["secrets"]
+  resourceNames: ["btcd-credentials"]
+  verbs: ["patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: btcd-secret-reader-role
+  namespace: lightning-playground
+rules:
+- apiGroups: [""]
+  resources: ["secrets"]
+  resourceNames: ["btcd-credentials"]
+  verbs: ["get", "watch"]

@@ -1,0 +1,20 @@
+# headless to access to a pod lnd
+apiVersion: v1
+kind: Service
+metadata:
+  name: lnd-headless
+  namespace: lightning-playground
+  labels:
+      app: lnd
+spec:
+  type: ClusterIP
+  clusterIP: None   # <- put the service "headless"
+  selector:
+    app: lnd
+  ports:
+  - name: grpc-entrypoint
+    port: 10009
+    targetPort: grpc-port
+  - name: p2p-entrypoint
+    port: 9735
+    targetPort: p2p-port

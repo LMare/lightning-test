@@ -1,10 +1,8 @@
 package handler
 
-
 import (
 	"fmt"
 	"net/http"
-
 
 	streamService "github.com/Lmare/lightning-playground/backend/service/streamService"
 )
@@ -23,13 +21,8 @@ func handleStreamEvent(response http.ResponseWriter, request *http.Request) {
 	// inscription au flux de notification
 	streamService.SubscribeSse(response)
 
-	// let the connexion open until an interruption
-	for {
-		select {
-		case <-notify:
-			fmt.Println("Client SSE déconnecté")
-			streamService.RevoqueSse(response)
-			return
-	    }
-	}
+	// wait until the connection is interrupted
+	<-notify
+	fmt.Println("Client SSE déconnecté")
+	streamService.RevoqueSse(response)
 }

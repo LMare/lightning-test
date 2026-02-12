@@ -1,0 +1,90 @@
+# StatefulSet pod for btcd
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: btcd
+  name: btcd
+  namespace : lightning-playground
+spec:
+  serviceName: btcd-headless  # to give the unique url for each pod
+  replicas: 1
+  selector:
+    matchLabels:
+      app: btcd
+  template:
+    metadata:
+      labels:
+        app: btcd
+    spec:
+      serviceAccountName: btcd-service-account
+      initContainers:
+        - name: generate-cert
+          image: btcsuite/btcd:v0.25.0
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              if [ ! -f /root/.btcd/rpc.cert ]; then
+                gencerts --host=${HOSTNAME} --directory=/root/.btcd/
+              fi
+          volumeMounts:
+            - mountPath: /root/.btcd
+              name: btcd-data
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: HOSTNAME
+              value: "$(POD_NAME).btcd-headless.$(POD_NAMESPACE).svc.cluster.local"
+        - name: share-cert
+          image: LMare/lightning-playground-sidecar-btcd:v0.2.0
+          volumeMounts:
+            - name: btcd-data           # to read the certs & sent to Secret Bundle BTCD
+              mountPath: /root/.btcd
+      containers:
+        - name: btcd
+          image: btcsuite/btcd:v0.25.0
+          command: ["btcd"]
+          args:
+            - --simnet
+            - --rpcuser=user
+            - --rpcpass=pass
+            - --rpclisten=0.0.0.0:18556
+            - --listen=0.0.0.0:18555
+            - --debuglevel=debug
+            - --txindex
+            - --miningaddr=$(MINING_ADDR)
+          env:
+            - name: MINING_ADDR
+              value: rg9HszrSgMfuVsXTFzTQxns2HSTP4zVffG
+          volumeMounts:
+            - mountPath: /root/.btcd
+              name: btcd-data
+            - mountPath: /root/.btcd/btcd.conf
+              name: btcd-config
+              subPath: btcd.conf
+          ports:
+            - name: grpc-port
+              containerPort: 18556
+            - name: p2p-port
+              containerPort: 18555
+
+
+      volumes:
+        - name: btcd-config
+          configMap:
+            name: btcd-config-map
+      restartPolicy: Always
+  volumeClaimTemplates:
+    - metadata:
+        name: btcd-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 20Mi # Sould be enought in simnet

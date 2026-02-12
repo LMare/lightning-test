@@ -1,16 +1,16 @@
 
 
 services:
-  backend1:
+  backend:
     image: LMare/lightning-playground-backend:${APP_VERSION}
-    hostname: backend1
+    hostname: backend
     volumes:
-      - lnd1_data:/app/nodes-storage/.lnd1
-      - lnd2_data:/app/nodes-storage/.lnd2
+      - lnd-0_data:/app/node-storage/lnd-0
+      - lnd-1_data:/app/node-storage/lnd-1
 
-  frontend1:
+  frontend:
     image: LMare/lightning-playground-frontend:${APP_VERSION}
-    hostname: frontend1
+    hostname: frontend
     ports:
       - "${FRONTEND_PORT}:${FRONTEND_PORT}"
 
@@ -33,9 +33,9 @@ services:
       - btcd_data:/root/.btcd
       - ./btcd.conf:/root/.btcd/btcd.conf   # To simplify the cmd btcctl
 
-  lnd1:
+  lnd-0:
     image: LMare/lnd:${LND_TAG}
-    hostname: lnd1
+    hostname: lnd-0.lnd-headless.lightning-playground.svc.cluster.local
     depends_on:
       - btcd
     command:
@@ -51,15 +51,15 @@ services:
       - --watchtower.active
       - --watchtower.externalip=lndtower:9911
       - --rpclisten=0.0.0.0:10009                   # exposition du port à l'extérieur
-      - --externalip=lnd1:9735                      # uris pour le getinfo
-      - --tlsextradomain=lnd1                       # domaine pour le certificat
+      - --externalip=lnd-0.lnd-headless.lightning-playground.svc.cluster.local:9735 # uris pour le getinfo
+      - --tlsextradomain=lnd-0.lnd-headless.lightning-playground.svc.cluster.local  # domaine pour le certificat
     volumes:
-      - lnd1_data:/root/.lnd
+      - lnd-0_data:/root/.lnd
       - btcd_data:/root/.btcd       # pour avoir le certificat de btcd
 
-  lnd2:
+  lnd-1:
     image: LMare/lnd:${LND_TAG}
-    hostname: lnd2
+    hostname: lnd-1.lnd-headless.lightning-playground.svc.cluster.local
     depends_on:
       - btcd
     command:
@@ -75,10 +75,10 @@ services:
       - --watchtower.active
       - --watchtower.externalip=lndtower:9911
       - --rpclisten=0.0.0.0:10009
-      - --externalip=lnd2:9735
-      - --tlsextradomain=lnd2                       # domaine pour le certificat
+      - --externalip=lnd-1.lnd-headless.lightning-playground.svc.cluster.local:9735
+      - --tlsextradomain=lnd-1.lnd-headless.lightning-playground.svc.cluster.local    # domaine pour le certificat
     volumes:
-      - lnd2_data:/root/.lnd
+      - lnd-1_data:/root/.lnd
       - btcd_data:/root/.btcd
 
   lndtower:
@@ -100,6 +100,6 @@ services:
 
 volumes:
   btcd_data:
-  lnd1_data:
-  lnd2_data:
+  lnd-0_data:
+  lnd-1_data:
   tower_data:

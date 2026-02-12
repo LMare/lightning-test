@@ -1,0 +1,20 @@
+# headless to access to a pod btcd
+apiVersion: v1
+kind: Service
+metadata:
+  name: btcd-headless
+  namespace: lightning-playground
+  labels:
+      app: btcd
+spec:
+  type: ClusterIP
+  clusterIP: None   # <- put the service "headless"
+  selector:
+    app: btcd
+  ports:
+  - name: grpc-entrypoint
+    port: 18556
+    targetPort: grpc-port
+  - name: p2p-entrypoint
+    port: 18555
+    targetPort: p2p-port
