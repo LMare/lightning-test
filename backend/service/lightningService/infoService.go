@@ -46,14 +46,14 @@ func GetListOfNode(descriptors []nodeModel.NodeConfigDescriptor) ([]NodeBasicInf
 
 // get the basical info of a node
 func getBasicInfo(descriptor nodeModel.NodeConfigDescriptor) (NodeBasicInfo, error) {
-	client, conn, err := getLightningClient(descriptor.AuthData)
+	factory, err := NewGrpcClientFactory(descriptor.AuthData)
 	if err != nil {
 		err := exception.NewError(fmt.Sprintf("Unable to open dial with Node[%s]", descriptor.Id), err, exception.NewExampleError)
 		return NodeBasicInfo{}, err
 	}
-	defer conn.Close()
+	defer factory.Close()
 
-	resp, err := client.GetInfo(context.Background(), &lnrpc.GetInfoRequest{})
+	resp, err := factory.GetLightningClient().GetInfo(context.Background(), &lnrpc.GetInfoRequest{})
 	if err != nil {
 		err := exception.NewError(fmt.Sprintf("Unable to getInfo of Node[%s]", descriptor.Id), err, exception.NewExampleError)
 		return NodeBasicInfo{}, err
@@ -64,14 +64,14 @@ func getBasicInfo(descriptor nodeModel.NodeConfigDescriptor) (NodeBasicInfo, err
 
 // get the uri of the lnd
 func GetFirstUri(dataClient nodeModel.LndClientAuthData) (string, error) {
-	client, conn, err := getLightningClient(dataClient)
+	factory, err := NewGrpcClientFactory(dataClient)
 	if err != nil {
 		err := exception.NewError("Unable to open dial", err, exception.NewExampleError)
 		return "", err
 	}
-	defer conn.Close()
+	defer factory.Close()
 
-	resp, err := client.GetInfo(context.Background(), &lnrpc.GetInfoRequest{})
+	resp, err := factory.GetLightningClient().GetInfo(context.Background(), &lnrpc.GetInfoRequest{})
 	if err != nil {
 		err := exception.NewError("Unable to getInfo of Node", err, exception.NewExampleError)
 		return "", err
@@ -89,20 +89,20 @@ func GetFirstUri(dataClient nodeModel.LndClientAuthData) (string, error) {
 
 // return node Information
 func GetUsefullInfo(dataClient nodeModel.LndClientAuthData) (*InfoLndNode, error) {
-	client, conn, err := getLightningClient(dataClient)
+	factory, err := NewGrpcClientFactory(dataClient)
 	if err != nil {
 		err := exception.NewError("cannot init Lightning Client", err, exception.NewExampleError)
 		return nil, err
-    }
-    defer conn.Close()
+	}
+	defer factory.Close()
 
-    resp, err := client.GetInfo(context.Background(), &lnrpc.GetInfoRequest{})
-    if err != nil {
+	resp, err := factory.GetLightningClient().GetInfo(context.Background(), &lnrpc.GetInfoRequest{})
+	if err != nil {
 		err := exception.NewError("Lightning Node respond an error", err, exception.NewExampleError)
 		return nil, err
-    }
+	}
 
-    return &InfoLndNode{
+	return &InfoLndNode{
 		resp.GetAlias(),
 		resp.GetColor(),
 		resp.GetNumPendingChannels(),
@@ -120,22 +120,22 @@ func GetUsefullInfo(dataClient nodeModel.LndClientAuthData) (*InfoLndNode, error
 
 // change the color and the alias of the node
 func UpdateAliasAndColor(dataClient nodeModel.LndClientAuthData, alias string, color string) error {
-	client, conn, err := getLightningClient(dataClient)
+	factory, err := NewGrpcClientFactory(dataClient)
 	if err != nil {
 		err := exception.NewError("cannot init Lightning Client", err, exception.NewExampleError)
 		return err
-    }
-    defer conn.Close()
+	}
+	defer factory.Close()
 
 	// Alias call
-	_, err = client.SetAlias(context.Background(), &lnrpc.SetAliasRequest{Alias: alias,})
+	_, err = factory.GetLightningClient().SetAlias(context.Background(), &lnrpc.SetAliasRequest{Alias: alias,})
 	if err != nil {
 		err := exception.NewError("cannot change the alias", err, exception.NewExampleError)
 		return err
-    }
+	}
 
 	// Color call
-	_, err = client.SetColor(context.Background(), &lnrpc.SetColorRequest{Color: color,})
+	_, err = factory.GetLightningClient().SetColor(context.Background(), &lnrpc.SetColorRequest{Color: color,})
 	if err != nil {
 		err := exception.NewError("cannot change the color", err, exception.NewExampleError)
 		return err

@@ -17,7 +17,7 @@ func fail(response http.ResponseWriter, request *http.Request, message string, e
 	if IsHTMX(request) {
 		HtmxMessageKo(response, message)
 	} else {
-		//TODO
+		http.Error(response, message, http.StatusInternalServerError)
 	}
 }
 

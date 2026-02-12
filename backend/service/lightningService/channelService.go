@@ -15,14 +15,14 @@ import (
 
 // Connect to a new Pair
 func AddPeer(dataClient nodeModel.LndClientAuthData, uri string) error {
-	client, conn, err := getLightningClient(dataClient)
+	factory, err := NewGrpcClientFactory(dataClient)
 	if err != nil {
 		return exception.NewError("cannot init Lightning Client", err, exception.NewExampleError)
 	}
-	defer conn.Close()
+	defer factory.Close()
 
 	parts := strings.Split(uri, "@")
-	_, err = client.ConnectPeer(context.Background(), &lnrpc.ConnectPeerRequest{Addr: &lnrpc.LightningAddress{Pubkey: parts[0], Host: parts[1]}, Perm: true})
+	_, err = factory.GetLightningClient().ConnectPeer(context.Background(), &lnrpc.ConnectPeerRequest{Addr: &lnrpc.LightningAddress{Pubkey: parts[0], Host: parts[1]}, Perm: true})
 	if err != nil {
 		return exception.NewError("Error on adding a peer", err, exception.NewExampleError)
 	}
@@ -32,11 +32,11 @@ func AddPeer(dataClient nodeModel.LndClientAuthData, uri string) error {
 // Open Channel
 func OpenChannel(dataClient nodeModel.LndClientAuthData, pubkeyHex string, amount int64) error {
 
-	client, conn, err := getLightningClient(dataClient)
+	factory, err := NewGrpcClientFactory(dataClient)
 	if err != nil {
 		return exception.NewError("Cannot init Lightning Client", err, exception.NewExampleError)
 	}
-	defer conn.Close()
+	defer factory.Close()
 
 	pubkeyBytes, err := hex.DecodeString(pubkeyHex)
 	if err != nil {
@@ -54,7 +54,7 @@ func OpenChannel(dataClient nodeModel.LndClientAuthData, pubkeyHex string, amoun
 	}
 
 	// TODO @GoodToHave utiliser le retour de OpenChannel pour faire des pipes de notifications sur l'IHM
-	_, err = client.OpenChannelSync(context.Background(), &r)
+	_, err = factory.GetLightningClient().OpenChannelSync(context.Background(), &r)
 	if err != nil {
 		return exception.NewError("Error on opening a channel", err, exception.NewExampleError)
 	}
@@ -65,15 +65,15 @@ func OpenChannel(dataClient nodeModel.LndClientAuthData, pubkeyHex string, amoun
 // return the payment request
 func CreateQuickInvoice(dataClient nodeModel.LndClientAuthData, memo string, amount int64) (string, error) {
 
-	client, conn, err := getLightningClient(dataClient)
+	factory, err := NewGrpcClientFactory(dataClient)
 	if err != nil {
 		return "", exception.NewError("Cannot init Lightning Client", err, exception.NewExampleError)
 	}
-	defer conn.Close()
+	defer factory.Close()
 
 	fiveMin := int64(300)
 
-	i, err := client.AddInvoice(context.Background(), &lnrpc.Invoice{Expiry: fiveMin, Memo: memo, Value: amount})
+	i, err := factory.GetLightningClient().AddInvoice(context.Background(), &lnrpc.Invoice{Expiry: fiveMin, Memo: memo, Value: amount})
 	if err != nil {
 		return "", exception.NewError("Error on creating invoice", err, exception.NewExampleError)
 	}
@@ -84,24 +84,25 @@ func CreateQuickInvoice(dataClient nodeModel.LndClientAuthData, memo string, amo
 // pay the invoice
 // return streamId, error
 func MakePaiment(dataClient nodeModel.LndClientAuthData, paymentRequest string) error {
-	client, conn, err := getRouterClient(dataClient)
+	factory, err := NewGrpcClientFactory(dataClient)
 	if err != nil {
 		return exception.NewError("Cannot init Router Client", err, exception.NewExampleError)
 	}
 
-	feeLimitMsat := estimateFeeLimitMsat(client, paymentRequest)
+	feeLimitMsat := estimateFeeLimitMsat(factory.GetRouterClient(), paymentRequest)
 
 	// send the payment with an explicit fee limit so routes with non-zero fees are considered
-	stream, err := client.SendPaymentV2(context.Background(), &routerrpc.SendPaymentRequest{
+	stream, err := factory.GetRouterClient().SendPaymentV2(context.Background(), &routerrpc.SendPaymentRequest{
 		PaymentRequest: paymentRequest,
 		FeeLimitMsat:   feeLimitMsat,
 	})
 	if err != nil {
 		return exception.NewError("Error on sending payment", err, exception.NewExampleError)
 	}
+
 	streamService.StreamResult(streamService.StreamWrapper[lnrpc.Payment]{
 		RecvCallback:  stream.Recv,
-		CloseCallback: conn.Close,
+		CloseCallback: factory.Close,
 	})
 
 	return nil

@@ -15,10 +15,57 @@ import (
 	nodeModel "github.com/Lmare/lightning-playground/backend/model/nodeModel"
 )
 
+// GrpcClientFactory encapsule les clients gRPC pour faciliter les tests
+type GrpcClientFactory struct {
+	lightningClient lnrpc.LightningClient
+	routerClient    routerrpc.RouterClient
+	conn            *grpc.ClientConn
+}
 
+// NewGrpcClientFactory crée une factory avec une connexion réelle
+func NewGrpcClientFactory(dataClient nodeModel.LndClientAuthData) (*GrpcClientFactory, error) {
+	conn, err := createGrpcClientConn(dataClient)
+	if err != nil {
+		err := exception.NewError("Erreur création canal de communication", err, exception.NewExampleError)
+		return nil, err
+	}
 
-// get the gRPC client to interract with a node
-func getGrpcClientConn(dataClient nodeModel.LndClientAuthData) (*grpc.ClientConn, error) {
+	return &GrpcClientFactory{
+		lightningClient: lnrpc.NewLightningClient(conn),
+		routerClient:    routerrpc.NewRouterClient(conn),
+		conn:            conn,
+	}, nil
+}
+
+// NewGrpcClientFactoryWithClients crée une factory avec des clients injectés (pour les tests)
+func NewGrpcClientFactoryWithClients(lightning lnrpc.LightningClient, router routerrpc.RouterClient) *GrpcClientFactory {
+	return &GrpcClientFactory{
+		lightningClient: lightning,
+		routerClient:    router,
+		conn:            nil,
+	}
+}
+
+// GetLightningClient retourne le client Lightning
+func (f *GrpcClientFactory) GetLightningClient() lnrpc.LightningClient {
+	return f.lightningClient
+}
+
+// GetRouterClient retourne le client Router
+func (f *GrpcClientFactory) GetRouterClient() routerrpc.RouterClient {
+	return f.routerClient
+}
+
+// Close ferme la connexion gRPC
+func (f *GrpcClientFactory) Close() error {
+	if f.conn != nil {
+		return f.conn.Close()
+	}
+	return nil
+}
+
+// createGrpcClientConn crée une connexion gRPC sécurisée
+func createGrpcClientConn(dataClient nodeModel.LndClientAuthData) (*grpc.ClientConn, error) {
 
     // Charger le certificat TLS
     cert, err := ioutil.ReadFile(dataClient.TlsCertPath)
@@ -46,27 +93,6 @@ func getGrpcClientConn(dataClient nodeModel.LndClientAuthData) (*grpc.ClientConn
     )
 }
 
-
-
-// get the client lightning
-func getLightningClient(dataClient nodeModel.LndClientAuthData) (lnrpc.LightningClient, *grpc.ClientConn, error) {
-	conn, err := getGrpcClientConn(dataClient)
-	if err != nil {
-		err := exception.NewError("Erreur création canal de communication", err, exception.NewExampleError)
-		return nil, nil, err
-    }
-	return lnrpc.NewLightningClient(conn), conn, nil
-}
-
-// get the client lightning router
-func getRouterClient(dataClient nodeModel.LndClientAuthData) (routerrpc.RouterClient, *grpc.ClientConn, error) {
-	conn, err := getGrpcClientConn(dataClient)
-	if err != nil {
-		err := exception.NewError("Erreur création canal de communication", err, exception.NewExampleError)
-		return nil, nil, err
-    }
-	return routerrpc.NewRouterClient(conn), conn, nil
-}
 
 // macaroonCreds permet d'ajouter le macaroon dans les métadonnées gRPC
 type macaroonCreds struct {
