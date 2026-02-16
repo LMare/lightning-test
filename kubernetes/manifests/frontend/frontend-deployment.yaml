@@ -21,7 +21,7 @@ spec:
     spec:
       enableServiceLinks: false # conflit with .env variable
       containers:
-        - image: LMare/lightning-playground-frontend:v0.2.1-4
+        - image: LMare/lightning-playground-frontend:v0.2.1-7
           name: frontend
           ports:
             - name: frontend-port

@@ -34,6 +34,8 @@ func GetRouter() *Router {
 
 	router.add("/health", http.MethodGet, handleHealth)
 	router.add("/ready", http.MethodGet, handleReady)
+	router.add("/version", http.MethodGet, handleVersion)
+	router.add("/metrics", http.MethodGet, handleMetrics)
 
 	return &router
 }
