@@ -7,12 +7,12 @@ import (
 )
 
 type route struct {
-	path		string
-	handlers 	map[string]func(http.ResponseWriter, *http.Request)
+	path     string
+	handlers map[string]func(http.ResponseWriter, *http.Request)
 }
 
 type Router struct {
-	routes		map[string]*route
+	routes map[string]*route
 }
 
 func GetRouter() *Router {
@@ -32,13 +32,15 @@ func GetRouter() *Router {
 
 	router.add("/stream-event", http.MethodGet, handleStreamEvent)
 
+	router.add("/health", http.MethodGet, handleHealth)
+	router.add("/ready", http.MethodGet, handleReady)
+
 	return &router
 }
 
-
 func (router *Router) add(path string, verbe string, callback func(http.ResponseWriter, *http.Request)) {
 	if _, exist := router.routes[path]; !exist {
-		router.routes[path] = &route{path:path, handlers: make(map[string]func(http.ResponseWriter, *http.Request))}
+		router.routes[path] = &route{path: path, handlers: make(map[string]func(http.ResponseWriter, *http.Request))}
 	}
 	router.routes[path].handlers[verbe] = callback
 }
@@ -54,8 +56,6 @@ func (router *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 	http.NotFound(w, req)
 }
-
-
 
 /**
  * Handler de / : propose une petite interface pour appeler les autres routes

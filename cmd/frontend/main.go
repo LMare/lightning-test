@@ -30,11 +30,12 @@ func startServer() {
 	http.Handle("/asset/", http.StripPrefix("/asset/", fs))
 
 	// Routes frontend
- 	http.HandleFunc("/", pageHandler)
+	http.HandleFunc("/", pageHandler)
+	http.HandleFunc("/health", handleHealth)
+	http.HandleFunc("/ready", handleReady)
 
-
- 	log.Printf("Frontend sur %s:%s", cfg.FrontendUrl, cfg.FrontendPort)
-	log.Fatal(http.ListenAndServe(":" + cfg.FrontendPort, nil))
+	log.Printf("Frontend sur %s:%s", cfg.FrontendUrl, cfg.FrontendPort)
+	log.Fatal(http.ListenAndServe(":"+cfg.FrontendPort, nil))
 
 }
 
@@ -86,8 +87,6 @@ func startProxy() {
 	log.Printf("Serveur proxy lancé sur %s:%s\n", cfg.FrontendUrl, cfg.FrontendPort)
 }
 
-
-
 // render fragment html ou page avec le layout
 func pageHandler(w http.ResponseWriter, r *http.Request) {
 
@@ -95,7 +94,6 @@ func pageHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Charge tous les templates
 	templates := template.Must(template.ParseGlob("frontend/templates/*.html"))
-
 
 	page := strings.Trim(r.URL.Path, "/")
 	if page == "" {
@@ -122,14 +120,27 @@ func pageHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = templates.ExecuteTemplate(w, "layout.html", map[string]any{
-		"Title":   strings.Title(page),
+		"Title":      strings.Title(page),
 		"ActivePage": page,
-		"Content": template.HTML(buf.String()), // contenu déjà rendu,
+		"Content":    template.HTML(buf.String()), // contenu déjà rendu,
 	})
 	if err != nil {
 		log.Printf("error : %v", err)
 		http.NotFound(w, r)
 	}
 
+}
 
+// handleHealth checks if the application is healthy and can respond to requests
+func handleHealth(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text")
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(`OK`))
+}
+
+// handleReady checks if the application is ready to serve requests
+func handleReady(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text")
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(`OK`))
 }

@@ -21,7 +21,6 @@ Personnal projet to discover and improve skill on  :
 
 TODO :
   - SSE with Deployement Backend broken -> need to put a broker (ex: Redis)
-  - Add liveness/readiness probes for backend
   - Add monitoring (Prometheus + Grafana)
   - Wallet creation/unlock is handled by the backend via gRPC `WalletUnlocker` service).
   - Define NetworkPolicies to restrict communication paths (frontend ↔ backend ↔ LND ↔ btcd) ?
