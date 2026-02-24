@@ -2,3 +2,12 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: lightning-playground
+  labels: 
+    release: monitoring
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: monitoring
+  labels: 
+    release: monitoring

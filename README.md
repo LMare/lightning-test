@@ -18,11 +18,12 @@ Personnal projet to discover and improve skill on  :
   - docker bake
   - CI
   - Kubernetes
+  - monitoring : Prometheus + Grafana (for metrics)
 
 TODO :
+  - monitoring (add dashboard / panel / alerts )
+  - monitoring (logs)
   - SSE with Deployement Backend broken -> need to put a broker (ex: Redis)
-  - add /metrics
-  - Add monitoring (Prometheus + Grafana)
   - Wallet creation/unlock is handled by the backend via gRPC `WalletUnlocker` service).
   - Define NetworkPolicies to restrict communication paths (frontend ↔ backend ↔ LND ↔ btcd) ?
   - infra as code (Terraform + kubernetes with Kind) ?

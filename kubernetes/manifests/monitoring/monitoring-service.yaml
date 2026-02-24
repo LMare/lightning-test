@@ -1,0 +1,19 @@
+# This file defines a ServiceMonitor resource for Prometheus to scrape metrics from the backend service in the lightning-playground namespace. It specifies the target port, path, and scrape interval for Prometheus to collect metrics.
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: backend-monitor
+  namespace: monitoring
+  labels:
+    release: monitoring
+spec:
+  selector:
+    matchLabels:
+      app: backend
+  namespaceSelector:
+    matchNames:
+      - lightning-playground
+  endpoints:
+    - port: backend
+      path: /metrics
+      interval: 15s

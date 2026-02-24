@@ -49,7 +49,7 @@ add-in-hosts:
 		echo "done"; \
 	fi
 
-all: bake-all create-cluster load-images deploy add-in-hosts
+all: bake-all create-cluster load-images deploy add-in-hosts create-monitoring-cluster
 refresh-new-version: bump-version bake-app load-images deploy
 
 check-deps:
@@ -75,4 +75,9 @@ bump-version:
 	echo "Version updated in all files."
 
 
-.PHONY: load-images create-cluster delete-cluster deploy add-in-hosts all check-deps bake-all bake-app bump-version refresh-new-version 
+deploy-monitoring-stack:
+	helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+	helm upgrade --install monitoring prometheus-community/kube-prometheus-stack -n monitoring -f kubernetes/helm/kube-prometheus-stack/values.yaml
+
+
+.PHONY: load-images create-cluster delete-cluster deploy add-in-hosts all check-deps bake-all bake-app bump-version refresh-new-version deploy-monitoring-stack
