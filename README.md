@@ -21,7 +21,8 @@ Personnal projet to discover and improve skill on  :
   - monitoring : Prometheus + Grafana (for metrics)
 
 TODO :
-  - monitoring (add dashboard / panel / alerts )
+  - monitoring (add dashboard / panel / alerts + import/export)
+  - monitoring Ingress Grafana
   - monitoring (logs)
   - SSE with Deployement Backend broken -> need to put a broker (ex: Redis)
   - Wallet creation/unlock is handled by the backend via gRPC `WalletUnlocker` service).
@@ -32,17 +33,6 @@ TODO :
 
 ---------------------------------------------------------------------------------------------
 
-## Deploiment avec Kubernetes IN Docker
-```bash
-make check-deps
-make all
-```
-
-
-
-Go to http://lightning-playground.local/
-
------------------------------------------------------------------------------------------------
 
 ## Prupose
 Be able to do a little web application to interract with and a lightning serveur running on simnet

@@ -2,8 +2,4 @@ bin
 pkg
 .vscode/
 cover.out
-
-
-#path storage of macaroons & cert of nodes
-nodes-storage/
-seed_capture/
+kubernetes/helm/monitoring/charts/

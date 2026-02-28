@@ -57,6 +57,7 @@ check-deps:
 	command -v kind   >/dev/null 2>&1 || { echo "kind is missing"; exit 1; } && \
 	command -v kubectl >/dev/null 2>&1 || { echo "kubectl is missing"; exit 1; } && \
 	docker buildx version >/dev/null 2>&1 || { echo "docker buildx is missing"; exit 1; } && \
+	helm version >/dev/null 2>&1 || { echo "helm is missing"; exit 1; } && \
 	echo "All dependencies are installed."
 
 # Increment the version number in all relevant files or set it to a specific value if provided
@@ -76,8 +77,7 @@ bump-version:
 
 
 deploy-monitoring-stack:
-	helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-	helm upgrade --install monitoring prometheus-community/kube-prometheus-stack -n monitoring -f kubernetes/helm/kube-prometheus-stack/values.yaml
-
+	helm dependency update kubernetes/helm/monitoring
+	helm upgrade --install monitoring kubernetes/helm/monitoring -n monitoring
 
 .PHONY: load-images create-cluster delete-cluster deploy add-in-hosts all check-deps bake-all bake-app bump-version refresh-new-version deploy-monitoring-stack

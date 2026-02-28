@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: lightning-playground-backend-dashboard
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+data:
+  lightning-playground-backend-dashboard.json: |
+{{ .Files.Get "dashboards/lightning-playground-backend-dashboard.json" | indent 4 }}
