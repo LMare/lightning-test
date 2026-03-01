@@ -3,3 +3,23 @@ prometheus:
     serviceMonitorNamespaceSelector:
       matchLabels:
         release: monitoring
+kube-prometheus-stack:
+  grafana:
+    enabled: true
+    ingress:
+      enabled: true
+      ingressClassName: nginx
+      hosts:
+        - grafana.lightning-playground.local
+      path: /
+      pathType: Prefix
+    grafana.ini:
+      server:
+        root_url: https://grafana.lightning-playground.local
+        serve_from_sub_path: false
+    env:
+      GF_SERVER_DOMAIN: grafana.lightning-playground.local
+      GF_SERVER_ROOT_URL: https://grafana.lightning-playground.local
+      GF_SERVER_SERVE_FROM_SUB_PATH: "false"
+
+

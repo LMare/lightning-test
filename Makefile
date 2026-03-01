@@ -42,10 +42,16 @@ bake-app:
 
 # This target adds an entry to the /etc/hosts file to map lightning-playground.local
 add-in-hosts:
-	@line="127.0.0.1	lightning-playground.local"; \
-	if ! grep -q "$$line" /etc/hosts; then \
-		echo "Adding '$$line' to /etc/hosts..."; \
-		echo "$$line" | sudo tee -a /etc/hosts; \
+	@app="127.0.0.1	lightning-playground.local"; \
+	grafana="127.0.0.1	grafana.lightning-playground.local"; \
+	if ! grep -q "$$app" /etc/hosts; then \
+		echo "Adding '$$app' to /etc/hosts..."; \
+		echo "$$app" | sudo tee -a /etc/hosts; \
+		echo "done"; \
+	fi; \
+	if ! grep -q "$$grafana" /etc/hosts; then \
+		echo "Adding '$$grafana' to /etc/hosts..."; \
+		echo "$$grafana" | sudo tee -a /etc/hosts; \
 		echo "done"; \
 	fi
 

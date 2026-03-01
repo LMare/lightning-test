@@ -18,11 +18,10 @@ Personnal projet to discover and improve skill on  :
   - docker bake
   - CI
   - Kubernetes
-  - monitoring : Prometheus + Grafana (for metrics)
+  - monitoring : Prometheus + Grafana (dashboard/panel for metrics)
 
 TODO :
-  - monitoring (add dashboard / panel / alerts + import/export)
-  - monitoring Ingress Grafana
+  - monitoring (alerts)
   - monitoring (logs)
   - SSE with Deployement Backend broken -> need to put a broker (ex: Redis)
   - Wallet creation/unlock is handled by the backend via gRPC `WalletUnlocker` service).
@@ -55,7 +54,16 @@ docker compose up -d
 make all
 ```
 Go to : http://localhost:3000/ (docker compose)
+
 Go to : http://lightning-playground.local/ (Kubernetes)
+
+Grafana (Kubernetes) : 
+| Clé      | Valeur |
+|----------|--------|
+| URL      | https://grafana.lightning-playground.local/d/admzlxj/lightning-playground-backend-dashboard?orgId=1&from=now-30m&to=now&timezone=browser&refresh=5s |
+| Login    | `admin` |
+| Password | `kubectl get secret -n monitoring monitoring-grafana -o jsonpath="{.data.admin-password}" \| base64 --decode` |
+
 
 ### First launch
 To use the lnd fonctionalities, you will need at least 2 lnd nodes with a wallet :
