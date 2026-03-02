@@ -20,7 +20,7 @@ type PostgresUserRepository struct {
 }
 
 func (r *PostgresUserRepository) FindAll(ctx context.Context) ([]user.UserModel, error) {
-	rows, err := r.db.QueryContext(ctx, "SELECT id, nom, prenom, age, email FROM user")
+	rows, err := r.db.QueryContext(ctx, "SELECT id, nom, prenom, age, email FROM users")
 	if err != nil {
 		return nil, err
 	}

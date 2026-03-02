@@ -23,6 +23,8 @@ func main() {
 	handlers := initHandlers(services, cfg)
 	router := initRouter(handlers)
 
+	executeMigrations(db)
+
 	fmt.Printf("Server Backend started : %s:%s\n", cfg.BackendUrl, cfg.BackendPort)
 	log.Fatal(http.ListenAndServe(":"+cfg.BackendPort, router))
 }

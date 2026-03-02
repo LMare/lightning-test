@@ -55,7 +55,7 @@ add-in-hosts:
 		echo "done"; \
 	fi
 
-all: bake-all create-cluster load-images deploy add-in-hosts create-monitoring-cluster
+all: bake-all create-cluster load-images deploy-postgres deploy add-in-hosts create-monitoring-cluster
 refresh-new-version: bump-version bake-app load-images deploy
 
 check-deps:
@@ -86,4 +86,15 @@ deploy-monitoring-stack:
 	helm dependency update kubernetes/helm/monitoring
 	helm upgrade --install monitoring kubernetes/helm/monitoring -n monitoring
 
-.PHONY: load-images create-cluster delete-cluster deploy add-in-hosts all check-deps bake-all bake-app bump-version refresh-new-version deploy-monitoring-stack
+deploy-postgres:
+	helm repo add bitnami https://charts.bitnami.com/bitnami
+	helm repo update
+	helm install postgres bitnami/postgresql -n lightning-playground \
+		--set auth.postgresPassword=superpassword \
+		--set auth.username=appuser \
+		--set auth.password=apppassword \
+		--set auth.database=appdb
+
+
+
+.PHONY: load-images create-cluster delete-cluster deploy add-in-hosts all check-deps bake-all bake-app bump-version refresh-new-version deploy-monitoring-stack deploy-postgres
