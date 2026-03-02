@@ -13,9 +13,17 @@ import (
 	streamService "github.com/Lmare/lightning-playground/backend/service/streamService"
 )
 
+func NewChannelService(factory GrpcClientFactory) *ChannelService {
+	return &ChannelService{factory: factory}
+}
+
+type ChannelService struct {
+	factory GrpcClientFactory
+}
+
 // Connect to a new Pair
-func AddPeer(dataClient nodeModel.LndClientAuthData, uri string) error {
-	factory, err := NewGrpcClientFactory(dataClient)
+func (s *ChannelService) AddPeer(dataClient nodeModel.LndClientAuthData, uri string) error {
+	factory, err := s.factory.newClient(dataClient)
 	if err != nil {
 		return exception.NewError("cannot init Lightning Client", err, exception.NewExampleError)
 	}
@@ -30,9 +38,9 @@ func AddPeer(dataClient nodeModel.LndClientAuthData, uri string) error {
 }
 
 // Open Channel
-func OpenChannel(dataClient nodeModel.LndClientAuthData, pubkeyHex string, amount int64) error {
+func (s *ChannelService) OpenChannel(dataClient nodeModel.LndClientAuthData, pubkeyHex string, amount int64) error {
 
-	factory, err := NewGrpcClientFactory(dataClient)
+	factory, err := s.factory.newClient(dataClient)
 	if err != nil {
 		return exception.NewError("Cannot init Lightning Client", err, exception.NewExampleError)
 	}
@@ -63,9 +71,9 @@ func OpenChannel(dataClient nodeModel.LndClientAuthData, pubkeyHex string, amoun
 
 // create an invoice which while expire in 5min
 // return the payment request
-func CreateQuickInvoice(dataClient nodeModel.LndClientAuthData, memo string, amount int64) (string, error) {
+func (s *ChannelService) CreateQuickInvoice(dataClient nodeModel.LndClientAuthData, memo string, amount int64) (string, error) {
 
-	factory, err := NewGrpcClientFactory(dataClient)
+	factory, err := s.factory.newClient(dataClient)
 	if err != nil {
 		return "", exception.NewError("Cannot init Lightning Client", err, exception.NewExampleError)
 	}
@@ -83,13 +91,13 @@ func CreateQuickInvoice(dataClient nodeModel.LndClientAuthData, memo string, amo
 
 // pay the invoice
 // return streamId, error
-func MakePaiment(dataClient nodeModel.LndClientAuthData, paymentRequest string) error {
-	factory, err := NewGrpcClientFactory(dataClient)
+func (s *ChannelService) MakePayment(dataClient nodeModel.LndClientAuthData, paymentRequest string) error {
+	factory, err := s.factory.newClient(dataClient)
 	if err != nil {
 		return exception.NewError("Cannot init Router Client", err, exception.NewExampleError)
 	}
 
-	feeLimitMsat := estimateFeeLimitMsat(factory.GetRouterClient(), paymentRequest)
+	feeLimitMsat := s.estimateFeeLimitMsat(factory.GetRouterClient(), paymentRequest)
 
 	// send the payment with an explicit fee limit so routes with non-zero fees are considered
 	stream, err := factory.GetRouterClient().SendPaymentV2(context.Background(), &routerrpc.SendPaymentRequest{
@@ -109,7 +117,7 @@ func MakePaiment(dataClient nodeModel.LndClientAuthData, paymentRequest string) 
 }
 
 // estimateFeeLimitMsat calls EstimateRouteFee and applies a margin/fallback
-func estimateFeeLimitMsat(client routerrpc.RouterClient, paymentRequest string) int64 {
+func (s *ChannelService) estimateFeeLimitMsat(client routerrpc.RouterClient, paymentRequest string) int64 {
 	feeResp, err := client.EstimateRouteFee(context.Background(), &routerrpc.RouteFeeRequest{PaymentRequest: paymentRequest})
 	if err != nil {
 		fmt.Println("EstimateRouteFee failed, using default fee limit (100 sat):", err)

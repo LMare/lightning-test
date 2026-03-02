@@ -6,25 +6,23 @@ import (
 	"net/http"
 
 	config "github.com/Lmare/lightning-playground"
-	handler "github.com/Lmare/lightning-playground/backend/handler"
 	exception "github.com/Lmare/lightning-playground/backend/exception"
 )
 
 func main() {
-	startServer()
-}
+	cfg := config.Load()
+	exception.ConfigureProjectBasePath(cfg.ProjectPath)
+	db, err := initDB(cfg)
+	if err != nil {
+		//log.Fatal("Failed to initialize database:", err)
+		fmt.Printf("Failed to initialize database: %v\n", err)
+	}
+	repos := initRepositories(db)
+	factories := initFactories()
+	services := initServices(repos, factories, cfg)
+	handlers := initHandlers(services, cfg)
+	router := initRouter(handlers)
 
-//Set the conf of the serveur
-func setupServer() (*config.Config, http.Handler) {
-    cfg := config.Load()
-    router := handler.GetRouter()
-    exception.ConfigureProjectBasePath(cfg.ProjectPath)
-    return cfg, router
-}
-
-// startServer launch the server HTTP
-func startServer() {
-    cfg, router := setupServer()
-    fmt.Printf("Server Backend started : %s:%s\n", cfg.BackendUrl, cfg.BackendPort)
-    log.Fatal(http.ListenAndServe(":"+cfg.BackendPort, router))
+	fmt.Printf("Server Backend started : %s:%s\n", cfg.BackendUrl, cfg.BackendPort)
+	log.Fatal(http.ListenAndServe(":"+cfg.BackendPort, router))
 }

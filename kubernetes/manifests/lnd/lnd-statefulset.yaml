@@ -64,7 +64,7 @@ spec:
               value: "btcd-0.btcd-headless.lightning-playground.svc.cluster.local"
 
         - name: sidecar
-          image: LMare/lightning-playground-sidecar-lnd:v0.2.1-9
+          image: LMare/lightning-playground-sidecar-lnd:v0.3.0-0
           volumeMounts:
             - name: lnd-data            # to read the certs + macarron & sent to Secret Bundle LND
               mountPath: /root/.lnd

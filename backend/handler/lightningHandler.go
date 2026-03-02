@@ -1,27 +1,41 @@
 package handler
 
 import (
-	"net/http"
 	"fmt"
-	"strconv"
 	"html/template"
-	"strings"
+	"net/http"
 	"regexp"
+	"strconv"
+	"strings"
 
 	lightningService "github.com/Lmare/lightning-playground/backend/service/lightningService"
 	nodeService "github.com/Lmare/lightning-playground/backend/service/nodeService"
 )
 
-// get the list of node
-func handleListOfNodes(response http.ResponseWriter, request *http.Request) {
+func NewLightningHandler(lightningInfoService *lightningService.LightningInfoService, channelService *lightningService.ChannelService, nodeService *nodeService.NodeService) *LightningHandler {
+	return &LightningHandler{
+		lightningInfoService: lightningInfoService,
+		channelService:       channelService,
+		nodeService:          nodeService,
+	}
+}
 
-	descriptors, err := nodeService.ListOfNodes()
-	if(err != nil) {
+type LightningHandler struct {
+	lightningInfoService *lightningService.LightningInfoService
+	channelService       *lightningService.ChannelService
+	nodeService          *nodeService.NodeService
+}
+
+// get the list of node
+func (h *LightningHandler) HandleListOfNodes(response http.ResponseWriter, request *http.Request) {
+
+	descriptors, err := h.nodeService.ListOfNodes()
+	if err != nil {
 		fail(response, request, "Info transmisent incorrectes", err)
 		return
 	}
 
-	nodes := lightningService.GetListOfNode(descriptors)
+	nodes := h.lightningInfoService.GetListOfNode(descriptors)
 	if IsHTMX(request) {
 		htmxResponse(response, "lightning/nodes.html", nodes)
 	} else {
@@ -36,7 +50,7 @@ func isVaildFormatOfId(id string) bool {
 }
 
 // get the URI of the node
-func handleShowUri(response http.ResponseWriter, request *http.Request) {
+func (h *LightningHandler) HandleShowUri(response http.ResponseWriter, request *http.Request) {
 	// paramètre de la node
 	id := request.FormValue("id")
 	if !isVaildFormatOfId(id) {
@@ -44,18 +58,18 @@ func handleShowUri(response http.ResponseWriter, request *http.Request) {
 		return
 	}
 	// récupération info de connexion à la node
-	authData := nodeService.GetLndClientAuthData(id)
+	authData := h.nodeService.GetLndClientAuthData(id)
 
 	// get the uri of the node
-	uri, err := lightningService.GetFirstUri(authData)
-	if(err != nil) {
+	uri, err := h.lightningInfoService.GetFirstUri(authData)
+	if err != nil {
 		fail(response, request, "Echec de la communication avec le noeud LND", err)
 		return
 	}
 
 	// Render
 	if IsHTMX(request) {
-		funcMap := template.FuncMap{"truncateUri": truncateUri,}
+		funcMap := template.FuncMap{"truncateUri": truncateUri}
 		htmxResponseWithFuncs(response, "lightning/uri.html", uri, funcMap)
 	} else {
 		jsonResponse(response, uri)
@@ -65,18 +79,17 @@ func handleShowUri(response http.ResponseWriter, request *http.Request) {
 
 // reduce an uri
 func truncateUri(s string, n int) string {
-    at := strings.Index(s, "@")
-    if at == -1 || at < 2*n {
-        return s // pas de @ ou trop court pour tronquer
-    }
+	at := strings.Index(s, "@")
+	if at == -1 || at < 2*n {
+		return s // pas de @ ou trop court pour tronquer
+	}
 
-    start := s[:n]
-    end := s[at-n : at]
-    host := s[at:] // inclut le @
+	start := s[:n]
+	end := s[at-n : at]
+	host := s[at:] // inclut le @
 
-    return start + "..." + end + host
+	return start + "..." + end + host
 }
-
 
 // reduce a string
 func truncate(s string, n int) string {
@@ -89,10 +102,8 @@ func truncate(s string, n int) string {
 	return start + "..." + end
 }
 
-
-
 // get the info of one Node
-func handleNodeInfo(response http.ResponseWriter, request *http.Request) {
+func (h *LightningHandler) HandleNodeInfo(response http.ResponseWriter, request *http.Request) {
 	// paramètre de la node
 	id := request.FormValue("id")
 	if !isVaildFormatOfId(id) {
@@ -100,11 +111,11 @@ func handleNodeInfo(response http.ResponseWriter, request *http.Request) {
 		return
 	}
 	// récupération info de connexion à la node
-	authData := nodeService.GetLndClientAuthData(id)
+	authData := h.nodeService.GetLndClientAuthData(id)
 
 	// get the info of the node
-	data, err := lightningService.GetUsefullInfo(authData)
-	if(err != nil) {
+	data, err := h.lightningInfoService.GetUsefullInfo(authData)
+	if err != nil {
 		fail(response, request, "Echec de la communication avec le noeud LND", err)
 		return
 	}
@@ -118,13 +129,13 @@ func handleNodeInfo(response http.ResponseWriter, request *http.Request) {
 }
 
 // Create a connexion to a new Peer
-func handleAddPeer(response http.ResponseWriter, request *http.Request) {
+func (h *LightningHandler) HandleAddPeer(response http.ResponseWriter, request *http.Request) {
 	// Parse les données du corps
-    err := request.ParseForm()
-    if err != nil {
-        http.Error(response, "Erreur de parsing", http.StatusBadRequest)
-        return
-    }
+	err := request.ParseForm()
+	if err != nil {
+		http.Error(response, "Erreur de parsing", http.StatusBadRequest)
+		return
+	}
 
 	id := request.FormValue("id")
 	if !isVaildFormatOfId(id) {
@@ -133,10 +144,10 @@ func handleAddPeer(response http.ResponseWriter, request *http.Request) {
 	}
 	uri := request.FormValue("uri")
 	// Get Data to connect lnd
-	authData := nodeService.GetLndClientAuthData(id)
+	authData := h.nodeService.GetLndClientAuthData(id)
 
 	// Add the pair
-	err = lightningService.AddPeer(authData, uri)
+	err = h.channelService.AddPeer(authData, uri)
 	if err != nil {
 		fail(response, request, "Fail to add the peer.", err)
 		return
@@ -149,16 +160,15 @@ func handleAddPeer(response http.ResponseWriter, request *http.Request) {
 	}
 }
 
-
 // create a channel
-func handleOpenChannel(response http.ResponseWriter, request *http.Request) {
+func (h *LightningHandler) HandleOpenChannel(response http.ResponseWriter, request *http.Request) {
 
 	// Parse les données du corps
-    err := request.ParseForm()
-    if err != nil {
-        http.Error(response, "Erreur de parsing", http.StatusBadRequest)
-        return
-    }
+	err := request.ParseForm()
+	if err != nil {
+		http.Error(response, "Erreur de parsing", http.StatusBadRequest)
+		return
+	}
 
 	id := request.FormValue("id")
 	if !isVaildFormatOfId(id) {
@@ -174,10 +184,10 @@ func handleOpenChannel(response http.ResponseWriter, request *http.Request) {
 	}
 
 	// Get Data to connect lnd
-	authData := nodeService.GetLndClientAuthData(id)
+	authData := h.nodeService.GetLndClientAuthData(id)
 
 	// create the channel
-	err = lightningService.OpenChannel(authData, pubKey, amount)
+	err = h.channelService.OpenChannel(authData, pubKey, amount)
 	if err != nil {
 		fail(response, request, "Fail to create the channel.", err)
 		return
@@ -191,7 +201,7 @@ func handleOpenChannel(response http.ResponseWriter, request *http.Request) {
 }
 
 // Create an invoice
-func handleCreateInvoice(response http.ResponseWriter, request *http.Request) {
+func (h *LightningHandler) HandleCreateInvoice(response http.ResponseWriter, request *http.Request) {
 
 	// Parse les données du corps
 	err := request.ParseForm()
@@ -214,10 +224,10 @@ func handleCreateInvoice(response http.ResponseWriter, request *http.Request) {
 	}
 
 	// Get Data to connect lnd
-	authData := nodeService.GetLndClientAuthData(id)
+	authData := h.nodeService.GetLndClientAuthData(id)
 
 	// create the invoice
-	p, err := lightningService.CreateQuickInvoice(authData, memo, amount)
+	p, err := h.channelService.CreateQuickInvoice(authData, memo, amount)
 	if err != nil {
 		fail(response, request, "Fail to create the invoice.", err)
 		return
@@ -225,7 +235,7 @@ func handleCreateInvoice(response http.ResponseWriter, request *http.Request) {
 
 	// Render
 	if IsHTMX(request) {
-		funcMap := template.FuncMap{"truncate": truncate,}
+		funcMap := template.FuncMap{"truncate": truncate}
 		htmxResponseWithFuncs(response, "lightning/paymentRequest.html", p, funcMap)
 	} else {
 		jsonResponse(response, p)
@@ -234,7 +244,7 @@ func handleCreateInvoice(response http.ResponseWriter, request *http.Request) {
 }
 
 // Make the payment
-func handleMakePaiment(response http.ResponseWriter, request *http.Request) {
+func (h *LightningHandler) HandleMakePayment(response http.ResponseWriter, request *http.Request) {
 	// Parse les données du corps
 	err := request.ParseForm()
 	if err != nil {
@@ -250,10 +260,10 @@ func handleMakePaiment(response http.ResponseWriter, request *http.Request) {
 	paymentRequest := request.FormValue("paymentRequest")
 
 	// Get Data to connect lnd
-	authData := nodeService.GetLndClientAuthData(id)
+	authData := h.nodeService.GetLndClientAuthData(id)
 
 	// create the invoice
-	err = lightningService.MakePaiment(authData, paymentRequest)
+	err = h.channelService.MakePayment(authData, paymentRequest)
 	if err != nil {
 		fail(response, request, "Fail to pay the invoice.", err)
 		return
@@ -268,22 +278,20 @@ func handleMakePaiment(response http.ResponseWriter, request *http.Request) {
 
 }
 
-
-
 // Update name of the node & color
-func handleUpdateNodeAlias(response http.ResponseWriter, request *http.Request) {
+func (h *LightningHandler) HandleUpdateNodeAlias(response http.ResponseWriter, request *http.Request) {
 	// Parse les données du corps
-    err := request.ParseForm()
-    if err != nil {
-        http.Error(response, "Erreur de parsing", http.StatusBadRequest)
-        return
-    }
+	err := request.ParseForm()
+	if err != nil {
+		http.Error(response, "Erreur de parsing", http.StatusBadRequest)
+		return
+	}
 
-    // Récupère le paramètre "nom"
-    alias := request.FormValue("alias")
-    fmt.Println("alias reçu : ", alias)
+	// Récupère le paramètre "nom"
+	alias := request.FormValue("alias")
+	fmt.Println("alias reçu : ", alias)
 	color := request.FormValue("color")
-    fmt.Println("color reçu : ", color)
+	fmt.Println("color reçu : ", color)
 
 	// paramètre de la node
 	id := request.FormValue("id")
@@ -293,9 +301,9 @@ func handleUpdateNodeAlias(response http.ResponseWriter, request *http.Request) 
 	}
 
 	// connection info of lnd1
-	authData := nodeService.GetLndClientAuthData(id)
+	authData := h.nodeService.GetLndClientAuthData(id)
 
-	err = lightningService.UpdateAliasAndColor(authData, alias, color)
+	err = h.lightningInfoService.UpdateAliasAndColor(authData, alias, color)
 	if err != nil {
 		fail(response, request, "Modifications fail.", err)
 	}
