@@ -1,4 +1,4 @@
-package main
+package app
 
 import (
 	"net/http"
@@ -31,7 +31,7 @@ type Router struct {
 	routes map[string]*route
 }
 
-func initRouter(handlers *handlers) *Router {
+func InitRouter(handlers *handlers) *Router {
 	router := Router{routes: make(map[string]*route)}
 
 	router.add("/lightning/alias", http.MethodPut, handlers.lightning.HandleUpdateNodeAlias)

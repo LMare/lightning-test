@@ -142,9 +142,12 @@ func (f *GrpcClientFactoryMock) newClient(dataClient nodeModel.LndClientAuthData
 }
 
 // constructor for the mock factory
-func NewGrpcClientFactoryMock(lightningClient lnrpc.LightningClient, routerClient routerrpc.RouterClient) GrpcClientFactory {
+func NewGrpcClientFactoryMock(lightningClient lnrpc.LightningClient, routerClient routerrpc.RouterClient) *GrpcClientFactoryMock {
 	return &GrpcClientFactoryMock{
 		lightningClient: lightningClient,
 		routerClient:    routerClient,
 	}
 }
+
+// assertion compile-time
+var _ GrpcClientFactory = (*GrpcClientFactoryMock)(nil)

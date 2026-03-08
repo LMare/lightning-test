@@ -6,22 +6,17 @@ import (
 	"net/http"
 
 	config "github.com/Lmare/lightning-playground"
+	app "github.com/Lmare/lightning-playground/backend/app"
 	exception "github.com/Lmare/lightning-playground/backend/exception"
 )
 
 func main() {
 	cfg := config.Load()
 	exception.ConfigureProjectBasePath(cfg.ProjectPath)
-	db, err := initDB(cfg)
+	db, router, err := app.InitApp(cfg)
 	if err != nil {
-		//log.Fatal("Failed to initialize database:", err)
-		fmt.Printf("Failed to initialize database: %v\n", err)
+		log.Fatal("Failed to initialize application:", err)
 	}
-	repos := initRepositories(db)
-	factories := initFactories()
-	services := initServices(repos, factories, cfg)
-	handlers := initHandlers(services, cfg)
-	router := initRouter(handlers)
 
 	executeMigrations(db)
 

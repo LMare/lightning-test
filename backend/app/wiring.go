@@ -1,9 +1,10 @@
-package main
+package app
 
 import (
 	"database/sql"
 
 	config "github.com/Lmare/lightning-playground"
+	exception "github.com/Lmare/lightning-playground/backend/exception"
 	handler "github.com/Lmare/lightning-playground/backend/handler"
 	db "github.com/Lmare/lightning-playground/backend/infrastructure/db"
 	repository "github.com/Lmare/lightning-playground/backend/repository"
@@ -13,12 +14,13 @@ import (
 	userService "github.com/Lmare/lightning-playground/backend/service/userService"
 )
 
-type repositories struct {
-	user repository.UserRepository
+type Repositories struct {
+	User repository.UserRepository
+	Node repository.NodeRepository
 }
 
-type factories struct {
-	grpcClientFactory lightningService.GrpcClientFactory
+type Factories struct {
+	GrpcClientFactory lightningService.GrpcClientFactory
 }
 
 type services struct {
@@ -37,33 +39,36 @@ type handlers struct {
 	streamEvent *handler.StreamEventHandler
 }
 
-func initDB(cfg *config.Config) (*sql.DB, error) {
+// ------------------- Initialization functions -------------------
+
+func InitDB(cfg *config.Config) (*sql.DB, error) {
 	return db.NewPostgresDB(cfg.DSN)
 }
 
-func initRepositories(db *sql.DB) *repositories {
-	return &repositories{
-		user: repository.NewPostgresUserRepository(db),
+func InitRepositories(db *sql.DB, conf *config.Config) *Repositories {
+	return &Repositories{
+		User: repository.NewPostgresUserRepository(db),
+		Node: repository.NewNodeRepositoryFileSystem(conf),
 	}
 }
 
-func initFactories() *factories {
-	return &factories{
-		grpcClientFactory: lightningService.NewGrpcClientFactory(),
+func InitFactories() *Factories {
+	return &Factories{
+		GrpcClientFactory: lightningService.NewGrpcClientFactory(),
 	}
 }
 
-func initServices(r *repositories, f *factories, conf *config.Config) *services {
+func InitServices(r *Repositories, f *Factories, conf *config.Config) *services {
 	return &services{
-		user:          userService.NewUserService(r.user),
-		node:          nodeService.NewNodeService(*conf),
+		user:          userService.NewUserService(r.User),
+		node:          nodeService.NewNodeService(*conf, r.Node),
 		stream:        streamService.NewStreamService(),
-		lightningInfo: lightningService.NewLightningInfoService(f.grpcClientFactory),
-		channel:       lightningService.NewChannelService(f.grpcClientFactory),
+		lightningInfo: lightningService.NewLightningInfoService(f.GrpcClientFactory),
+		channel:       lightningService.NewChannelService(f.GrpcClientFactory),
 	}
 }
 
-func initHandlers(s *services, conf *config.Config) *handlers {
+func InitHandlers(s *services, conf *config.Config) *handlers {
 	return &handlers{
 		user:        handler.NewUserHandler(s.user),
 		lightning:   handler.NewLightningHandler(s.lightningInfo, s.channel, s.node),
@@ -71,4 +76,16 @@ func initHandlers(s *services, conf *config.Config) *handlers {
 		version:     handler.NewVersionHandler(conf.Version),
 		streamEvent: handler.NewStreamEventHandler(s.stream),
 	}
+}
+
+func InitApp(cfg *config.Config) (*sql.DB, *Router, error) {
+	db, err := InitDB(cfg)
+	if err != nil {
+		return nil, nil, exception.NewError("Failed to initialize database", err, exception.NewExampleError)
+	}
+	repos := InitRepositories(db, cfg)
+	factories := InitFactories()
+	services := InitServices(repos, factories, cfg)
+	handlers := InitHandlers(services, cfg)
+	return db, InitRouter(handlers), nil
 }
