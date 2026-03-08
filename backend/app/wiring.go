@@ -2,6 +2,7 @@ package app
 
 import (
 	"database/sql"
+	"net/http"
 
 	config "github.com/Lmare/lightning-playground"
 	exception "github.com/Lmare/lightning-playground/backend/exception"
@@ -78,7 +79,7 @@ func InitHandlers(s *services, conf *config.Config) *handlers {
 	}
 }
 
-func InitApp(cfg *config.Config) (*sql.DB, *Router, error) {
+func InitApp(cfg *config.Config) (*sql.DB, http.Handler, error) {
 	db, err := InitDB(cfg)
 	if err != nil {
 		return nil, nil, exception.NewError("Failed to initialize database", err, exception.NewExampleError)

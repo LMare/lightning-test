@@ -2,6 +2,7 @@ package testsupport
 
 import (
 	"context"
+	"net/http"
 
 	app "github.com/Lmare/lightning-playground/backend/app"
 	user "github.com/Lmare/lightning-playground/backend/model/user"
@@ -10,7 +11,7 @@ import (
 
 // TestHarness is a struct that holds all the necessary components for testing the application, such as the router and mock repositories.
 type TestHarness struct {
-	Router                *app.Router
+	Router                http.Handler
 	fakeUserRepo          *FakeUserRepository
 	fakeNodeRepo          *FakeNodeRepository
 	fakeGrpcClientFactory *lightningService.GrpcClientFactoryMock
