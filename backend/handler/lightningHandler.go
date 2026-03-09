@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"html/template"
 	"net/http"
 	"regexp"
@@ -31,7 +30,7 @@ func (h *LightningHandler) HandleListOfNodes(response http.ResponseWriter, reque
 
 	descriptors, err := h.nodeService.ListOfNodes()
 	if err != nil {
-		fail(response, request, "Info transmisent incorrectes", err)
+		fail(response, request, "Error on listing nodes", err)
 		return
 	}
 
@@ -54,7 +53,7 @@ func (h *LightningHandler) HandleShowUri(response http.ResponseWriter, request *
 	// paramètre de la node
 	id := request.FormValue("id")
 	if !isVaildFormatOfId(id) {
-		fail(response, request, "Pas d'id transmis", nil)
+		failCheck(response, request, "Pas d'id transmis", nil)
 		return
 	}
 	// récupération info de connexion à la node
@@ -107,7 +106,7 @@ func (h *LightningHandler) HandleNodeInfo(response http.ResponseWriter, request 
 	// paramètre de la node
 	id := request.FormValue("id")
 	if !isVaildFormatOfId(id) {
-		fail(response, request, "Pas d'id transmis", nil)
+		failCheck(response, request, "Pas d'id transmis", nil)
 		return
 	}
 	// récupération info de connexion à la node
@@ -139,7 +138,7 @@ func (h *LightningHandler) HandleAddPeer(response http.ResponseWriter, request *
 
 	id := request.FormValue("id")
 	if !isVaildFormatOfId(id) {
-		fail(response, request, "Pas d'id transmis", err)
+		failCheck(response, request, "Pas d'id transmis", nil)
 		return
 	}
 	uri := request.FormValue("uri")
@@ -166,20 +165,20 @@ func (h *LightningHandler) HandleOpenChannel(response http.ResponseWriter, reque
 	// Parse les données du corps
 	err := request.ParseForm()
 	if err != nil {
-		http.Error(response, "Erreur de parsing", http.StatusBadRequest)
+		failCheck(response, request, "Erreur de parsing", err)
 		return
 	}
 
 	id := request.FormValue("id")
 	if !isVaildFormatOfId(id) {
-		fail(response, request, "Pas d'id transmis", err)
+		failCheck(response, request, "Pas d'id transmis", nil)
 		return
 	}
 	pubKey := request.FormValue("pubKey")
 	amountStr := request.FormValue("amount")
 	amount, err := strconv.ParseInt(amountStr, 10, 64)
 	if err != nil {
-		fail(response, request, "Amount value incorrect", err)
+		failCheck(response, request, "Amount value incorrect", err)
 		return
 	}
 
@@ -206,20 +205,20 @@ func (h *LightningHandler) HandleCreateInvoice(response http.ResponseWriter, req
 	// Parse les données du corps
 	err := request.ParseForm()
 	if err != nil {
-		http.Error(response, "Erreur de parsing", http.StatusBadRequest)
+		failCheck(response, request, "Erreur de parsing", err)
 		return
 	}
 
 	id := request.FormValue("id")
 	if !isVaildFormatOfId(id) {
-		fail(response, request, "Pas d'id transmis", err)
+		failCheck(response, request, "Pas d'id transmis", nil)
 		return
 	}
 	memo := request.FormValue("memo")
 	amountStr := request.FormValue("amount")
 	amount, err := strconv.ParseInt(amountStr, 10, 64)
 	if err != nil {
-		fail(response, request, "Amount value incorrect", err)
+		failCheck(response, request, "Amount value incorrect", err)
 		return
 	}
 
@@ -248,16 +247,20 @@ func (h *LightningHandler) HandleMakePayment(response http.ResponseWriter, reque
 	// Parse les données du corps
 	err := request.ParseForm()
 	if err != nil {
-		http.Error(response, "Erreur de parsing", http.StatusBadRequest)
+		failCheck(response, request, "Error parsing form", err)
 		return
 	}
 
 	id := request.FormValue("id")
 	if !isVaildFormatOfId(id) {
-		fail(response, request, "Pas d'id transmis", err)
+		failCheck(response, request, "Missing ID", nil)
 		return
 	}
 	paymentRequest := request.FormValue("paymentRequest")
+	if paymentRequest == "" {
+		failCheck(response, request, "Missing payment request", nil)
+		return
+	}
 
 	// Get Data to connect lnd
 	authData := h.nodeService.GetLndClientAuthData(id)
@@ -283,20 +286,25 @@ func (h *LightningHandler) HandleUpdateNodeAlias(response http.ResponseWriter, r
 	// Parse les données du corps
 	err := request.ParseForm()
 	if err != nil {
-		http.Error(response, "Erreur de parsing", http.StatusBadRequest)
+		failCheck(response, request, "Erreur de parsing", err)
 		return
 	}
 
-	// Récupère le paramètre "nom"
 	alias := request.FormValue("alias")
-	fmt.Println("alias reçu : ", alias)
+	if alias == "" {
+		failCheck(response, request, "Missing alias", nil)
+		return
+	}
 	color := request.FormValue("color")
-	fmt.Println("color reçu : ", color)
+	if color == "" {
+		failCheck(response, request, "Missing color", nil)
+		return
+	}
 
 	// paramètre de la node
 	id := request.FormValue("id")
 	if !isVaildFormatOfId(id) {
-		fail(response, request, "Pas d'id transmis", err)
+		failCheck(response, request, "Missing ID", nil)
 		return
 	}
 

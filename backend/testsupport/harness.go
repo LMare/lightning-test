@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 
+	config "github.com/Lmare/lightning-playground"
 	app "github.com/Lmare/lightning-playground/backend/app"
 	user "github.com/Lmare/lightning-playground/backend/model/user"
 	lightningService "github.com/Lmare/lightning-playground/backend/service/lightningService"
@@ -19,6 +20,12 @@ type TestHarness struct {
 
 // NewTestHarness initializes the test harness with default mock implementations for repositories and factories.
 func NewTestHarness() *TestHarness {
+	// random test configuration
+	config := &config.Config{
+		ProjectPath: "testdata",
+		NodeStorage: "testdata/nodes",
+		Version:     "1.0.0",
+	}
 
 	// mock repositories
 
@@ -54,8 +61,8 @@ func NewTestHarness() *TestHarness {
 		GrpcClientFactory: grpcClientFactoryMock,
 	}
 
-	services := app.InitServices(repos, factories, nil)
-	handlers := app.InitHandlers(services, nil)
+	services := app.InitServices(repos, factories, config)
+	handlers := app.InitHandlers(services, config)
 	router := app.InitRouter(handlers)
 
 	return &TestHarness{

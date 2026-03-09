@@ -1,6 +1,7 @@
 package app
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -92,6 +93,7 @@ func (router *router) handleMetrics(w http.ResponseWriter, r *http.Request) {
 func (router *router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	if r, ok := router.routes[req.URL.Path]; ok {
 		if handler, ok := r.handlers[req.Method]; ok {
+			fmt.Println("ServeHTTP:", req.Method, req.URL.Path)
 			handler(w, req)
 			return
 		}
