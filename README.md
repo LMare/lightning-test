@@ -7,28 +7,32 @@
 
 
 
-Personnal projet to discover and improve skill on  :
+Personnal projet as playground to discover and improve skill on  :
+
+Stack :
   - Golang
   - gRPC (use & extend gRPC API)
   - Lnd
   - HTMX
   - SSE
+  - Makefile
   - dockerfile
-  - docker compose
-  - docker bake
+  - docker compose / bake
   - CI
-  - Kubernetes
+  - Kubernetes / HELM
   - monitoring : Prometheus + Grafana (dashboard/panel for metrics)
 
 TODO :
+  - Warehouse + ELT : Stack identified : DuckDB + dbt + Perfect (Airflow in a second time ?)
+  - archi hexagonal to complete TI for test cover
   - monitoring (alerts)
   - monitoring (logs)
   - SSE with Deployement Backend broken -> need to put a broker (ex: Redis)
   - Wallet creation/unlock is handled by the backend via gRPC `WalletUnlocker` service).
   - Define NetworkPolicies to restrict communication paths (frontend ↔ backend ↔ LND ↔ btcd) ?
   - infra as code (Terraform + kubernetes with Kind) ?
-  - modules with Go ?
-  - increase the test cover by implementing TI
+  - LLM
+
 
 ---------------------------------------------------------------------------------------------
 

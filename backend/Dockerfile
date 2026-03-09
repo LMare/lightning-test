@@ -13,7 +13,7 @@ RUN --mount=type=cache,target=/go/pkg/mod,id=gomod,sharing=locked \
 COPY *.go ./
 COPY cmd/backend cmd/backend/
 COPY backend backend/
-# compilation statique / dynamique (dépendances des libs C)
+# compilation statique (dépendances des libs C)
 RUN --mount=type=cache,target=/root/.cache/go-build,id=gobuild-backend,sharing=locked \
 	--mount=type=cache,target=/go/pkg/mod,id=gomod,sharing=locked \
 	CGO_ENABLED=0 \
@@ -25,6 +25,7 @@ WORKDIR /app
 COPY --from=compiler /app/app-backend ./
 COPY .env ./
 COPY backend/templates ./backend/templates/
+COPY migrations migrations/
 
 # 3. Construction de l'image finale (alpine ou scratch)
 

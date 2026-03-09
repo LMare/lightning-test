@@ -7,8 +7,18 @@ import (
 	streamService "github.com/Lmare/lightning-playground/backend/service/streamService"
 )
 
+func NewStreamEventHandler(streamService *streamService.StreamService) *StreamEventHandler {
+	return &StreamEventHandler{
+		streamService: streamService,
+	}
+}
+
+type StreamEventHandler struct {
+	streamService *streamService.StreamService
+}
+
 // check the message from gRPC stream
-func handleStreamEvent(response http.ResponseWriter, request *http.Request) {
+func (h *StreamEventHandler) HandleStreamEvent(response http.ResponseWriter, request *http.Request) {
 
 	response.Header().Set("Content-Type", "text/event-stream")
 	response.Header().Set("Cache-Control", "no-cache")

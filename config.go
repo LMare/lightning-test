@@ -21,6 +21,7 @@ type Config struct {
 	LndNetwork      string
 	LndDomain       string
 	Version         string
+	DSN             string
 }
 
 var (
@@ -46,6 +47,7 @@ func Load() *Config {
 			LndNetwork:      getEnv("LND_NETWORK", "simnet"),
 			LndDomain:       getEnv("LND_DOMAIN", "lnd-headless.lightning-playground.svc.cluster.local"),
 			Version:         getEnv("APP_VERSION", "0.1.0"),
+			DSN:             getEnv("POSTGRES_DSN", "postgres://user:password@localhost:5432/mydb?sslmode=disable"),
 		}
 	})
 
