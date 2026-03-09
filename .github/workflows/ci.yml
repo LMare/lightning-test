@@ -30,8 +30,10 @@ jobs:
     - name: run tests
       run: go test -v ./...
 
-    - name: Tests covert 
-      run: go test -coverprofile=cover.out ./... && go tool cover -func=cover.out 
+    - name: Run all tests with coverage (unit + integration)
+      run: |
+        # instrumente tous les packages, exécute tous les tests, évite le cache
+        go test -coverpkg=./... -coverprofile=cover.out ./... -count=1 -v
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v4
