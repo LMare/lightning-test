@@ -24,7 +24,7 @@ type grpcClient interface {
 	Close() error
 }
 
-//----------------- GrpcClient Factory -----------------
+//----------------- GrpcClient Factory Impl-----------------
 
 type grpcClientFactoryImpl struct {
 }

@@ -1,20 +1,18 @@
 package testsupport
 
 import (
-	"context"
 	"net/http"
 
 	config "github.com/Lmare/lightning-playground"
 	app "github.com/Lmare/lightning-playground/backend/app"
-	user "github.com/Lmare/lightning-playground/backend/model/user"
 	lightningService "github.com/Lmare/lightning-playground/backend/service/lightningService"
 )
 
 // TestHarness is a struct that holds all the necessary components for testing the application, such as the router and mock repositories.
 type TestHarness struct {
 	Router                http.Handler
-	fakeUserRepo          *FakeUserRepository
-	fakeNodeRepo          *FakeNodeRepository
+	MockUserRepo          *MockUserRepository
+	MockNodeRepo          *MockNodeRepository
 	fakeGrpcClientFactory *lightningService.GrpcClientFactoryMock
 }
 
@@ -29,22 +27,9 @@ func NewTestHarness() *TestHarness {
 
 	// mock repositories
 
-	userRepo := &FakeUserRepository{
-		MockFindAll: func(ctx context.Context) ([]user.UserModel, error) {
-			// by default, return some dummy data for testing
-			return []user.UserModel{
-				{ID: "1", Nom: "Doe", Prenom: "John", Age: 30, Email: "john.doe@example.com"},
-				{ID: "2", Nom: "Smith", Prenom: "Jane", Age: 25, Email: "jane.smith@example.com"},
-			}, nil
-		},
-	}
+	mockuserRepo := &MockUserRepository{}
 
-	fakeNodeRepo := &FakeNodeRepository{
-		MockGetNodesIds: func() ([]string, error) {
-			// by default, return some dummy data for testing
-			return []string{"node1", "node2", "node3"}, nil
-		},
-	}
+	mockNodeRepo := &MockNodeRepository{}
 
 	// mock factories
 
@@ -53,8 +38,8 @@ func NewTestHarness() *TestHarness {
 	// wiring with mocks
 
 	repos := &app.Repositories{
-		User: userRepo,
-		Node: fakeNodeRepo,
+		User: mockuserRepo,
+		Node: mockNodeRepo,
 	}
 
 	factories := &app.Factories{
@@ -67,8 +52,8 @@ func NewTestHarness() *TestHarness {
 
 	return &TestHarness{
 		Router:                router,
-		fakeUserRepo:          userRepo,
-		fakeNodeRepo:          fakeNodeRepo,
+		MockUserRepo:          mockuserRepo,
+		MockNodeRepo:          mockNodeRepo,
 		fakeGrpcClientFactory: grpcClientFactoryMock,
 	}
 

@@ -2,19 +2,17 @@ package testsupport
 
 import (
 	repository "github.com/Lmare/lightning-playground/backend/repository"
+	"github.com/stretchr/testify/mock"
 )
 
-type FakeNodeRepository struct {
-	MockGetNodesIds func() ([]string, error)
+type MockNodeRepository struct {
+	mock.Mock
 }
 
-func (f *FakeNodeRepository) GetNodesIds() ([]string, error) {
-	if f.MockGetNodesIds != nil {
-		return f.MockGetNodesIds()
-	}
-	// Implementation for testing
-	return nil, nil
+func (m *MockNodeRepository) GetNodesIds() ([]string, error) {
+	args := m.Called()
+	return args.Get(0).([]string), args.Error(1)
 }
 
 // Assertion compile-time
-var _ repository.NodeRepository = (*FakeNodeRepository)(nil)
+var _ repository.NodeRepository = (*MockNodeRepository)(nil)
