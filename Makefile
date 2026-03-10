@@ -37,7 +37,7 @@ bake-all:
 	docker buildx bake
 
 bake-app:
-	docker buildx bake backend frontend sidecars
+	docker buildx bake backend frontend sidecars data
 
 
 # This target adds an entry to the /etc/hosts file to map lightning-playground.local
