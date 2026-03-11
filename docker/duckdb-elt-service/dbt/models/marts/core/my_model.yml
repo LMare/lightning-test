@@ -1,0 +1,8 @@
+version: 2
+
+models:
+  - name: my_model
+    tests:
+      - not_null:
+          column_name: id
+

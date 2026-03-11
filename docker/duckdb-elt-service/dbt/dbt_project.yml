@@ -1,0 +1,14 @@
+name: "duckdb_elt"
+version: "1.0.0"
+profile: "duckdb_profile"
+
+model-paths: ["models"]
+macro-paths: ["macros"]
+seed-paths: ["seeds"]
+snapshot-paths: ["snapshots"]
+analysis-paths: ["analyses"]
+
+models:
+  duckdb_elt:
+    +materialized: table
+
