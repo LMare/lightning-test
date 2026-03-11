@@ -11,3 +11,8 @@ metadata:
   name: monitoring
   labels: 
     release: monitoring
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: data

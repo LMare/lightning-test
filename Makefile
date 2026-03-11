@@ -26,7 +26,7 @@ create-cluster:
 delete-cluster:
 	kind delete cluster --name $(CLUSTER)
 
-deploy:
+deploy-lightning-playground:
 	kubectl apply -f kubernetes/manifests/namespace.yaml; \
 	while [ "$$(kubectl get ns lightning-playground -o jsonpath='{.status.phase}')" != "Active" ]; do sleep 1; done; \
 	kubectl apply -R -f kubernetes/manifests; \
@@ -55,8 +55,8 @@ add-in-hosts:
 		echo "done"; \
 	fi
 
-all: bake-all create-cluster load-images deploy-postgres deploy add-in-hosts create-monitoring-cluster
-refresh-new-version: bump-version bake-app load-images deploy
+all: check-deps bake-all create-cluster load-images deploy-postgres deploy-lightning-playground deploy-minio add-in-hosts create-monitoring-cluster
+refresh-new-version: bump-version bake-app load-images deploy-lightning-playground
 
 check-deps:
 	@command -v docker >/dev/null 2>&1 || { echo "docker is missing"; exit 1; } && \
@@ -89,12 +89,19 @@ deploy-monitoring-stack:
 deploy-postgres:
 	helm repo add bitnami https://charts.bitnami.com/bitnami
 	helm repo update
-	helm install postgres bitnami/postgresql -n lightning-playground \
+	helm upgrade --install postgres bitnami/postgresql -n lightning-playground \
 		--set auth.postgresPassword=superpassword \
 		--set auth.username=appuser \
 		--set auth.password=apppassword \
 		--set auth.database=appdb
 
 
+deploy-minio:
+	helm repo add minio https://charts.min.io/
+	helm repo update
+	helm upgrade --install minio minio/minio -n data -f kubernetes/helm/minio/values.yaml \
+		--set accessKey.password=superpassword \
+		--set secretKey.password=superpassword
 
-.PHONY: load-images create-cluster delete-cluster deploy add-in-hosts all check-deps bake-all bake-app bump-version refresh-new-version deploy-monitoring-stack deploy-postgres
+
+.PHONY: load-images create-cluster delete-cluster deploy-lightning-playground add-in-hosts all check-deps bake-all bake-app bump-version refresh-new-version deploy-monitoring-stack deploy-postgres deploy-minio

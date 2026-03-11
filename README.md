@@ -7,7 +7,7 @@
 
 
 
-Personnal projet as playground to discover and improve skill on  :
+Personnal projet as playground to discover and improve skill on technical aspect :
 
 Stack :
   - Golang
@@ -28,10 +28,43 @@ TODO :
   - monitoring (alerts)
   - monitoring (logs)
   - SSE with Deployement Backend broken -> need to put a broker (ex: Redis)
-  - Wallet creation/unlock is handled by the backend via gRPC `WalletUnlocker` service).
+  - Functionnal : 
+    - Wallet creation/unlock handle by the backend via gRPC (`WalletUnlocker` service)
+    - Close channel
+    - Display amount
   - Define NetworkPolicies to restrict communication paths (frontend ↔ backend ↔ LND ↔ btcd) ?
-  - infra as code (Terraform + kubernetes with Kind) ?
+  - infra as code (Terraform) ?
   - LLM
+
+-------------------------------------------------------------------------------------------
+Working in progress : 
+
+StatefulSet: duckdb
+  - [] container: duckdb-sql-server : execute and return des SQL request on the warehouse.duckdb
+  - [] container: duckdb-elt-service : mini server for the 
+      * [] load 
+      * [] incrémental merge
+      * [] dbt
+  - [] volume: warehouse.duckdb
+
+StatefulSet: [X] minio (helm)
+
+StatefulSet: [X] postges (helm)
+
+Deployment: prefect-agent
+  - orchestrate flow
+       - [] export posgres to minio : format parquet
+       - [] trigger duckdb-elt-service : load
+       - [] trigger duckdb-elt-service : incremental merge
+       - [] trigger duckdb-elt-service : dbt
+
+Deployment: [] Dashboard backend  : go app that call duckdb-sql-server to return analytics data
+Deployment: [] Dashboard frontend : with React
+
+Deployment: Backend (lightning)
+  - [] trace event in posgres to have data for the process   
+
+
 
 
 ---------------------------------------------------------------------------------------------
