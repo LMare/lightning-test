@@ -45,7 +45,7 @@ group "sidecars" {
 }
 
 group "data" {
-  targets = ["dbt-runner", "prefect-agent"]
+  targets = ["duckdb-elt-service", "prefect-agent"]
 }
 
 group "default" {
@@ -159,8 +159,8 @@ target "prefect-agent" {
   tags = ["LMare/prefect-agent:${APP_VERSION}"]
 }
 
-target "dbt-runner" {
-  context = "./docker/dbt-runner/dbt"
-  dockerfile = "../Dockerfile"
-  tags = ["LMare/dbt-runner:${APP_VERSION}"]
+target "duckdb-elt-service" {
+  context = "./docker/duckdb-elt-service"
+  dockerfile = "Dockerfile"
+  tags = ["LMare/duckdb-elt-service:${APP_VERSION}"]
 }

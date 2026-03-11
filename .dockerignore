@@ -1,5 +1,2 @@
-backend/Dockerfile
-frontend/Dockerfile
-sidecar/Dockerfile
-docker-compose.yml
-.local-frontend
+docker/duckdb-elt-service/Dockerfile
+docker/duckdb-sql-server/Dockerfile

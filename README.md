@@ -41,10 +41,10 @@ Working in progress :
 
 StatefulSet: duckdb
   - [] container: duckdb-sql-server : execute and return des SQL request on the warehouse.duckdb
-  - [] container: duckdb-elt-service : mini server for the 
-      * [] load 
-      * [] incrémental merge
-      * [] dbt
+  - [X] container: duckdb-elt-service : mini server for the 
+      * [X] load with incremental merge
+      * [X] dbt
+        - [] dbt scripts 
   - [] volume: warehouse.duckdb
 
 StatefulSet: [X] minio (helm)
