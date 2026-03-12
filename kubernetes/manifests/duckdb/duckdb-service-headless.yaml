@@ -1,0 +1,20 @@
+# headless to access the duckdb pod
+apiVersion: v1
+kind: Service
+metadata:
+  name: duckdb-headless
+  namespace: data
+  labels:
+      app: duckdb
+spec:
+  type: ClusterIP
+  clusterIP: None   # <- put the service "headless"
+  selector:
+    app: duckdb
+  ports:
+  - name: elt-service-entrypoint
+    port: 8000
+    targetPort: elt-service
+#  - name: sql-server-entrypoint
+#    port: 8080
+#    targetPort: sql-server

@@ -38,7 +38,6 @@ spec:
             - --externalip="$(LND_DOMAIN):9735"
             - --tlsextradomain=$(LND_DOMAIN)
           image: LMare/lnd:v0.20.0-beta-custom
-          name: lnd
           volumeMounts:
             - name: lnd-data
               mountPath: /root/.lnd

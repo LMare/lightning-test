@@ -45,7 +45,7 @@ group "sidecars" {
 }
 
 group "data" {
-  targets = ["duckdb-elt-service", "prefect-agent"]
+  targets = ["duckdb-elt-service"]
 }
 
 group "default" {

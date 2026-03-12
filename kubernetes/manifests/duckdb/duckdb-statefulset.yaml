@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: duckdb
+  name: duckdb
+  namespace : data
+spec:
+  serviceName: duckdb-headless
+  replicas: 1
+  selector:
+    matchLabels:
+      app: duckdb
+  template:
+    metadata:
+      labels:
+        app: duckdb
+    spec:
+      containers:
+        - name: duckdb-elt-service
+          image: LMare/duckdb-elt-service:v0.4.0-0
+          volumeMounts:
+            - name: warehouse
+              mountPath: /data
+          ports:
+             - name: elt-service
+               containerPort: 8000
+          env:
+            - name: MINIO_ENDPOINT
+              value: "minio-0.minio-headless.data.svc.cluster.local:9000"
+            - name: MINIO_ACCESS_KEY
+              value: "minio-access-key"
+            - name: MINIO_SECRET_KEY
+              value: "minio-secret-key"
+
+#        - name: duckdb-sql-server
+#          image: LMare/duckdb-sql-server:v0.4.0-0
+#          ports:
+#             - name: sql-server
+#               containerPort: 8080
+#          volumeMounts:
+#            - name: warehouse
+#              mountPath: /data
+
+      restartPolicy: Always
+  volumeClaimTemplates:
+    - metadata:
+        name: warehouse
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 20Mi

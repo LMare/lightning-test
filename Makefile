@@ -9,6 +9,7 @@ load-images:
 		LMare/lightning-playground-sidecar-backend:$$VERSION \
 		LMare/lightning-playground-sidecar-btcd:$$VERSION \
 		LMare/lightning-playground-sidecar-lnd:$$VERSION \
+		LMare/duckdb-elt-service:$$VERSION \
 		LMare/lnd:v0.20.0-beta-custom \
 		btcsuite/btcd:v0.25.0"; \
 	for img in $$IMAGES; do \
