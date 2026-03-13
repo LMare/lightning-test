@@ -27,7 +27,7 @@ create-cluster:
 delete-cluster:
 	kind delete cluster --name $(CLUSTER)
 
-deploy-lightning-playground:
+deploy-manifests:
 	kubectl apply -f kubernetes/manifests/namespace.yaml; \
 	while [ "$$(kubectl get ns lightning-playground -o jsonpath='{.status.phase}')" != "Active" ]; do sleep 1; done; \
 	kubectl apply -R -f kubernetes/manifests; \
@@ -56,8 +56,8 @@ add-in-hosts:
 		echo "done"; \
 	fi
 
-all: check-deps bake-all create-cluster load-images deploy-postgres deploy-lightning-playground deploy-minio add-in-hosts create-monitoring-cluster
-refresh-new-version: bump-version bake-app load-images deploy-lightning-playground
+all: check-deps bake-all create-cluster load-images deploy-postgres deploy-manifests deploy-minio deploy-prefect add-in-hosts create-monitoring-cluster
+refresh-new-version: bump-version bake-app load-images deploy-manifests
 
 check-deps:
 	@command -v docker >/dev/null 2>&1 || { echo "docker is missing"; exit 1; } && \
@@ -65,6 +65,7 @@ check-deps:
 	command -v kubectl >/dev/null 2>&1 || { echo "kubectl is missing"; exit 1; } && \
 	docker buildx version >/dev/null 2>&1 || { echo "docker buildx is missing"; exit 1; } && \
 	helm version >/dev/null 2>&1 || { echo "helm is missing"; exit 1; } && \
+	prefect version >/dev/null 2>&1 || { echo "prefect CLI is missing"; exit 1; } && \
 	echo "All dependencies are installed."
 
 # Increment the version number in all relevant files or set it to a specific value if provided
@@ -104,5 +105,12 @@ deploy-minio:
 		--set accessKey.password=superpassword \
 		--set secretKey.password=superpassword
 
+deploy-prefect:
+	helm repo add prefect https://prefecthq.github.io/prefect-helm
+	helm repo update
+	helm upgrade --install prefect-server prefect/prefect-server -n data
 
-.PHONY: load-images create-cluster delete-cluster deploy-lightning-playground add-in-hosts all check-deps bake-all bake-app bump-version refresh-new-version deploy-monitoring-stack deploy-postgres deploy-minio
+
+.PHONY: load-images create-cluster delete-cluster deploy-manifests add-in-hosts all check-deps 
+	bake-all bake-app bump-version refresh-new-version deploy-monitoring-stack deploy-postgres deploy-minio \
+	deploy-prefect

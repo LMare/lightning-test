@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prefect-agent
+  namespace: data
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prefect-agent
+  template:
+    metadata:
+      labels:
+        app: prefect-agent
+    spec:
+      containers:
+        - name: agent
+          image: prefecthq/prefect:2-latest
+          command: ["prefect", "agent", "start", "-q", "kubernetes-pool"]
+          env:
+            - name: PREFECT_API_URL
+              value: "http://prefect-server.data.svc.cluster.local:4200/api"

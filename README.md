@@ -45,18 +45,20 @@ StatefulSet: duckdb
       * [X] load with incremental merge
       * [X] dbt
         - [] dbt scripts 
-  - [] volume: warehouse.duckdb
+  - [X] volume: warehouse.duckdb
 
 StatefulSet: [X] minio (helm)
 
 StatefulSet: [X] postges (helm)
 
 Deployment: prefect-agent
-  - orchestrate flow
-       - [] export posgres to minio : format parquet
-       - [] trigger duckdb-elt-service : load
-       - [] trigger duckdb-elt-service : incremental merge
-       - [] trigger duckdb-elt-service : dbt
+  - [X] prefect-server : orchestrate flow 
+  - [X] prefect-agent  : client that call the server in loop and then create ephemeral pod to execute the flow
+  - [] flow
+       - [?] export posgres to minio : format parquet
+       - [?] trigger duckdb-elt-service : load
+       - [?] trigger duckdb-elt-service : dbt
+  - [] load the flow in the server
 
 Deployment: [] Dashboard backend  : go app that call duckdb-sql-server to return analytics data
 Deployment: [] Dashboard frontend : with React
