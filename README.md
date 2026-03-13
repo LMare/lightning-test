@@ -7,73 +7,12 @@
 
 
 
-Personnal projet as playground to discover and improve skill on technical aspect :
+This project started as a small Go/HTMX web app interacting with a Lightning Network node on simnet.
+It has since grown into a full Kubernetes playground featuring Prometheus/Grafana monitoring and a modern ELT pipeline (Postgres → MinIO → DuckDB → dbt) orchestrated with Prefect.
 
-Stack :
-  - Golang
-  - gRPC (use & extend gRPC API)
-  - Lnd
-  - HTMX
-  - SSE
-  - Makefile
-  - dockerfile
-  - docker compose / bake
-  - CI
-  - Kubernetes / HELM
-  - monitoring : Prometheus + Grafana (dashboard/panel for metrics)
+## Fonctionnal Prupose
+Little web application which interract with a network of lightning servers running on simnet to create channel and  send transactions between nodes.
 
-TODO :
-  - Warehouse + ELT : Stack identified : DuckDB + dbt + Perfect (Airflow in a second time ?)
-  - archi hexagonal to complete TI for test cover
-  - monitoring (alerts)
-  - monitoring (logs)
-  - SSE with Deployement Backend broken -> need to put a broker (ex: Redis)
-  - Functionnal : 
-    - Wallet creation/unlock handle by the backend via gRPC (`WalletUnlocker` service)
-    - Close channel
-    - Display amount
-  - Define NetworkPolicies to restrict communication paths (frontend ↔ backend ↔ LND ↔ btcd) ?
-  - infra as code (Terraform) ?
-  - LLM
-
--------------------------------------------------------------------------------------------
-Working in progress : 
-
-StatefulSet: duckdb
-  - [] container: duckdb-sql-server : execute and return des SQL request on the warehouse.duckdb
-  - [X] container: duckdb-elt-service : mini server for the 
-      * [X] load with incremental merge
-      * [X] dbt
-        - [] dbt scripts 
-  - [X] volume: warehouse.duckdb
-
-StatefulSet: [X] minio (helm)
-
-StatefulSet: [X] postges (helm)
-
-Deployment: prefect-agent
-  - [X] prefect-server : orchestrate flow 
-  - [X] prefect-agent  : client that call the server in loop and then create ephemeral pod to execute the flow
-  - [] flow
-       - [?] export posgres to minio : format parquet
-       - [?] trigger duckdb-elt-service : load
-       - [?] trigger duckdb-elt-service : dbt
-  - [] load the flow in the server
-
-Deployment: [] Dashboard backend  : go app that call duckdb-sql-server to return analytics data
-Deployment: [] Dashboard frontend : with React
-
-Deployment: Backend (lightning)
-  - [] trace event in posgres to have data for the process   
-
-
-
-
----------------------------------------------------------------------------------------------
-
-
-## Prupose
-Be able to do a little web application to interract with and a lightning serveur running on simnet
 
 ## Checking the prerequis
 ```bash
@@ -194,6 +133,55 @@ kubectl exec -it btcd-0 -n lightning-playground -- btcctl --simnet generate 1
 kubectl scale statefulset lnd --replicas=5
 ```
 
+---------------------------------------------------------------------------------------------
+
 ## Note :
 The app works with a LND customised [LMare/lnd](https://github.com/LMare/lnd/tree/feature/gRPC-alias-color).
 This version allow to modify the alias and the color of the node LND by gRPC call.
+
+-------------------------------------------------------------------------------------------
+## Working in progress
+
+StatefulSet: duckdb
+  - [] container: duckdb-sql-server : execute and return des SQL request on the warehouse.duckdb
+  - [X] container: duckdb-elt-service : mini server for the 
+      * [X] load with incremental merge
+      * [X] dbt
+        - [] dbt scripts 
+  - [X] volume: warehouse.duckdb
+
+StatefulSet: [X] minio (helm)
+
+StatefulSet: [X] postges (helm)
+
+Deployment: prefect-agent
+  - [X] prefect-server : orchestrate flow 
+  - [X] prefect-agent  : client that call the server in loop and then create ephemeral pod to execute the flow
+  - [] flow
+       - [?] export posgres to minio : format parquet
+       - [?] trigger duckdb-elt-service : load
+       - [?] trigger duckdb-elt-service : dbt
+  - [] load the flow in the server
+
+Deployment: [] Dashboard backend  : go app that call duckdb-sql-server to return analytics data
+Deployment: [] Dashboard frontend : with React
+
+Deployment: Backend (lightning)
+  - [] trace event in posgres to have data for the process   
+
+
+---------------------------------------------------------------------------------------------
+## TODO 
+  - Warehouse + ELT : Stack identified : DuckDB + dbt + Perfect (Airflow in a second time ?)
+  - archi hexagonal to complete TI for test cover
+  - monitoring (alerts)
+  - monitoring (logs)
+  - SSE with Deployement Backend broken -> need to put a broker (ex: Redis)
+  - Functionnal : 
+    - Wallet creation/unlock handle by the backend via gRPC (`WalletUnlocker` service)
+    - Close channel
+    - Display amount
+  - Define NetworkPolicies to restrict communication paths (frontend ↔ backend ↔ LND ↔ btcd) ?
+  - infra as code (Terraform) ?
+  - LLM
+
