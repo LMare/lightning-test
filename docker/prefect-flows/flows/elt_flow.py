@@ -7,6 +7,8 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 import io
 
+from . import config as cfg
+
 
 # -----------------------------
 # 1) Export Postgres → Parquet → MinIO
@@ -82,37 +84,30 @@ def main_flow():
     # -------------------------
     # Paramètres (à mettre en env vars dans ton Deployment)
     # -------------------------
-    PG_CONN = "postgresql://user:pass@postgres.data.svc.cluster.local:5432/db"
+    
+    # TODO adapt the QUERY
     QUERY = "SELECT * FROM my_table"
-
-    MINIO_ENDPOINT = "minio.data.svc.cluster.local:9000"
-    MINIO_BUCKET = "raw"
-    MINIO_ACCESS_KEY = "minio"
-    MINIO_SECRET_KEY = "minio123"
-    OUTPUT_PATH = "exports/my_table.parquet"
-
-    DUCKDB_SERVICE = "http://duckdb-elt-service.data.svc.cluster.local"
 
     # -------------------------
     # Pipeline
     # -------------------------
     parquet_path = export_postgres_to_minio(
-        PG_CONN,
+        cfg.PG_CONN,
         QUERY,
-        MINIO_ENDPOINT,
-        MINIO_BUCKET,
-        MINIO_ACCESS_KEY,
-        MINIO_SECRET_KEY,
-        OUTPUT_PATH,
+        cfg.MINIO_ENDPOINT,
+        cfg.MINIO_BUCKET,
+        cfg.MINIO_ACCESS_KEY,
+        cfg.MINIO_SECRET_KEY,
+        cfg.OUTPUT_PATH,
     )
 
     load_result = trigger_duckdb_load(
-        DUCKDB_SERVICE,
-        source_path=OUTPUT_PATH,
+        cfg.DUCKDB_SERVICE,
+        source_path=cfg.OUTPUT_PATH,
         table_name="my_table",
     )
 
-    dbt_result = trigger_duckdb_dbt(DUCKDB_SERVICE)
+    dbt_result = trigger_duckdb_dbt(cfg.DUCKDB_SERVICE)
 
     return {
         "parquet": parquet_path,
