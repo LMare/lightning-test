@@ -1,0 +1,5 @@
+tables:
+  users:
+    query: "SELECT * FROM users WHERE updated_at > :last_run AND updated_at <= :chunk_end ORDER BY updated_at ASC LIMIT :chunk_size"
+    chunk_size: 10000
+    time_field: updated_at

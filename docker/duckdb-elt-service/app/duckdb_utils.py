@@ -16,12 +16,15 @@ def run_load(source_path: str, table_name: str):
     con.execute(f"SET s3_secret_access_key='{MINIO_SECRET_KEY}'")
     con.execute(f"SET s3_use_ssl={MINIO_SSL}")
 
+    # On suppose que la table a un champ updated_at
     con.execute(f"""
-        MERGE INTO {table_name} t
-        USING '{source_path}' s
-        ON t.id = s.id
-        WHEN MATCHED THEN UPDATE SET *
-        WHEN NOT MATCHED THEN INSERT *
+        MERGE INTO {table_name} AS target
+        USING read_parquet('{source_path}') AS source
+        ON target.id = source.id
+        WHEN MATCHED AND source.updated_at > target.updated_at THEN
+            UPDATE SET *
+        WHEN NOT MATCHED THEN
+            INSERT *
     """)
 
     con.close()

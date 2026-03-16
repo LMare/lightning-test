@@ -158,9 +158,9 @@ Deployment: prefect-agent
   - [X] prefect-server : orchestrate flow 
   - [X] prefect-agent  : client that call the server in loop and then create ephemeral pod to execute the flow
   - [] flow
-       - [?] export posgres to minio : format parquet
-       - [?] trigger duckdb-elt-service : load
-       - [?] trigger duckdb-elt-service : dbt
+       - [X] export posgres to minio : format parquet
+       - [X] trigger duckdb-elt-service : load
+       - [X] trigger duckdb-elt-service : dbt
   - [] load the flow in the server
 
 Deployment: [] Dashboard backend  : go app that call duckdb-sql-server to return analytics data
