@@ -3,3 +3,7 @@ pkg
 .vscode/
 cover.out
 kubernetes/helm/monitoring/charts/
+
+
+docker/prefect-flows/base_job_template_rendered.json
+docker/prefect-flows/flows/__pycache__/

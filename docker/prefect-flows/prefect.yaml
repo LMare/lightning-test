@@ -1,0 +1,7 @@
+version: 3
+
+deployments:
+  - name: simnet
+    entrypoint: flows/flows.py:elt_master_flow
+    work_pool:
+      name: mon-pool-k8s

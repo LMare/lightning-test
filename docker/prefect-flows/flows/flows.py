@@ -3,7 +3,7 @@ from datetime import datetime
 from prefect import flow
 import io
 
-from . import config as cfg, tasks as t, utils as u
+from flows import config as cfg, tasks as t, utils as u
 
 #TODO relire & check chunking params....
 
@@ -127,8 +127,8 @@ class DBTFlowRunner:
 # -----------------------------
 # export all the table from postgres to minio & trigger duckdb load 
 # trigger the run of dbt
-@flow(name="postgres_to_duckdb_pipeline")
-def main_flow():
+@flow(name="elt_master_flow")
+def elt_master_flow():
     runner = ELTFlowRunner()
     return runner.run_flow()
 
@@ -146,5 +146,5 @@ def dbt_flow(service_url: str):
 
 
 if __name__ == "__main__":
-    main_flow()
+    elt_master_flow()
 

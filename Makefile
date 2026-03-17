@@ -10,6 +10,7 @@ load-images:
 		LMare/lightning-playground-sidecar-btcd:$$VERSION \
 		LMare/lightning-playground-sidecar-lnd:$$VERSION \
 		LMare/duckdb-elt-service:$$VERSION \
+		LMare/prefect-flows:$$VERSION \
 		LMare/lnd:v0.20.0-beta-custom \
 		btcsuite/btcd:v0.25.0"; \
 	for img in $$IMAGES; do \
@@ -106,9 +107,23 @@ deploy-minio:
 		--set secretKey.password=superpassword
 
 deploy-prefect:
+	# Deploy the prefect server using the official helm chart
 	helm repo add prefect https://prefecthq.github.io/prefect-helm
 	helm repo update
 	helm upgrade --install prefect-server prefect/prefect-server -n data
+	
+	# the prefect agent is deployed with the kubernetes manifests
+
+	# deploy the flows to the prefect server
+	kubectl port-forward svc/prefect-server 4200:4200 -n data &
+	prefect config set PREFECT_API_URL="http://localhost:4200/api"
+	@VERSION=$$(cat version.txt); \
+	cd docker/prefect-flows; \
+	sed "s/VERSION/$$VERSION/g" baseJobTemplate.json > base_job_template_rendered.json; \
+	prefect work-pool create --type kubernetes mon-pool-k8s --overwrite \
+	  --base-job-template base_job_template_rendered.json; \
+	prefect worker start --pool mon-pool-k8s
+	#prefect deploy
 
 
 .PHONY: load-images create-cluster delete-cluster deploy-manifests add-in-hosts all check-deps 

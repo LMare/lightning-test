@@ -1,23 +1,24 @@
+
 FROM python:3.11-slim AS builder
 
-# Install system deps
+# Install system deps (libpq-dev for psycopg, build-essential for pip)
 RUN apt-get update \
- && apt-get install -y build-essential \
+ && apt-get install -y build-essential libpq-dev \
  && rm -rf /var/lib/apt/lists/*
 
-
-# Install Python deps
-COPY requirements.txt .
-RUN pip install --prefix=/install -r requirements.txt --no-cache-dir
-
+# Install Python deps in a custom folder
+COPY requirements.txt ./
+RUN pip install --target=/custom-packages -r requirements.txt --no-cache-dir
 
 FROM prefecthq/prefect:2-latest
 
-# Installer tes dépendances Python
-COPY --from=builder /install /usr/local
+# Copier les dépendances Python sans écraser /usr/local
+COPY --from=builder /custom-packages /opt/prefect/custom-packages
 
-# Copier ton code Prefect
+# Copier ton code Prefect (flows et prefect.yaml)
 COPY flows/ /opt/prefect/flows/
+COPY prefect.yaml /opt/prefect/prefect.yaml
 
-# Point d’entrée par défaut (Prefect gère l’exécution)
-CMD ["python", "-m", "prefect.engine"]
+# Ajouter le dossier custom au PYTHONPATH
+ENV PYTHONPATH=/opt/prefect/custom-packages:$PYTHONPATH
+

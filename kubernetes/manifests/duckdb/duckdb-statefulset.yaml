@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: duckdb-elt-service
-          image: LMare/duckdb-elt-service:v0.4.0-0
+          image: LMare/duckdb-elt-service:v0.4.0-3
           volumeMounts:
             - name: warehouse
               mountPath: /data
@@ -34,7 +34,7 @@ spec:
               value: "minio-secret-key"
 
 #        - name: duckdb-sql-server
-#          image: LMare/duckdb-sql-server:v0.4.0-0
+#          image: LMare/duckdb-sql-server:v0.4.0-3
 #          ports:
 #             - name: sql-server
 #               containerPort: 8080

@@ -2,7 +2,7 @@ from minio import Minio
 import io
 import psycopg
 
-from . import config as cfg
+from flows import config as cfg
 
 import yaml
 import json

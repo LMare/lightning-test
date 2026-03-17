@@ -1,5 +1,5 @@
 variable "APP_VERSION" {
-  default = "v0.4.0-0"
+  default = "v0.4.0-3"
 }
 variable "BTCD_VERSION" {
   default = "v0.25.0"
@@ -45,7 +45,7 @@ group "sidecars" {
 }
 
 group "data" {
-  targets = ["duckdb-elt-service"]
+  targets = ["duckdb-elt-service", "prefect-flows"]
 }
 
 group "default" {
@@ -163,4 +163,10 @@ target "duckdb-elt-service" {
   context = "./docker/duckdb-elt-service"
   dockerfile = "Dockerfile"
   tags = ["LMare/duckdb-elt-service:${APP_VERSION}"]
+}
+
+target "prefect-flows" {
+  context = "./docker/prefect-flows"
+  dockerfile = "Dockerfile"
+  tags = ["LMare/prefect-flows:${APP_VERSION}"]
 }
