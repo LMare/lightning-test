@@ -1,3 +1,4 @@
+print("[DEBUG] flows.py module loaded!")
 from datetime import datetime
 
 from prefect import flow
@@ -129,8 +130,16 @@ class DBTFlowRunner:
 # trigger the run of dbt
 @flow(name="elt_master_flow")
 def elt_master_flow():
+    import os
+    import logging
+    logging.basicConfig(level=logging.INFO)
+    logging.info("[DEBUG] Flow elt_master_flow started!")
+    logging.info(f"[DEBUG] PREFECT_API_URL={os.environ.get('PREFECT_API_URL')}")
+    logging.info(f"[DEBUG] Hostname: {os.uname().nodename}")
     runner = ELTFlowRunner()
-    return runner.run_flow()
+    result = runner.run_flow()
+    logging.info(f"[DEBUG] Flow elt_master_flow finished with result: {result}")
+    return result
 
 
 @flow(name="elt_table_flow")

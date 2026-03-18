@@ -1,7 +1,16 @@
 {
   "variables": {
     "type": "object",
-    "properties": {}
+    "properties": {
+      "api_url": {
+        "type": "string",
+        "default": "http://prefect-server.data.svc.cluster.local:4200/api"
+      },
+      "image": {
+        "type": "string",
+        "default": "LMare/prefect-flows:VERSION"
+      }
+    }
   },
   "job_configuration": {
     "job_manifest": {
@@ -22,6 +31,10 @@
                   {
                     "name": "PREFECT_API_URL",
                     "value": "http://prefect-server.data.svc.cluster.local:4200/api"
+                  },
+                  {
+                    "name": "PREFECT_LOGGING_LEVEL",
+                    "value": "DEBUG"
                   }
                 ]
               }

@@ -1,7 +1,12 @@
 version: 3
 
+config:
+  PREFECT_API_URL: http://prefect-server.data.svc.cluster.local:4200/api
+
 deployments:
   - name: simnet
     entrypoint: flows/flows.py:elt_master_flow
     work_pool:
       name: mon-pool-k8s
+    work_dir: /opt/prefect
+    work_dir: /opt/prefect

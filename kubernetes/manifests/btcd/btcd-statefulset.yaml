@@ -42,7 +42,7 @@ spec:
             - name: HOSTNAME
               value: "$(POD_NAME).btcd-headless.$(POD_NAMESPACE).svc.cluster.local"
         - name: share-cert
-          image: LMare/lightning-playground-sidecar-btcd:v0.4.0-3
+          image: LMare/lightning-playground-sidecar-btcd:v0.4.0-8
           volumeMounts:
             - name: btcd-data           # to read the certs & sent to Secret Bundle BTCD
               mountPath: /root/.btcd

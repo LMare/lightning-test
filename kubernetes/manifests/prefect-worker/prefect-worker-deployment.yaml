@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prefect-worker
+  namespace: data
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prefect-worker
+  template:
+    metadata:
+      labels:
+        app: prefect-worker
+    spec:
+      serviceAccountName: prefect-worker
+      containers:
+        - name: worker
+          image: prefecthq/prefect:3-latest
+          command: ["sh", "-c", "pip install prefect-kubernetes==0.7.5 && prefect worker start --type kubernetes --pool mon-pool-k8s"]
+          env:
+            - name: PREFECT_API_URL
+              value: "http://prefect-server.data.svc.cluster.local:4200/api"
