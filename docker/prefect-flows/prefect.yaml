@@ -9,4 +9,6 @@ deployments:
     work_pool:
       name: mon-pool-k8s
     work_dir: /opt/prefect
-    work_dir: /opt/prefect
+    pull: []
+    flow_run_start_dir: /opt/prefect/flows
+    build: []
