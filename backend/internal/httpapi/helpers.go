@@ -1,0 +1,128 @@
+package httpapi
+
+import (
+	"encoding/json"
+	"errors"
+	"fmt"
+	"html/template"
+	"log"
+	"net/http"
+	"path/filepath"
+	"runtime"
+	"strings"
+)
+
+func Fail(response http.ResponseWriter, request *http.Request, message string, exception error) {
+	LogException(exception)
+	if IsHTMX(request) {
+		HtmxMessageKo(response, message)
+	} else {
+		http.Error(response, message, http.StatusInternalServerError)
+	}
+}
+
+func FailCheck(response http.ResponseWriter, request *http.Request, message string, exception error) {
+	LogException(exception)
+	if IsHTMX(request) {
+		HtmxMessageKo(response, message)
+	} else {
+		http.Error(response, message, http.StatusBadRequest)
+	}
+}
+
+// Transform the objet as a Json and put it in the reponse
+func JSONResponse(response http.ResponseWriter, objet any) {
+
+	objetJson, err := json.Marshal(objet)
+
+	if err != nil {
+		fmt.Println("Error json Marshal : ", err)
+		fmt.Fprintf(response, "Une erreur est survenue")
+	}
+	response.Header().Set("Content-Type", "application/json")
+	fmt.Fprintf(response, "%s", string(objetJson))
+}
+
+// render and object in Htmx
+func HTMXResponse(response http.ResponseWriter, file string, viewObject any) {
+	response.Header().Set("Content-Type", "text/html")
+	tmpl := template.Must(template.ParseFiles("backend/templates/" + file))
+	tmpl.Execute(response, viewObject)
+}
+
+// render and object in Htmx with defined functions
+func HTMXResponseWithFuncs(response http.ResponseWriter, file string, viewObject any, funcs template.FuncMap) {
+	response.Header().Set("Content-Type", "text/html")
+	tmpl := template.Must(template.New(filepath.Base(file)).
+		Funcs(funcs).
+		ParseFiles("backend/templates/" + file))
+	tmpl.Execute(response, viewObject)
+}
+
+// return a response of success
+// load the template HTML to render the object
+func HTMXMessageOk(response http.ResponseWriter, message string) {
+	response.Header().Set("Content-Type", "text/html")
+
+	tmpl := template.Must(template.ParseFiles("backend/templates/action/success.html"))
+	tmpl.Execute(response, message)
+}
+
+// Returns an HTML error response
+// ex : status = http.StatusForbidden
+func HtmxMessageKo(response http.ResponseWriter, message string) {
+	response.Header().Set("Content-Type", "text/html")
+
+	tmpl := template.Must(template.ParseFiles("backend/templates/action/error.html"))
+	tmpl.Execute(response, message)
+}
+
+// return code 204
+func OkNoContent(response http.ResponseWriter) {
+	response.WriteHeader(http.StatusNoContent)
+}
+
+// True if the client use HTMX, in this case the response muste be in HTML
+func IsHTMX(request *http.Request) bool {
+	return request.Header.Get("HX-Request") == "true"
+}
+
+// format the error for the logs
+func LogException(err error) {
+	if err == nil {
+		return
+	}
+
+	// Capture the current flags
+	originalFlags := log.Flags()
+
+	// First line: date, time, file, line
+	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
+
+	i := 1
+	for err != nil {
+		next := errors.Unwrap(err)
+
+		currentMsg := err.Error()
+		var nextMsg string
+		if next != nil {
+			nextMsg = next.Error()
+		}
+
+		context := strings.TrimSpace(strings.TrimSuffix(strings.TrimSuffix(currentMsg, nextMsg), "→"))
+
+		if i == 1 {
+			_, file, line, _ := runtime.Caller(1)
+			log.Printf("[ERROR] at %s:%d | %s", file, line, err.Error())
+			log.SetFlags(0) // Supprime les métadonnées pour les lignes suivantes
+		}
+
+		log.Printf("\t→ Error #%d | Type: %T | Message : %s", i, err, context)
+
+		err = next
+		i++
+	}
+
+	// Restore the initial flags
+	log.SetFlags(originalFlags)
+}

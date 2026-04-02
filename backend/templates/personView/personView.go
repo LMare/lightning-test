@@ -1,13 +1,13 @@
 package personView
 
-import "github.com/Lmare/lightning-playground/backend/model/user"
+import "github.com/Lmare/lightning-playground/backend/internal/user/domain"
 
 type PersonView struct {
 	Index  int
-	Person user.UserModel
+	Person domain.UserModel
 }
 
-func ViewObject(persons []user.UserModel) []PersonView {
+func ViewObject(persons []domain.UserModel) []PersonView {
 
 	var viewData []PersonView
 	for i, p := range persons {

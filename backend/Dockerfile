@@ -11,13 +11,12 @@ COPY go.mod go.sum ./
 RUN --mount=type=cache,target=/go/pkg/mod,id=gomod,sharing=locked \
 	go mod download
 COPY *.go ./
-COPY cmd/backend cmd/backend/
 COPY backend backend/
 # compilation statique (dépendances des libs C)
 RUN --mount=type=cache,target=/root/.cache/go-build,id=gobuild-backend,sharing=locked \
 	--mount=type=cache,target=/go/pkg/mod,id=gomod,sharing=locked \
 	CGO_ENABLED=0 \
-	go build -o app-backend ./cmd/backend
+	go build -o app-backend ./backend/cmd
 
 # 2. Construction du dossier /app avec le binaire + ressources
 FROM scratch AS builder

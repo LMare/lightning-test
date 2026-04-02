@@ -1,6 +1,6 @@
 
 **Exécuter localement**
-`go run ./cmd/backend`
+`go run ./backend/cmd`
 `go run ./cmd/frontend`
 
 
